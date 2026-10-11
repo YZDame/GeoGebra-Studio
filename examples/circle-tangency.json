@@ -1,0 +1,29 @@
+{
+  "title": "圆与切线",
+  "description": "圆外一点的两条切线、弦 BC 与三条等长线段",
+  "commands": [
+    "Gamma: x^2 + y^2 = 25",
+    "omega: (x - 3)^2 + y^2 = 64 / 25",
+    "O = (0, 0)",
+    "I = (3, 0)",
+    "A = Point(Gamma)",
+    "dx = x(A) - x(I)",
+    "dy = y(A) - y(I)",
+    "q = dx^2 + dy^2",
+    "T_1 = (x(I) + (64 / 25 * dx - 8 / 5 * sqrt(q - 64 / 25) * dy) / q, y(I) + (64 / 25 * dy + 8 / 5 * sqrt(q - 64 / 25) * dx) / q)",
+    "T_2 = (x(I) + (64 / 25 * dx + 8 / 5 * sqrt(q - 64 / 25) * dy) / q, y(I) + (64 / 25 * dy - 8 / 5 * sqrt(q - 64 / 25) * dx) / q)",
+    "t_1 = Line(A, T_1)",
+    "t_2 = Line(A, T_2)",
+    "B = OtherIntersection(Gamma, t_1, A)",
+    "C = OtherIntersection(Gamma, t_2, A)",
+    "D = OtherIntersection(Gamma, Line(A, I), A)",
+    "AB = Segment(A, B)",
+    "AC = Segment(A, C)",
+    "BC = Segment(B, C)",
+    "DB = Segment(D, B)",
+    "DC = Segment(D, C)",
+    "DI = Segment(D, I)"
+  ],
+  "visibleLabels": ["O", "I", "A", "B", "C", "D", "Gamma", "omega"],
+  "viewport": { "xMin": -6.5, "xMax": 6.5, "yMin": -6.5, "yMax": 6.5 }
+}

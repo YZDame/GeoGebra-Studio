@@ -50,7 +50,7 @@ node scripts/verify-source.cjs
 Set `PUPPETEER_EXECUTABLE_PATH` if using installed Chrome. Native/browser checks
 need network access. `verify-source.cjs` needs `pdflatex`, `asy`, and `tsqx`.
 Artifacts are retained locally in ignored `output/verification/`; the reproducible
-interactive example is [triangle.html](../examples/triangle.html).
+interactive example is [triangle.html](../examples/triangle.html). The Chinese problem example is [circle-tangency.html](../examples/circle-tangency.html); it includes an editable construction for the two circles and the moving point A, together with a single export selector.
 
 ![Native construction and export controls](images/native-construction.png)
 

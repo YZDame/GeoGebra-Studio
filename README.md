@@ -44,6 +44,8 @@ object results also expose `structuredContent`.
 ### Interactive HTML without a server-side browser
 
 Call `geogebra_create_html` with the arguments in [examples/triangle.json](examples/triangle.json).
+
+For a ready-to-open, draggable geometry example with compact Chinese controls and combined export selection, see [圆与切线](examples/circle-tangency.html) and its construction data in [circle-tangency.json](examples/circle-tangency.json). The page loads GeoGebra Classic from geogebra.org, so an internet connection is required.
 The returned HTML renders a Classic applet with LaTeX point labels and small,
 black point/line styling. Its buttons download the **current edited state** as
 GGB, PNG, SVG, PDF, XML, or HTML. Optional `filename` writes a new workspace file.
