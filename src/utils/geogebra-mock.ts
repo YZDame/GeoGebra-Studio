@@ -7,7 +7,7 @@ import {
   GeoGebraCommandError 
 } from '../types/geogebra';
 import logger from './logger';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 
 /**
  * Mock GeoGebra Instance for demonstration and testing

@@ -3,6 +3,7 @@ import { errors } from '../utils/errors';
 import logger from '../utils/logger';
 import { getAppInfo } from '../utils/app-info';
 import { geogebraTools } from './geogebra-tools';
+import { exportTools } from './export-tools';
 import { educationalTemplateTools } from './educational-templates';
 import { performanceTools } from './performance-tools';
 
@@ -185,3 +186,5 @@ educationalTemplateTools.forEach(tool => {
 performanceTools.forEach(tool => {
   toolRegistry.register(tool);
 }); 
+
+exportTools.forEach(tool => toolRegistry.register(tool));

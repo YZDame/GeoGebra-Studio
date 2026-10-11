@@ -48,10 +48,7 @@ export class OptimizedInstancePool {
     this.config = { ...this.defaultConfig, ...config };
     this.startCleanupTimer();
     
-    // Cleanup on process exit
-    process.on('SIGINT', () => this.cleanup());
-    process.on('SIGTERM', () => this.cleanup());
-    process.on('exit', () => this.cleanup());
+    // Transport lifecycle owns graceful cleanup.
     
     if (!isMcpMode) {
       logger.info('Optimized Instance Pool initialized', { config: this.config });
@@ -224,6 +221,7 @@ export class OptimizedInstancePool {
     this.cleanupInterval = setInterval(() => {
       this.performCleanup();
     }, 60000); // Run cleanup every minute
+    this.cleanupInterval.unref();
   }
 
   /**

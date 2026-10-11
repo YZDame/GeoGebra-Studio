@@ -1,5 +1,6 @@
 // @ts-nocheck
 import puppeteer, { Browser, Page } from 'puppeteer';
+import { constructionHtml } from '../export/html';
 import { 
   GeoGebraConfig, 
   GeoGebraAPI, 
@@ -10,7 +11,7 @@ import {
   GeoGebraCommandError 
 } from '../types/geogebra';
 import logger from './logger';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 
 /**
  * GeoGebra Instance - Manages a single GeoGebra instance via Puppeteer
@@ -60,6 +61,7 @@ export class GeoGebraInstance implements GeoGebraAPI {
       // Launch browser
       this.browser = await puppeteer.launch({
         headless,
+        ...(process.env['PUPPETEER_EXECUTABLE_PATH'] ? { executablePath: process.env['PUPPETEER_EXECUTABLE_PATH'] } : {}),
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -113,123 +115,16 @@ export class GeoGebraInstance implements GeoGebraAPI {
     await this.page.setContent(appletHTML);
     
     // Wait for GeoGebra to load
-    await this.page.waitForFunction('window.ggbApplet', { timeout: 30000 });
+    await this.page.waitForFunction('window.ggbReady || window.ggbError', { timeout: 60000 });
+    const bootError = await this.page.evaluate(() => (window as any).ggbError);
+    if (bootError) throw new GeoGebraConnectionError(bootError);
   }
 
   /**
    * Generate HTML content with GeoGebra applet
    */
   private generateAppletHTML(): string {
-    const config = this.config;
-    
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>GeoGebra Applet</title>
-    <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-</head>
-<body>
-    <div id="ggb-element"></div>
-    <script>
-        // Initialize global variables
-        window.ggbReady = false;
-        window.ggbApplet = null;
-        
-        // GeoGebra initialization callback
-        window.ggbOnInit = function(name) {
-            window.ggbApplet = window[name];
-            window.ggbReady = true;
-            console.log('GeoGebra initialized successfully with applet:', name);
-        };
-        
-        const parameters = {
-            "appName": "${config.appName}",
-            "width": ${config.width},
-            "height": ${config.height},
-            "showMenuBar": ${config.showMenuBar},
-            "showToolBar": ${config.showToolBar},
-            "showAlgebraInput": ${config.showAlgebraInput},
-            "showResetIcon": ${config.showResetIcon},
-            "enableRightClick": ${config.enableRightClick},
-            "enableLabelDrags": ${config.enableLabelDrags || true},
-            "enableShiftDragZoom": ${config.enableShiftDragZoom || true},
-            "enableCAS": true,
-            "enable3D": false,
-            "language": "${config.language}",
-            ${config.material_id ? `"material_id": "${config.material_id}",` : ''}
-            ${config.filename ? `"filename": "${config.filename}",` : ''}
-            ${config.ggbBase64 ? `"ggbBase64": "${config.ggbBase64}",` : ''}
-            "useBrowserForJS": false,
-            "preventFocus": true,
-            "appletOnLoad": function(api) {
-                window.ggbApplet = api;
-                
-                // Ensure CAS is loaded
-                if (api.enableCAS) {
-                    api.enableCAS(true);
-                }
-                
-                // Load all required modules with retries
-                var loadAttempts = 0;
-                var maxAttempts = 10;
-                
-                function checkModulesLoaded() {
-                    loadAttempts++;
-                    
-                    // Test CAS availability
-                    var casReady = false;
-                    try {
-                        api.evalCommand('1+1');
-                        casReady = true;
-                    } catch (e) {
-                        casReady = false;
-                    }
-                    
-                    // Test scripting availability  
-                    var scriptingReady = false;
-                    try {
-                        // Try a simple scripting command
-                        var result = api.evalCommand('test_slider = Slider(0, 1)');
-                        if (result) {
-                            api.deleteObject('test_slider');
-                            scriptingReady = true;
-                        }
-                    } catch (e) {
-                        scriptingReady = false;
-                    }
-                    
-                    if (casReady && scriptingReady) {
-                        window.ggbReady = true;
-                        console.log('GeoGebra applet loaded with all modules ready');
-                    } else if (loadAttempts < maxAttempts) {
-                        setTimeout(checkModulesLoaded, 500);
-                    } else {
-                        // Fallback - mark as ready even if modules aren't fully loaded
-                        window.ggbReady = true;
-                        console.log('GeoGebra applet loaded with basic functionality (modules may still be loading)');
-                    }
-                }
-                
-                // Start checking after initial delay
-                setTimeout(checkModulesLoaded, 1000);
-            }
-        };
-
-        // Create and inject the applet
-        const applet = new GGBApplet(parameters, true);
-        applet.inject('ggb-element');
-        
-        // Fallback timeout to set ready state
-        setTimeout(function() {
-            if (!window.ggbReady && window.ggbApplet) {
-                window.ggbReady = true;
-                console.log('GeoGebra initialized via fallback timeout');
-            }
-        }, 5000);
-    </script>
-</body>
-</html>`;
+    return constructionHtml({ width: this.config.width, height: this.config.height, ggbBase64: this.config.ggbBase64 });
   }
 
   /**
@@ -988,255 +883,41 @@ export class GeoGebraInstance implements GeoGebraAPI {
    * Export construction as SVG
    * GEB-17: Enhanced with better validation and error handling, no more placeholder responses
    */
-  async exportSVG(): Promise<string> {
+  async exportSVG(): Promise<string> { return this.nativeExport('svg'); }
+  async exportPDF(): Promise<string> { return this.nativeExport('pdf'); }
+  async exportGGB(): Promise<string> { return this.nativeExport('ggb'); }
+
+  private async nativeExport(format: 'svg' | 'pdf' | 'ggb'): Promise<string> {
     this.ensureInitialized();
     this.updateActivity();
-
-    // GEB-17: Validate export readiness before attempting
-    const readiness = await this.validateExportReadiness('svg');
-    if (!readiness.ready) {
-      throw new GeoGebraError(`SVG export not ready: ${readiness.issues.join(', ')}. Recommendations: ${readiness.recommendations.join(', ')}`);
-    }
-
-    return this.retryOperation(async () => {
-      const svg = await this.page!.evaluate(() => {
-        try {
-          // GEB-17: Enhanced applet availability check
-          const applet = (window as any).ggbApplet;
-          if (!applet) {
-            throw new Error('GeoGebra applet not available');
-          }
-          
-          let result = null;
-          let lastError = null;
-          
-          // Try exportSVG method first
-          if (typeof applet.exportSVG === 'function') {
-            try {
-              result = applet.exportSVG();
-              if (result && typeof result === 'string' && result.includes('<svg')) {
-                return result; // Success with exportSVG
-              }
-            } catch (e1) {
-              lastError = e1;
-            }
-            
-            // Try with filename parameter
-            try {
-              result = applet.exportSVG('construction');
-              if (result && typeof result === 'string' && result.includes('<svg')) {
-                return result; // Success with filename parameter
-              }
-            } catch (e2) {
-              lastError = e2;
-            }
-          }
-          
-          // Try getSVG method as alternative
-          if (typeof applet.getSVG === 'function') {
-            try {
-              result = applet.getSVG();
-              if (result && typeof result === 'string' && result.includes('<svg')) {
-                return result; // Success with getSVG
-              }
-            } catch (e3) {
-              lastError = e3;
-            }
-          }
-          
-          // GEB-17: NO MORE PLACEHOLDER RESPONSES - throw error instead
-          const availableMethods = [];
-          if (typeof applet.exportSVG === 'function') availableMethods.push('exportSVG');
-          if (typeof applet.getSVG === 'function') availableMethods.push('getSVG');
-          
-          throw new Error(`All SVG export methods failed. Available methods: ${availableMethods.join(', ')}. Last error: ${lastError ? lastError.message : 'Unknown error'}. Result was: ${typeof result} ${result ? (result.includes ? (result.includes('<svg') ? 'contains <svg>' : 'missing <svg>') : 'not string-like') : 'null/undefined'}`);
-          
-        } catch (error) {
-          throw new Error(`SVG export failed: ${error.message || error}`);
-        }
-      });
-
-      // GEB-17: Enhanced validation - no placeholder acceptance
-      if (!svg) {
-        throw new Error('SVG export returned null or undefined');
-      }
-      
-      if (typeof svg !== 'string') {
-        throw new Error(`SVG export returned invalid type: ${typeof svg}`);
-      }
-      
-      if (svg.length === 0) {
-        throw new Error('SVG export returned empty string');
-      }
-      
-      // Strict SVG validation - must be actual SVG, not placeholder
-      if (!svg.includes('<svg')) {
-        throw new Error(`Result does not contain valid SVG content. Length: ${svg.length}, starts with: ${svg.substring(0, 100)}`);
-      }
-      
-      // Check for our old placeholder pattern and reject it
-      if (svg.includes('SVG export not available')) {
-        throw new Error('SVG export returned placeholder content instead of actual SVG');
-      }
-      
-      // Additional validation for minimum reasonable SVG size
-      if (svg.length < 50) {
-        throw new Error(`SVG result suspiciously small (${svg.length} characters): ${svg}`);
-      }
-
-      logger.debug(`SVG exported from instance ${this.id}, result length: ${svg.length}`);
-      return svg;
-    }, 3, 1000, 'SVG export');
-  }
-
-  /**
-   * Export construction as PDF (base64)
-   * GEB-17: Enhanced with better connection management and timeout handling
-   */
-  async exportPDF(): Promise<string> {
-    this.ensureInitialized();
-    this.updateActivity();
-
-    // GEB-17: Validate export readiness before attempting
-    const readiness = await this.validateExportReadiness('pdf');
-    if (!readiness.ready) {
-      throw new GeoGebraError(`PDF export not ready: ${readiness.issues.join(', ')}. Recommendations: ${readiness.recommendations.join(', ')}`);
-    }
-
-    return this.retryOperation(async () => {
-      // GEB-17: Enhanced page availability check
-      if (!this.page || this.page.isClosed()) {
-        throw new Error('Browser page not available for PDF generation');
-      }
-
+    const result = await this.page!.evaluate((kind) => new Promise<string>((resolve, reject) => {
+      const api = (window as any).ggbApplet;
+      const timer = setTimeout(() => reject(new Error(kind + ' export timed out')), 20000);
+      const done = (value: string) => {
+        clearTimeout(timer);
+        if (!value || typeof value !== 'string') reject(new Error(kind + ' export returned no data'));
+        else resolve(value);
+      };
       try {
-        // GEB-17: Set longer timeout for PDF generation to prevent socket hang up
-        const pdfOptions = {
-          format: 'A4' as const,
-          printBackground: true,
-          margin: {
-            top: '0.5in',
-            bottom: '0.5in',
-            left: '0.5in',
-            right: '0.5in'
-          },
-          timeout: 30000 // 30 second timeout to prevent socket hang up
-        };
-
-        logger.debug(`Starting PDF generation for instance ${this.id}`);
-        
-        // GEB-17: Wait for page to be fully loaded and stable before PDF generation
-        await this.page.waitForLoadState?.('domcontentloaded', { timeout: 10000 }).catch(() => {
-          // Ignore if waitForLoadState is not available or times out
-          logger.debug('waitForLoadState not available or timed out, proceeding with PDF generation');
-        });
-
-        // Generate PDF with enhanced error handling
-        const pdf = await this.page.pdf(pdfOptions);
-
-        if (!pdf || pdf.length === 0) {
-          throw new Error('PDF generation returned empty or null result');
-        }
-
-        const pdfBase64 = pdf.toString('base64');
-        
-        // GEB-17: Validate the PDF result
-        if (!pdfBase64 || typeof pdfBase64 !== 'string') {
-          throw new Error('PDF to base64 conversion failed');
-        }
-        
-        if (pdfBase64.length === 0) {
-          throw new Error('PDF base64 result is empty');
-        }
-        
-        // Basic validation that it's valid base64
-        if (!/^[A-Za-z0-9+/]*={0,2}$/.test(pdfBase64)) {
-          throw new Error(`PDF result is not valid base64. Length: ${pdfBase64.length}`);
-        }
-        
-        // Check for minimum reasonable PDF size (PDFs should be substantial)
-        if (pdfBase64.length < 500) {
-          throw new Error(`PDF result suspiciously small (${pdfBase64.length} characters)`);
-        }
-
-        logger.debug(`PDF exported from instance ${this.id}, result length: ${pdfBase64.length}`);
-        return pdfBase64;
-        
-      } catch (error) {
-        // GEB-17: Enhanced error handling for specific PDF generation issues
-        if (error.message && error.message.includes('timeout')) {
-          throw new Error(`PDF generation timeout: ${error.message}`);
-        }
-        if (error.message && error.message.includes('socket hang up')) {
-          throw new Error(`PDF generation connection error (socket hang up): ${error.message}`);
-        }
-        if (error.message && error.message.includes('disconnected')) {
-          throw new Error(`Browser disconnected during PDF generation: ${error.message}`);
-        }
-        
-        throw new Error(`PDF generation failed: ${error instanceof Error ? error.message : String(error)}`);
-      }
-    }, 3, 2000, 'PDF export'); // Longer delay between retries for PDF
+        if (kind === 'ggb') api.getBase64(done);
+        else if (kind === 'svg') api.exportSVG(done);
+        else api.exportPDF(1, done);
+      } catch (e) { clearTimeout(timer); reject(e); }
+    }), format);
+    if (format === 'svg') {
+      if (!result.includes('<svg')) throw new GeoGebraError('Invalid SVG export');
+      return result;
+    }
+    const base64 = result.replace(/^data:[^,]+,/, '');
+    const bytes = Buffer.from(base64, 'base64');
+    if (format === 'ggb' && bytes.subarray(0, 2).toString() !== 'PK') throw new GeoGebraError('GGB export is not a ZIP archive');
+    if (format === 'pdf' && bytes.subarray(0, 5).toString() !== '%PDF-') throw new GeoGebraError('Invalid native PDF export');
+    return base64;
   }
 
-  /**
-   * Export construction as GeoGebra file (.ggb) in base64 format
-   */
-  async exportGGB(): Promise<string> {
+  async getConstructionXML(): Promise<string> {
     this.ensureInitialized();
-    this.updateActivity();
-
-    return this.retryOperation(async () => {
-      const ggbBase64 = await this.page!.evaluate(() => {
-        try {
-          const applet = (window as any).ggbApplet;
-          if (!applet) {
-            throw new Error('GeoGebra applet not available');
-          }
-          
-          if (typeof applet.getBase64 !== 'function') {
-            throw new Error('getBase64 method not available on applet');
-          }
-
-          // Get the construction as base64-encoded .ggb file
-          const result = applet.getBase64();
-          
-          if (!result || typeof result !== 'string') {
-            throw new Error('getBase64 returned invalid result');
-          }
-          
-          return result;
-        } catch (error) {
-          throw new Error(`GGB export failed: ${error.message || error}`);
-        }
-      });
-
-      // Validate the result
-      if (!ggbBase64) {
-        throw new Error('GGB export returned null or undefined');
-      }
-      
-      if (typeof ggbBase64 !== 'string') {
-        throw new Error(`GGB export returned invalid type: ${typeof ggbBase64}`);
-      }
-      
-      if (ggbBase64.length === 0) {
-        throw new Error('GGB export returned empty string');
-      }
-      
-      // Validate base64 format
-      if (!/^[A-Za-z0-9+/]*={0,2}$/.test(ggbBase64)) {
-        throw new Error(`Result is not valid base64. Length: ${ggbBase64.length}`);
-      }
-      
-      // Check for minimum reasonable size
-      if (ggbBase64.length < 100) {
-        throw new Error(`GGB result suspiciously small (${ggbBase64.length} characters)`);
-      }
-
-      logger.debug(`GGB file exported from instance ${this.id}, result length: ${ggbBase64.length}`);
-      return ggbBase64;
-    }, 3, 1000, 'GGB export');
+    return this.page!.evaluate(() => String((window as any).ggbApplet.getXML()));
   }
 
   /**
@@ -1336,12 +1017,25 @@ export class GeoGebraInstance implements GeoGebraAPI {
    * @returns true if auto-zoom was applied, false if no visible points
    */
   async applyAutoZoom(padding: number = 0.2, minRange: number = 2): Promise<boolean> {
-    const coords = await this.calculateAutoZoomCoordinates(padding, minRange);
-    if (coords) {
-      await this.setCoordSystem(coords.xmin, coords.xmax, coords.ymin, coords.ymax);
+    this.ensureInitialized();
+    if (!Number.isFinite(padding) || padding < 0 || padding > 2 || !Number.isFinite(minRange) || minRange <= 0) throw new GeoGebraError('Invalid auto zoom padding or minimum range');
+    return this.page!.evaluate(async (pad, minimum) => {
+      const api = (window as any).ggbApplet;
+      if (!api.getAllObjectNames().length) return false;
+      // Native fitting includes conic extents. Preserve equal coordinate scales.
+      api.showAllObjects();
+      // GeoGebra animates fitting; read the bounds after that animation settles.
+      await new Promise(resolve => setTimeout(resolve, 600));
+      const view = JSON.parse(api.getViewProperties(1));
+      const spanX = Math.max(view.width * view.invXscale * (1+2*pad), minimum);
+      const spanY = Math.max(view.height * view.invYscale * (1+2*pad), minimum);
+      const scale = Math.max(spanX/view.width, spanY/view.height);
+      const cx = view.xMin + view.width*view.invXscale/2;
+      const cy = view.yMin + view.height*view.invYscale/2;
+      api.setCoordSystem(cx-view.width*scale/2,cx+view.width*scale/2,cy-view.height*scale/2,cy+view.height*scale/2);
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return true;
-    }
-    return false;
+    }, padding, minRange);
   }
 
   /**
@@ -1356,7 +1050,7 @@ export class GeoGebraInstance implements GeoGebraAPI {
       let ggbBase64 = ggbBase64OrPath;
       
       // Check if it's a file path (contains path separators or ends with .ggb)
-      if (ggbBase64OrPath.includes('/') || ggbBase64OrPath.includes('\\') || ggbBase64OrPath.endsWith('.ggb')) {
+      if (!(/^[A-Za-z0-9+/]+={0,2}$/.test(ggbBase64OrPath) && Buffer.from(ggbBase64OrPath, 'base64').subarray(0, 2).toString() === 'PK')) {
         // It's a file path, read the file
         const fs = await import('fs/promises');
         const path = await import('path');
@@ -1381,25 +1075,12 @@ export class GeoGebraInstance implements GeoGebraAPI {
         throw new Error('Invalid base64 format for GGB data');
       }
       
-      await this.page!.evaluate((base64Data: string) => {
+      await this.page!.evaluate((base64Data: string) => new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('GGB load timed out')), 20000);
         try {
-          const applet = (window as any).ggbApplet;
-          if (!applet) {
-            throw new Error('GeoGebra applet not available');
-          }
-          
-          if (typeof applet.setBase64 !== 'function') {
-            throw new Error('setBase64 method not available on applet');
-          }
-
-          // Load the construction from base64
-          applet.setBase64(base64Data);
-          
-        } catch (error) {
-          const err = error as Error;
-          throw new Error(`GGB load failed: ${err.message || String(error)}`);
-        }
-      }, ggbBase64);
+          (window as any).ggbApplet.setBase64(base64Data, () => { clearTimeout(timer); resolve(); });
+        } catch (error) { clearTimeout(timer); reject(error); }
+      }), ggbBase64);
 
       logger.debug(`GGB file loaded into instance ${this.id}`);
     }, 3, 1000, 'GGB load');
@@ -1633,8 +1314,8 @@ export class GeoGebraInstance implements GeoGebraAPI {
         if (hasEvalCommand) {
           try {
             // Try a harmless command
-            const result = applet.evalCommand('1+1');
-            commandWorks = true;
+            const result = typeof applet.evalCommand === 'function' && typeof applet.getAllObjectNames === 'function';
+            commandWorks = Boolean(result);
           } catch (e) {
             issues.push('Command execution test failed: ' + e.message);
           }
@@ -1651,7 +1332,7 @@ export class GeoGebraInstance implements GeoGebraAPI {
           exportAvailability: {
             png: hasPNGExport,
             svg: hasSVGExport,
-            pdf: true // PDF uses page.pdf(), not applet method
+            pdf: hasApplet && typeof applet.exportPDF === 'function'
           }
         };
       });

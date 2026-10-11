@@ -48,6 +48,7 @@ class GeoGebraInstancePool {
         logger.info('Default Real GeoGebra instance initialized');
       } catch (error) {
         logger.error('Failed to initialize default GeoGebra instance', error);
+        this.defaultInstance = undefined;
         throw error;
       }
     }
