@@ -37,7 +37,12 @@ MIT 本体中。清洗后的坐标图不能直接视为保留全部几何依赖�
 ## 插件与协议边界
 
 仓库包含标准 `plugin.json`、`mcp.json`，以及 Codex 兼容配置和三个 skills。
-插件默认使用 16 个工具的 core profile；原有客户端不设置 profile 时仍可访问全部 50 个工具。
+插件默认使用 19 个工具的 core profile；原有客户端不设置 profile 时仍可访问完整工具集。
+新增 `geogebra_api_list_methods` 和 `geogebra_api_call`，可查询并调用当前 GeoGebra 版本公开的 Apps API 方法。
+`geogebra_api_get_callback_events` 可读取持续事件监听的回调队列；一次性导出回调也可等待结果。
+清空、替换构造的 API 方法需要显式传入 `allowDestructive: true`。
+详细说明见 [Apps API 桥接说明](docs/APPS-API-BRIDGE.md)。这个桥接操作的是 MCP 自己的服务端 GeoGebra 实例，
+不会直接控制另一个浏览器标签页中打开的 HTML 图形；需要 DOM 或浏览器文件对象的 API 仍可能需要专用封装。
 HTML 工具提供 MCP Apps 标准 UI 资源；真实 ChatGPT 沙箱内仍需另行安装验证。
 
 本项目采用官方 MCP SDK 1.32.1，实际协商版本最高为 2025-11-25。

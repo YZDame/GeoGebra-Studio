@@ -256,6 +256,79 @@ export class GeoGebraInstance implements GeoGebraAPI {
     }
   }
 
+  /** Invoke a documented GeoGebra Apps API method against the live applet. */
+  async callAppsApi(method: string, args: unknown[] = [], options: {
+    waitForCallbackIndex?: number;
+    callbackTimeoutMs?: number;
+    callbacks?: Array<{ argumentIndex: number; id: string }>;
+  } = {}): Promise<unknown> {
+    this.ensureInitialized();
+    this.updateActivity();
+    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(method) || ['constructor','__proto__','prototype','toString','valueOf'].includes(method)) {
+      throw new Error('Invalid GeoGebra Apps API method name');
+    }
+    return this.page!.evaluate(async ({ method, args, waitForCallbackIndex, callbackTimeoutMs, callbacks }) => {
+      const api = (window as any).ggbApplet;
+      const target = api?.[method];
+      if (typeof target !== 'function') throw new Error(`GeoGebra Apps API method is unavailable: ${method}`);
+      const invocationArgs = [...args] as any[];
+      const callbackStore = ((window as any).__geogebraMcpCallbacks ??= { functions: {}, events: {} });
+      for (const descriptor of callbacks ?? []) {
+        if (!Number.isInteger(descriptor.argumentIndex) || descriptor.argumentIndex < 0 || descriptor.argumentIndex > 20 || !/^[A-Za-z0-9_-]{1,80}$/.test(descriptor.id)) {
+          throw new Error('Invalid persistent callback descriptor');
+        }
+        callbackStore.events[descriptor.id] ??= [];
+        callbackStore.functions[descriptor.id] ??= (...values: unknown[]) => {
+          const queue = callbackStore.events[descriptor.id];
+          queue.push(values);
+          if (queue.length > 100) queue.splice(0, queue.length - 100);
+        };
+        invocationArgs[descriptor.argumentIndex] = callbackStore.functions[descriptor.id];
+      }
+      if (waitForCallbackIndex !== undefined) {
+        const index = waitForCallbackIndex;
+        if (!Number.isInteger(index) || index < 0 || index > 20) throw new Error('Invalid callback argument index');
+        return await new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error(`GeoGebra API callback timed out: ${method}`)), callbackTimeoutMs);
+          invocationArgs[index] = (value: unknown) => { clearTimeout(timer); resolve(value); };
+          try {
+            const immediate = target.apply(api, invocationArgs);
+            if (immediate && typeof immediate.then === 'function') immediate.then(resolve, reject);
+          } catch (error) { clearTimeout(timer); reject(error); }
+        });
+      }
+      const result = target.apply(api, invocationArgs);
+      return result && typeof result.then === 'function' ? await result : result;
+    }, { method, args, ...options, callbackTimeoutMs: options.callbackTimeoutMs ?? 15000 });
+  }
+
+  async readAppsApiCallbackEvents(id: string, clear = true): Promise<unknown[][]> {
+    this.ensureInitialized();
+    if (!/^[A-Za-z0-9_-]{1,80}$/.test(id)) throw new Error('Invalid callback id');
+    return this.page!.evaluate(({ id, clear }) => {
+      const store = (window as any).__geogebraMcpCallbacks;
+      const events = store?.events?.[id] ?? [];
+      const copy = events.slice();
+      if (clear && store?.events?.[id]) store.events[id] = [];
+      return copy;
+    }, { id, clear });
+  }
+
+  /** Enumerate callable methods exposed by the currently loaded official applet API. */
+  async listAppsApiMethods(): Promise<string[]> {
+    this.ensureInitialized();
+    return this.page!.evaluate(() => {
+      const api = (window as any).ggbApplet;
+      const names = new Set<string>();
+      for (let object = api; object && object !== Object.prototype; object = Object.getPrototypeOf(object)) {
+        for (const name of Object.getOwnPropertyNames(object)) {
+          if (/^[A-Za-z][A-Za-z0-9]*$/.test(name) && typeof api[name] === 'function' && !['constructor','toString','valueOf'].includes(name)) names.add(name);
+        }
+      }
+      return [...names].sort();
+    });
+  }
+
   /**
    * Delete an object
    */

@@ -6,6 +6,7 @@ import { geogebraTools } from './geogebra-tools';
 import { exportTools } from './export-tools';
 import { educationalTemplateTools } from './educational-templates';
 import { performanceTools } from './performance-tools';
+import { appsApiTools } from './apps-api-tools';
 
 // Check if we're in MCP mode (stdio communication)
 // When piping input, process.stdin.isTTY is undefined, not false
@@ -188,3 +189,4 @@ performanceTools.forEach(tool => {
 }); 
 
 exportTools.forEach(tool => toolRegistry.register(tool));
+appsApiTools.forEach(tool => toolRegistry.register(tool));

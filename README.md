@@ -34,10 +34,20 @@ Configure an MCP client:
 }
 ```
 
-The core profile exposes 16 construction, inspection, and export tools. Omit
-`GEOGEBRA_TOOL_PROFILE` to expose all 50 tools, including the original educational,
+The core profile exposes 19 construction, inspection, export, and Apps API tools. Omit
+`GEOGEBRA_TOOL_PROFILE` to expose all 53 tools, including the original educational,
 CAS, animation, and performance tools. Existing names and text payloads are retained;
 object results also expose `structuredContent`.
+
+The Apps API bridge adds `geogebra_api_list_methods` and `geogebra_api_call` for
+public methods exposed by the running applet version. It complements the focused
+tools rather than replacing them. One-shot callback exports can be awaited, and
+persistent listeners can queue events under a callback ID for later retrieval. API
+availability varies by GeoGebra app/version, so inspect the live method list first.
+Construction replacement methods require an explicit `allowDestructive: true`.
+This bridge controls the MCP server's applet; it does not reach into an unrelated
+browser tab. Browser-only API arguments may still need dedicated wrappers. See
+[the API bridge notes](docs/APPS-API-BRIDGE.md).
 
 ## Choose a workflow
 

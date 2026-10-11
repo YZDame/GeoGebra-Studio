@@ -14,6 +14,14 @@ clear the construction, execute a command batch, inspect objects and definitions
 then export. All calls share one construction; keep a diagram's operations together.
 Do not mix unrelated diagrams in the same live engine.
 
+For advanced API tasks, call `geogebra_api_list_methods` to inspect methods exposed
+by the running GeoGebra version, then use `geogebra_api_call` with JSON arguments.
+Prefer focused construction/export tools for routine work. Callback-based exports
+can be awaited with `waitForCallbackIndex`; JavaScript event listeners need a real
+callback ID marker (`{"$ggbCallbackId":"listener-1"}`) and events can be read with
+`geogebra_api_get_callback_events`. Methods that
+replace or clear construction data require `allowDestructive: true`.
+
 Prefer constructions expressing relations: `M=Midpoint(A,B)`, `c=Circle(A,B,C)`,
 `H=Intersect(l,m)`. Keep free coordinates only for unconstrained inputs. GeoGebra's
 three-point circle command is `Circle(A,B,C)`. For LaTeX text objects use the fourth

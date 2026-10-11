@@ -10,7 +10,7 @@ was not exercised in this run.
 - TypeScript build and self-contained MCP Apps widget bundle.
 - Official SDK stdio client: negotiation, tools, argument rejection, unknown tools,
   resource reads, prompts, and backward-compatible echo output.
-- Official Streamable HTTP client: 16-tool core profile, structured tool result,
+- Official Streamable HTTP client: original 16-tool core profile, structured tool result,
   no session ID, and untrusted Origin rejection. Temporary loopback port closed.
 - Three focused Jest suites: **37 tests passed** (server contract, semantic export,
   and existing error handling). This is not a claim that the entire historical
@@ -31,6 +31,12 @@ was not exercised in this run.
 - Portable plugin and MCP manifests validate against the published Agent Plugins
   1.0.0 JSON schemas. All three skills pass Skill Creator's frontmatter validator.
 - npm pack dry run includes dist/widget.html, both plugin formats, and all skills.
+- Apps API bridge build and stdio negotiation: 53 full-profile tools; core profile
+  exposes 19 tools, including method discovery, invocation, and callback event reads.
+- Local Codex marketplace registration and plugin installation completed at
+  `geogebra-geometry@geogebra-local` version 0.3.1. The installed manifest points
+  to this local checkout for its MCP process. The live Apps API call could not be
+  smoke-tested in the restricted shell because Chromium failed to launch there.
 - `npm audit --omit=dev`: **0 known runtime vulnerabilities** after updates.
   The legacy development dependency tree still reports findings; a full test/lint
   tooling upgrade is separate work.
@@ -56,7 +62,8 @@ interactive example is [triangle.html](../examples/triangle.html). The Chinese p
 
 ## Boundaries
 
-- No live ChatGPT/Codex plugin installation or ChatGPT sandbox validation was
+- Codex plugin files are installed and enabled, but the desktop UI has not yet been
+  restarted or exercised with a new conversation. No ChatGPT sandbox validation was
   performed. The MCP Apps resource and bridge are implemented, but host CSP,
   download permissions, and GeoGebra assets must still be checked in that host.
 - No remote deployment, public plugin submission, or npm publication was performed.
@@ -69,3 +76,5 @@ interactive example is [triangle.html](../examples/triangle.html). The Chinese p
   macros, animation exports, CAS, and non-Latin label/font workflows remain outside
   this validation. GeoGebra CDN availability can vary; initialization failures are
   surfaced rather than converted into placeholder files.
+- Apps API bridge enumerates and calls methods available in the running applet.
+  Methods requiring DOM/browser-specific values still need dedicated wrappers.

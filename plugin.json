@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "geogebra-geometry",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "Construct editable GeoGebra diagrams and export print-ready figures with semantic provenance.",
   "author": { "name": "YZDame" },
   "repository": "https://github.com/YZDame/geogebra-mcp-server",

@@ -20,6 +20,7 @@ import { optimizedInstancePool } from './utils/performance/instance-pool';
 const guidance = 'Use geogebra_create_html for a browser-only construction without Chromium. ' +
   'For server-side work use geogebra_eval_commands, then native exports. ' +
   'Use geogebra_get_semantic_scene before semantic export; report unsupported objects and coordinate fallbacks. ' +
+  'Use geogebra_api_list_methods and geogebra_api_call for public Apps API methods not covered by focused tools. ' +
   'All server-side tools share one construction. Do not interleave independent diagrams.';
 
 /** Official SDK owns framing, negotiation, notifications, and transport lifecycle. */
@@ -40,7 +41,7 @@ export class McpServer extends EventEmitter {
       'geogebra_get_objects','geogebra_instance_status','geogebra_auto_zoom','geogebra_load_ggb',
       'geogebra_export_ggb','geogebra_export_png','geogebra_export_svg','geogebra_export_pdf',
       'geogebra_create_html','geogebra_export_html','geogebra_get_semantic_scene',
-      'geogebra_export_source','geogebra_clean_tikz']);
+      'geogebra_export_source','geogebra_clean_tikz','geogebra_api_list_methods','geogebra_api_call','geogebra_api_get_callback_events']);
     const tools = toolRegistry.getTools().filter(t => process.env['GEOGEBRA_TOOL_PROFILE'] !== 'core' || core.has(t.name))
       .sort((a,b)=>a.name.localeCompare(b.name));
     const validators = new Map(tools.map(t => [t.name, ajv.compile(t.inputSchema)]));

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.3.1 — 2026-10-11
+
+- Add runtime discovery and invocation for public GeoGebra Apps API methods.
+- Add one-shot callback waiting and persistent listener callback queues.
+- Require explicit opt-in for Apps API methods that replace or clear construction data.
+- Expand the core profile from 16 to 19 tools and document API bridge boundaries.
+- Package the skills and local stdio server as an installable local Codex plugin.
+
 ## [0.1.2] - 2026-03-08
 
 ### Security
