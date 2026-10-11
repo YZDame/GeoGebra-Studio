@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "geogebra": {
+      "cwd": ".",
+      "command": "node",
+      "args": [
+        "./dist/cli.js"
+      ],
+      "env": {
+        "GEOGEBRA_TOOL_PROFILE": "core"
+      }
+    }
+  }
+}

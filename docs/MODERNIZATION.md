@@ -59,3 +59,23 @@ actual supported versions and stateless HTTP mode; migrate to a supporting SDK
 when available, with discovery and header conformance tests.
 
 Reference: https://modelcontextprotocol.io/specification/2026-07-28/changelog
+
+## Implemented design
+
+The canonical editable artifact remains GGB; XML supplies a renderer-independent
+construction snapshot. Browser HTML and the headless engine use the same small
+applet bootstrap. Native callback exports replace synchronous guessing and page
+printing. A lightweight core tool profile avoids exposing teaching-template and
+performance machinery to every plugin conversation, without removing legacy tools.
+
+The source exporters use an explicit, documented semantic subset. They retain
+relations such as midpoint and circumcircle and emit unsupported-object reports
+for AI skills. TSQX currently combines native point definitions with Asymptote
+style/drawing injection. Gikz is an external CLI integration for cleanup/conversion.
+
+MCP Apps supplies the optional preview bridge; Agent Plugins manifests and Codex
+compatibility metadata package construction, export, and setup skills. These are
+local source/package deliverables. Public distribution needs deployment, identity,
+authentication/isolation, privacy/support metadata, and host-specific validation.
+
+See [VALIDATION.md](VALIDATION.md) for exercised behavior and unverified boundaries.

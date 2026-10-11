@@ -1,0 +1,7 @@
+{
+  "name": "geogebra-geometry",
+  "version": "0.2.0",
+  "description": "Editable GeoGebra construction and semantic figure export",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

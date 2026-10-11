@@ -1,172 +1,48 @@
-# GeoGebra MCP Tool
+# GeoGebra MCP 与几何导出插件
 
-[![npm version](https://img.shields.io/npm/v/%40lydt%2Fgeogebra-mcp-server)](https://www.npmjs.com/package/@lydt/geogebra-mcp-server)
-[![npm downloads](https://img.shields.io/npm/dm/%40lydt%2Fgeogebra-mcp-server)](https://www.npmjs.com/package/@lydt/geogebra-mcp-server)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/YZDame/geogebra-mcp-server/blob/main/LICENSE)
-![Node >=18](https://img.shields.io/badge/node-%3E%3D18-339933)
+本项目通过 MCP 调用 GeoGebra，生成可编辑的图形与出版用源码。
+完整配置见 [English README](README.md)，改造依据见 [审计记录](docs/MODERNIZATION.md)。
 
-GeoGebra 的 MCP Server，用于几何构造、函数绘图与文件导出（支持 `.ggb`）。
+需要 Node >=22.12.0。源码安装：`npm ci`、`npm run build`，启动：`node dist/cli.js`。
+直接导出需要 Chromium；可用 `npx puppeteer browsers install chrome` 安装，或用
+`PUPPETEER_EXECUTABLE_PATH` 指定已有 Chrome。
 
-## 来源与 Fork 说明
+## 两种作图方式
 
-- 本项目 Fork 自 [efebausal/gebrai](https://github.com/efebausal/gebrai)。
-- 上游仓库采用 MIT 许可证，本项目继续保留 MIT 许可证与原始版权声明。
-- 当前 Fork 独立维护，使用独立的发布节奏与 npm 包名。
+- `geogebra_create_html`：提供 GeoGebra 命令数组，直接生成 HTML，生成时不启动浏览器。
+  用户打开页面后加载 GeoGebra，可拖动点，再下载当前状态的 GGB、PNG、SVG、PDF、XML 或 HTML。
+  页面依赖 GeoGebra 网络资源，不能当作离线 GeoGebra 安装包。
+- 服务端作图：清空构造，批量执行命令，再通过原有工具导出。
+  GGB 使用官方异步 `getBase64`，SVG/PDF 使用原生回调，保留 LaTeX 标签和小点、细线默认设置。
+  自动缩放保持坐标轴等比例，并等待缩放动画完成。
 
-## 从 `@gebrai/gebrai` 迁移
+## 保留图形语义的导出
 
-如果你之前使用旧包名，请按下面迁移：
+`geogebra_get_semantic_scene` 提取原始 XML、命令输入输出、坐标与样式。
+`geogebra_export_source` 支持 TikZ、Asymptote 和混合 TSQX/Asymptote。
+当前实现覆盖自由点、两点中点、线段、多边形、圆心加圆上一点以及三点圆。
+中点等从属对象保留依赖表达式。
 
-1. 替换安装/运行命令：
-   - 旧：`npx @gebrai/gebrai`
-   - 新：`npx @lydt/geogebra-mcp-server`
-2. 替换全局 CLI 命令：
-   - 旧：`gebrai`
-   - 新：`geogebra-mcp`
-3. 更新 MCP 配置里的本地路径到当前仓库/包目录：
-   - 示例：`.../geogebra-mcp-server/dist/cli.js`
+默认严格模式拒绝不支持的定义。`strict=false` 可输出草稿，并明确列出省略对象、
+退回坐标的对象以及样式警告。标签位置、部分点型和线型不保证与原图一致。
+复杂交点、切线、一般圆锥曲线和轨迹等，可由插件内的 `geometry-export` skill
+结合原始定义辅助重建。TSQX 内含 Asymptote 注入时，明确标为混合流程。
 
-## 项目定位
+## Gikz
 
-- 这是一个 **MCP Server**，不是聊天应用本身。
-- 自然语言理解由 Claude/Codex 等客户端完成。
-- 本项目负责执行 GeoGebra 工具调用并导出图形文件。
+`geogebra_clean_tikz` 调用单独安装的 Gikz，支持 TikZ 清洗与 XML 转换。
+设置 `GIKZ_CLI` 为其 `gikz.js` 的绝对路径。Gikz 带有 GPL 上游代码，项目没有把它复制到
+MIT 本体中。清洗后的坐标图不能直接视为保留全部几何依赖。
 
-## 快速开始
+## 插件与协议边界
 
-### 1. 通过 npm 安装
+仓库包含标准 `plugin.json`、`mcp.json`，以及 Codex 兼容配置和三个 skills。
+插件默认使用 16 个工具的 core profile；原有客户端不设置 profile 时仍可访问全部 50 个工具。
+HTML 工具提供 MCP Apps 标准 UI 资源；真实 ChatGPT 沙箱内仍需另行安装验证。
 
-```bash
-npm i @lydt/geogebra-mcp-server
-```
+本项目采用官方 MCP SDK 1.32.1，实际协商版本最高为 2025-11-25。
+审计时官网最新规范为 2026-07-28，已大幅改变握手与请求模型，本项目没有把日期字符串
+改成新版本来宣称兼容。迁移差异已记录，需配合支持新规范的 SDK 继续升级。
 
-可直接运行：
-
-```bash
-npx @lydt/geogebra-mcp-server
-```
-
-或全局安装：
-
-```bash
-npm i -g @lydt/geogebra-mcp-server
-geogebra-mcp
-```
-
-### 2. 从源码安装并构建
-
-```bash
-npm install
-npm run build
-```
-
-### 3. 启动服务
-
-```bash
-node dist/cli.js
-```
-
-也可以：
-
-```bash
-npx @lydt/geogebra-mcp-server
-# 或全局安装后
-geogebra-mcp
-```
-
-### 4. 作为 MCP 接入客户端
-
-以 Claude Desktop 为例：
-
-```json
-{
-  "mcpServers": {
-    "geogebra": {
-      "command": "node",
-      "args": ["/你的绝对路径/geogebra-mcp-server/dist/cli.js"]
-    }
-  }
-}
-```
-
-## 典型流程（自然语言 -> .ggb）
-
-1. 在 Claude/Codex 中输入几何题目或作图需求。
-2. 客户端通过 MCP 调用本项目工具构造图形。
-3. 调用 `geogebra_export_ggb` 导出到 `output/*.ggb`。
-
-`geogebra_export_ggb` 标签控制：
-- 默认标签模式是 `points_only`（圆、线段、直线等标签默认隐藏）。
-- 传入 `visibleLabels` 可只显示题目/配图中明确出现的标签。
-
-推荐高效链路：
-
-- `geogebra_clear_construction`
-- `geogebra_eval_commands`
-- `geogebra_export_ggb`
-
-## 内置提示词框架（由客户端大模型生成）
-
-现在内置了 `geogebra_get_prompt_framework` 工具：
-
-- MCP 提供可复用的构图提示词框架
-- 由 Codex/Claude 等客户端大模型理解并生成命令序列
-- 再通过 `geogebra_eval_commands` 在 MCP 中执行
-
-也就是说：生成逻辑由客户端模型承担，不需要在 MCP 里额外配置服务端 LLM API Key。
-
-```mermaid
-flowchart LR
-  U["用户"] -->|"输入: 题目/作图需求"| C["Claude / Codex"]
-  C -->|"MCP 工具调用: 提示词框架 + 命令执行/导出"| M["GeoGebra MCP"]
-  M -->|"输出: 结构化结果 / .ggb 文件路径或数据"| C
-  C -->|"输出: 结果说明 + 文件交付"| U
-```
-
-工作原理简述：
-
-1. 用户只和 Claude/Codex 交互，输入题目。
-2. Claude/Codex 负责理解题意与生成命令，再通过 MCP 执行。
-3. MCP 负责 GeoGebra 侧能力（执行、查询、导出），并把结果返回给客户端。
-
-## 功能特性
-
-当前服务端一共暴露了 45 个工具，分为 4 组：
-
-- 基础服务/调试工具：`echo`、`ping`、`server_info`
-- GeoGebra 核心工具：构图、查询、绘图、CAS、动画、导入导出、提示词框架
-- 教学模板工具：模板列表、模板加载、课程方案生成
-- 性能工具：性能指标、实例池状态、预热、压测、指标清理
-
-其中 GeoGebra 核心工具可以按用途理解为：
-
-- 构图与编辑：`geogebra_eval_command`、`geogebra_eval_commands`、`geogebra_create_point`、`geogebra_create_line`、`geogebra_create_circle`、`geogebra_create_polygon`、`geogebra_create_line_segment`、`geogebra_create_text`、`geogebra_create_slider`
-- 对象查询与画布管理：`geogebra_get_objects`、`geogebra_clear_construction`、`geogebra_instance_status`、`geogebra_auto_zoom`
-- 导入导出：`geogebra_export_png`、`geogebra_export_svg`、`geogebra_export_pdf`、`geogebra_export_ggb`、`geogebra_load_ggb`
-- 函数与曲线：`geogebra_plot_function`、`geogebra_plot_parametric`、`geogebra_plot_implicit`
-- 代数与符号计算：`geogebra_solve_equation`、`geogebra_solve_system`、`geogebra_differentiate`、`geogebra_integrate`、`geogebra_simplify`
-- 动画：`geogebra_animate_parameter`、`geogebra_trace_object`、`geogebra_start_animation`、`geogebra_stop_animation`、`geogebra_animation_status`、`geogebra_export_animation`、`geogebra_animation_demo`
-- 面向大模型的辅助能力：`geogebra_get_prompt_framework`
-
-## CLI 用法
-
-```bash
-node dist/cli.js --help
-node dist/cli.js --version
-node dist/cli.js --log-level debug
-```
-
-## 项目结构（精简后）
-
-```text
-src/          # 核心实现
-tests/        # 测试
-package.json  # 依赖与脚本
-tsconfig.json # TypeScript 配置
-jest.config.js
-```
-
-## 说明
-
-- 项目当前可直接导出 `.ggb`。
-- 若修改了源码，需重新执行 `npm run build`，客户端才会使用新逻辑。
+`--port 8787` 提供仅绑定本机的 Streamable HTTP。公开接入 OpenAI 还需要 HTTPS、鉴权、
+用户隔离与平台验证。此源码改造不等于发布插件目录、部署远程服务或发布 npm 包。
