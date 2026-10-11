@@ -68,7 +68,7 @@ class GeoGebraInstancePool {
   }
 }
 
-const instancePool = new GeoGebraInstancePool();
+export const instancePool = new GeoGebraInstancePool();
 const DEFAULT_LINE_THICKNESS = 2;
 const DEFAULT_POINT_SIZE = 2;
 const LABEL_MODE_VALUES = ['all', 'none', 'points_only', 'specified'] as const;
@@ -78,16 +78,6 @@ interface LabelVisibilityOptions {
   mode: LabelVisibilityMode;
   visibleLabels?: string[];
 }
-
-// Cleanup on process exit
-process.on('exit', () => {
-  instancePool.cleanup();
-});
-
-process.on('SIGINT', () => {
-  instancePool.cleanup();
-  process.exit(0);
-});
 
 function getWorkspaceDir(): string {
   return process.env['VSCODE_WORKSPACE_FOLDER'] || process.cwd();

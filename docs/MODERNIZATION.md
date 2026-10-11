@@ -47,3 +47,15 @@ Use SDK negotiation rather than asserting support through a hardcoded date.
 Local plugin packaging is distinct from public directory submission: the latter
 requires a deployed HTTPS endpoint and platform review. No deployment or npm
 publication is part of this source modernization.
+
+## Protocol version boundary
+
+Installed official SDK 1.32.1 advertises up to 2025-11-25. It does **not**
+implement the latest 2026-07-28 revision. That revision removes initialization
+and protocol sessions, adds server/discover, per-request version/capability
+metadata, resultType, cache hints, and method/name HTTP headers. Do not merely
+change a date string to claim conformance. This implementation uses the SDK's
+actual supported versions and stateless HTTP mode; migrate to a supporting SDK
+when available, with discovery and header conformance tests.
+
+Reference: https://modelcontextprotocol.io/specification/2026-07-28/changelog

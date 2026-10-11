@@ -21,7 +21,16 @@ export class ToolRegistry {
    * Register a new tool
    */
   register(definition: ToolDefinition): void {
-    this.tools.set(definition.tool.name, definition);
+    const name = definition.tool.name;
+    const readOnly = ['echo', 'ping', 'server_info', 'geogebra_get_objects',
+      'geogebra_instance_status', 'geogebra_get_prompt_framework', 'geogebra_get_semantic_scene'].includes(name);
+    definition.tool.annotations ??= {
+      readOnlyHint: readOnly,
+      destructiveHint: !readOnly,
+      idempotentHint: readOnly,
+      openWorldHint: name.startsWith('geogebra_') && !['geogebra_create_html', 'geogebra_clean_tikz'].includes(name),
+    };
+    this.tools.set(name, definition);
     if (!isMcpMode) {
       logger.info(`Registered tool: ${definition.tool.name}`);
     }

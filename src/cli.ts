@@ -22,7 +22,7 @@ Options:
   -h, --help        Show this help message
   -v, --version     Show version information
   --log-level LEVEL Set log level (error, warn, info, debug) [default: info]
-  --port PORT       Set server port [default: from stdin/stdout for MCP]
+  --port PORT       Serve Streamable HTTP at http://127.0.0.1:PORT/mcp
 
 Examples:
   npx @lydt/geogebra-mcp-server                    # Start MCP server on stdin/stdout
@@ -177,7 +177,8 @@ async function main() {
     });
 
     // Start the server
-    await server.start();
+    if (options.port) await server.startHttp(Number(options.port));
+    else await server.start();
 
   } catch (error) {
     console.error('Failed to start server:', error);

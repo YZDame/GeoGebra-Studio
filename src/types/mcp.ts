@@ -67,6 +67,9 @@ export interface McpInitializedNotification extends JsonRpcRequest {
 export interface McpTool {
   name: string;
   description: string;
+  annotations?: { readOnlyHint: boolean; destructiveHint: boolean; idempotentHint: boolean; openWorldHint: boolean };
+  outputSchema?: Record<string, unknown>;
+  _meta?: Record<string, unknown>;
   inputSchema: {
     type: 'object';
     properties: Record<string, unknown>;
@@ -103,6 +106,8 @@ export interface McpToolCallResponse extends JsonRpcResponse {
       data?: string;
       mimeType?: string;
     }>;
+    structuredContent?: Record<string, unknown>;
+    _meta?: Record<string, unknown>;
     isError?: boolean;
   };
   error?: JsonRpcError;

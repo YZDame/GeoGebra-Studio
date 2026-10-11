@@ -1,388 +1,133 @@
 import { EventEmitter } from 'events';
-import readline from 'readline';
-import { 
-  JsonRpcRequest, 
-  JsonRpcResponse, 
-  McpServerConfig,
-  McpInitializeRequest,
-  McpInitializeResponse,
-  McpInitializedNotification,
-  McpToolsListRequest,
-  McpToolsListResponse,
-  McpToolCallRequest,
-  McpToolCallResponse
-} from './types/mcp';
+import { createServer, Server as HttpServer } from 'http';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import {
+  CallToolRequestSchema, ListToolsRequestSchema, ListResourcesRequestSchema,
+  ReadResourceRequestSchema, ListPromptsRequestSchema, GetPromptRequestSchema,
+  ErrorCode, McpError,
+} from '@modelcontextprotocol/sdk/types.js';
+import Ajv from 'ajv';
+import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { toolRegistry } from './tools';
-import { handleError, validateJsonRpcRequest, errors } from './utils/errors';
-import { makeGeminiCompatible, needsGeminiCompatibility } from './utils/gemini-compatibility';
-import logger from './utils/logger';
+import { McpServerConfig } from './types/mcp';
+import { instancePool } from './tools/geogebra-tools';
 
-// Check if we're in MCP mode (stdio communication)
-// When piping input, process.stdin.isTTY is undefined, not false
-const isMcpMode = !process.stdin.isTTY;
+const guidance = 'Use geogebra_create_html for a browser-only construction without Chromium. ' +
+  'For server-side work use geogebra_eval_commands, then native exports. ' +
+  'Use geogebra_get_semantic_scene before semantic export; report unsupported objects and coordinate fallbacks. ' +
+  'All server-side tools share one construction. Do not interleave independent diagrams.';
 
-/**
- * MCP Server implementation following JSON-RPC 2.0 protocol over stdio
- */
+/** Official SDK owns framing, negotiation, notifications, and transport lifecycle. */
 export class McpServer extends EventEmitter {
-  private config: McpServerConfig;
-  private isRunning: boolean = false;
-  private isInitialized: boolean = false;
-  private readline: readline.Interface | undefined;
+  private sdk?: Server;
+  private http?: HttpServer;
+  private connections = new Set<Server>();
+  private running = false;
+  private queue: Promise<unknown> = Promise.resolve();
+  constructor(private config: McpServerConfig) { super(); }
 
-  constructor(config: McpServerConfig) {
-    super();
-    this.config = config;
-    if (!isMcpMode) {
-      logger.info('MCP Server initialized', { config });
-    }
-  }
-
-  /**
-   * Start the MCP server with stdio communication
-   */
-  async start(): Promise<void> {
-    if (this.isRunning) {
-      if (!isMcpMode) {
-        logger.warn('Server is already running');
-      }
-      return;
-    }
-
-    try {
-      this.isRunning = true;
-      
-      // Create readline interface for stdin/stdout communication
-      this.readline = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-        terminal: false
-      });
-
-      // Handle incoming JSON-RPC requests from stdin
-      this.readline.on('line', async (line: string) => {
+  private createSdk(): Server {
+    const sdk = new Server({ name: this.config.name, version: this.config.version }, {
+      capabilities: { tools: {}, resources: {}, prompts: {} }, instructions: guidance,
+    });
+    const ajv = new Ajv({ strict: false, allErrors: true });
+    const validators = new Map(toolRegistry.getTools().map(t => [t.name, ajv.compile(t.inputSchema)]));
+    sdk.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: toolRegistry.getTools() }));
+    sdk.setRequestHandler(CallToolRequestSchema, async request => {
+      const { name, arguments: args = {} } = request.params;
+      const validate = validators.get(name);
+      if (!validate) throw new McpError(ErrorCode.InvalidParams, `Unknown tool: ${name}`);
+      if (!validate(args)) throw new McpError(ErrorCode.InvalidParams, ajv.errorsText(validate.errors));
+      // Queue the entire operation, including export, to avoid cross-request mutation races.
+      const operation = this.queue.then(async () => {
         try {
-          const trimmedLine = line.trim();
-          if (!trimmedLine) return;
-
-          // Parse JSON-RPC request
-          const request = JSON.parse(trimmedLine);
-          
-          // Process the request and get response
-          const response = await this.processRequest(request);
-          
-          // Send JSON-RPC response to stdout (only if not null - notifications don't get responses)
-          if (response !== null) {
-            process.stdout.write(JSON.stringify(response) + '\n');
+          const result = await toolRegistry.executeTool(name, args);
+          if (!result.structuredContent && result.content.length === 1 && result.content[0]?.text) {
+            try {
+              const value: unknown = JSON.parse(result.content[0].text);
+              if (value && typeof value === 'object' && !Array.isArray(value)) {
+                return { ...result, structuredContent: value as Record<string, unknown> };
+              }
+            } catch { /* Existing plain text tools remain valid. */ }
           }
+          return result;
         } catch (error) {
-          logger.error('Error processing stdin line', { line, error });
-          
-          // Send error response
-          const errorResponse: JsonRpcResponse = {
-            jsonrpc: '2.0',
-            id: null,
-            error: handleError(error)
-          };
-          process.stdout.write(JSON.stringify(errorResponse) + '\n');
+          return { content: [{ type: 'text' as const, text: error instanceof Error ? error.message : String(error) }], isError: true };
         }
       });
-
-      this.readline.on('close', () => {
-        if (!isMcpMode) {
-          logger.info('Stdin closed, shutting down server');
-        }
-        this.stop();
-      });
-
-      if (!isMcpMode) {
-        logger.info(`MCP Server started: ${this.config.name} v${this.config.version}`);
-        logger.info(`Available tools: ${toolRegistry.getToolCount()}`);
-        logger.info('Listening for JSON-RPC requests on stdin...');
+      this.queue = operation.catch(() => undefined);
+      return operation;
+    });
+    sdk.setRequestHandler(ListResourcesRequestSchema, async () => ({ resources: [{
+      uri: 'geogebra://guide', name: 'GeoGebra construction and export guide', mimeType: 'text/plain',
+    }] }));
+    sdk.setRequestHandler(ReadResourceRequestSchema, async request => {
+      if (request.params.uri !== 'geogebra://guide') throw new McpError(ErrorCode.InvalidParams, 'Unknown resource');
+      return { contents: [{ uri: 'geogebra://guide', mimeType: 'text/plain', text: guidance }] };
+    });
+    sdk.setRequestHandler(ListPromptsRequestSchema, async () => ({ prompts: [{
+      name: 'construct-geometry', description: 'Build an editable, print-style GeoGebra construction',
+      arguments: [{ name: 'problem', description: 'Geometry definitions and target exports', required: true }],
+    }] }));
+    sdk.setRequestHandler(GetPromptRequestSchema, async request => {
+      if (request.params.name !== 'construct-geometry' || !request.params.arguments?.['problem']) {
+        throw new McpError(ErrorCode.InvalidParams, 'construct-geometry requires problem');
       }
-      
-      this.emit('started');
-    } catch (error) {
-      this.isRunning = false;
-      logger.error('Failed to start MCP server', error);
-      throw error;
-    }
+      return { messages: [{ role: 'user' as const, content: { type: 'text' as const,
+        text: `${guidance}\n\n${request.params.arguments['problem']}` } }] };
+    });
+    return sdk;
   }
 
-  /**
-   * Stop the MCP server
-   */
+  async start(): Promise<void> {
+    if (this.running) return;
+    this.sdk = this.createSdk();
+    await this.sdk.connect(new StdioServerTransport());
+    this.running = true;
+    this.emit('started');
+  }
+
+  /** Loopback-only, single-user HTTP. Deploy behind HTTPS + authentication for remote use. */
+  async startHttp(port: number): Promise<void> {
+    if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid HTTP port');
+    this.http = createServer(async (req, res) => {
+      if (req.url !== '/mcp') { res.writeHead(404).end(); return; }
+      if (req.headers.origin && ![`http://localhost:${port}`, `http://127.0.0.1:${port}`].includes(req.headers.origin)) {
+        res.writeHead(403).end('Origin forbidden'); return;
+      }
+      const host = req.headers.host;
+      if (!host || ![`localhost:${port}`, `127.0.0.1:${port}`].includes(host)) {
+        res.writeHead(403).end('Host forbidden'); return;
+      }
+      const sdk = this.createSdk();
+      const transport = new StreamableHTTPServerTransport({ enableJsonResponse: true });
+      this.connections.add(sdk);
+      res.on('close', () => { void sdk.close(); this.connections.delete(sdk); });
+      try {
+        await sdk.connect(transport as Transport);
+        await transport.handleRequest(req, res);
+      } catch { if (!res.headersSent) res.writeHead(500).end('MCP request failed'); }
+    });
+    await new Promise<void>((resolve, reject) => {
+      this.http!.once('error', reject);
+      this.http!.listen(port, '127.0.0.1', resolve);
+    });
+    this.running = true;
+    this.emit('started');
+  }
+
   async stop(): Promise<void> {
-    if (!this.isRunning) {
-      if (!isMcpMode) {
-        logger.warn('Server is not running');
-      }
-      return;
-    }
-
-    try {
-      this.isRunning = false;
-      
-      if (this.readline) {
-        this.readline.close();
-        this.readline = undefined;
-      }
-      
-      if (!isMcpMode) {
-        logger.info('MCP Server stopped');
-      }
-      this.emit('stopped');
-    } catch (error) {
-      logger.error('Error stopping MCP server', error);
-      throw error;
-    }
+    await this.queue;
+    await this.sdk?.close();
+    await Promise.all([...this.connections].map(s => s.close()));
+    if (this.http) await new Promise<void>((resolve, reject) => this.http!.close(e => e ? reject(e) : resolve()));
+    await instancePool.cleanup();
+    this.running = false;
+    this.emit('stopped');
   }
-
-  /**
-   * Process a JSON-RPC request
-   */
-  async processRequest(requestData: unknown): Promise<JsonRpcResponse | null> {
-    try {
-      // Validate basic JSON-RPC structure
-      if (!validateJsonRpcRequest(requestData)) {
-        return this.createErrorResponse(null, handleError(errors.invalidRequest()));
-      }
-
-      const request = requestData as JsonRpcRequest;
-      logger.debug('Processing request', { method: request.method, id: request.id });
-
-      // Route to appropriate handler
-      switch (request.method) {
-        case 'initialize':
-          return await this.handleInitialize(request as McpInitializeRequest);
-        
-        case 'notifications/initialized':
-          return await this.handleInitialized(request as McpInitializedNotification);
-        
-        case 'tools/list':
-          return await this.handleToolsList(request as McpToolsListRequest);
-        
-        case 'tools/call':
-          return await this.handleToolsCall(request as McpToolCallRequest);
-        
-        default:
-          return this.createErrorResponse(
-            request.id ?? null,
-            handleError(errors.methodNotFound(request.method))
-          );
-      }
-    } catch (error) {
-      logger.error('Error processing request', error);
-      return this.createErrorResponse(null, handleError(error));
-    }
-  }
-
-  /**
-   * Handle initialize requests
-   */
-  private async handleInitialize(request: McpInitializeRequest): Promise<McpInitializeResponse> {
-    try {
-      logger.debug('Handling initialize request', { clientInfo: request.params?.clientInfo });
-
-      // Validate protocol version compatibility
-      const requestedVersion = request.params?.protocolVersion;
-      const supportedVersion = '2024-11-05';
-      
-      if (requestedVersion !== supportedVersion) {
-        logger.warn(`Client requested protocol version ${requestedVersion}, server supports ${supportedVersion}`);
-      }
-
-      this.isInitialized = true;
-
-      return {
-        jsonrpc: '2.0',
-        id: request.id ?? null,
-        result: {
-          protocolVersion: supportedVersion,
-          capabilities: {
-            tools: {
-              listChanged: false
-            }
-          },
-          serverInfo: {
-            name: this.config.name,
-            version: this.config.version
-          }
-        }
-      };
-    } catch (error) {
-      logger.error('Error handling initialize', error);
-      return this.createInitializeErrorResponse(request.id ?? null, handleError(error));
-    }
-  }
-
-  /**
-   * Handle notifications/initialized requests (notification, no response expected)
-   */
-  private async handleInitialized(_request: McpInitializedNotification): Promise<JsonRpcResponse | null> {
-    try {
-      logger.debug('Client initialization complete');
-      
-      // For notifications, we don't send a response
-      return null;
-    } catch (error) {
-      logger.error('Error handling initialized notification', error);
-      // Even for errors in notifications, we typically don't send responses
-      return null;
-    }
-  }
-
-  /**
-   * Handle tools/list requests
-   */
-  private async handleToolsList(request: McpToolsListRequest): Promise<McpToolsListResponse> {
-    try {
-      // Check if server is initialized
-      if (!this.isInitialized) {
-        return this.createToolsListErrorResponse(
-          request.id ?? null,
-          handleError(errors.invalidRequest('Server not initialized'))
-        );
-      }
-
-      const rawTools = toolRegistry.getTools();
-      
-      // Apply Gemini compatibility transformations to tool schemas
-      const tools = rawTools.map(tool => {
-        // Check if the tool schema needs Gemini compatibility fixes
-        if (needsGeminiCompatibility(tool.inputSchema)) {
-          logger.debug(`Applying Gemini compatibility fixes to tool: ${tool.name}`);
-          
-          return {
-            ...tool,
-            inputSchema: makeGeminiCompatible(tool.inputSchema)
-          };
-        }
-        
-        return tool;
-      });
-      
-      logger.debug(`Returning ${tools.length} tools (with Gemini compatibility applied)`);
-
-      return {
-        jsonrpc: '2.0',
-        id: request.id ?? null,
-        result: {
-          tools
-        }
-      };
-    } catch (error) {
-      logger.error('Error handling tools/list', error);
-      return this.createToolsListErrorResponse(request.id ?? null, handleError(error));
-    }
-  }
-
-  /**
-   * Handle tools/call requests
-   */
-  private async handleToolsCall(request: McpToolCallRequest): Promise<McpToolCallResponse> {
-    try {
-      // Check if server is initialized
-      if (!this.isInitialized) {
-        return this.createToolsCallErrorResponse(
-          request.id ?? null,
-          handleError(errors.invalidRequest('Server not initialized'))
-        );
-      }
-
-      // Validate request parameters
-      if (!request.params || typeof request.params.name !== 'string') {
-        return this.createToolsCallErrorResponse(
-          request.id ?? null,
-          handleError(errors.invalidParams('Missing or invalid tool name'))
-        );
-      }
-
-      const { name, arguments: toolArgs = {} } = request.params;
-      
-      // Execute the tool
-      const result = await toolRegistry.executeTool(name, toolArgs);
-
-      return {
-        jsonrpc: '2.0',
-        id: request.id ?? null,
-        result
-      };
-    } catch (error) {
-      logger.error('Error handling tools/call', error);
-      return this.createToolsCallErrorResponse(request.id ?? null, handleError(error));
-    }
-  }
-
-  /**
-   * Create an error response
-   */
-  private createErrorResponse(id: string | number | null, error: ReturnType<typeof handleError>): JsonRpcResponse {
-    return {
-      jsonrpc: '2.0',
-      id,
-      error
-    };
-  }
-
-  /**
-   * Create a tools/list error response
-   */
-  private createToolsListErrorResponse(id: string | number | null, error: ReturnType<typeof handleError>): McpToolsListResponse {
-    return {
-      jsonrpc: '2.0',
-      id,
-      error
-    };
-  }
-
-  /**
-   * Create a tools/call error response
-   */
-  private createToolsCallErrorResponse(id: string | number | null, error: ReturnType<typeof handleError>): McpToolCallResponse {
-    return {
-      jsonrpc: '2.0',
-      id,
-      error
-    };
-  }
-
-  /**
-   * Create an initialize error response
-   */
-  private createInitializeErrorResponse(id: string | number | null, error: ReturnType<typeof handleError>): McpInitializeResponse {
-    return {
-      jsonrpc: '2.0',
-      id,
-      error
-    };
-  }
-
-  /**
-   * Get server status
-   */
-  getStatus() {
-    return {
-      name: this.config.name,
-      version: this.config.version,
-      description: this.config.description,
-      isRunning: this.isRunning,
-      toolCount: toolRegistry.getToolCount(),
-      uptime: this.isRunning ? process.uptime() : 0
-    };
-  }
-
-  /**
-   * Get server configuration
-   */
-  getConfig(): McpServerConfig {
-    return { ...this.config };
-  }
-
-  /**
-   * Check if server is running
-   */
-  isServerRunning(): boolean {
-    return this.isRunning;
-  }
-} 
+  getStatus() { return { ...this.config, isRunning: this.running, toolCount: toolRegistry.getToolCount(), uptime: this.running ? process.uptime() : 0 }; }
+  getConfig() { return { ...this.config }; }
+  isServerRunning() { return this.running; }
+}
