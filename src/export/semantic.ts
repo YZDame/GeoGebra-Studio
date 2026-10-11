@@ -136,7 +136,7 @@ export function exportSource(scene: SemanticScene, format: SourceFormat, strict 
           const denominator = `(2*(${x(1)}*(${y(2)}-${y(3)})+${x(2)}*(${y(3)}-${y(1)})+${x(3)}*(${y(1)}-${y(2)})))`;
           const cx = `(${q(1)}*(${y(2)}-${y(3)})+${q(2)}*(${y(3)}-${y(1)})+${q(3)}*(${y(1)}-${y(2)}))/${denominator}`;
           const cy = `(${q(1)}*(${x(3)}-${x(2)})+${q(2)}*(${x(1)}-${x(3)})+${q(3)}*(${x(2)}-${x(1)}))/${denominator}`;
-          definitions.push(`\\path let \\p1=(${refs[0]}),\\p2=(${refs[1]}),\\p3=(${refs[2]}) in coordinate (${center}) at ({${cx}},{${cy}});`);
+          definitions.push(`\\path let \\p1=(${refs[0]}),\\p2=(${refs[1]}),\\p3=(${refs[2]}) in coordinate (${center}) at ({(${cx})*1cm},{(${cy})*1cm});`);
           if (o.visible) drawings.push(`\\draw[${tikzStyle(o)}] let \\p1=($(${refs[0]})-(${center})$) in (${center}) circle ({veclen(\\x1,\\y1)});`);
         } else {
           definitions.push(raw(`pair ${center}=ggbCircumcenter(${refs.join(',')});`));
