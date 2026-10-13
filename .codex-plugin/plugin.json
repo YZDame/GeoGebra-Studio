@@ -12,6 +12,8 @@
         "shortDescription": "Editable geometry, interactive HTML and cleaned TikZ",
         "developerName": "YZDame",
         "category": "Education",
+        "composerIcon": "./assets/geogebra-icon.png",
+        "logo": "./assets/geogebra-icon.png",
         "defaultPrompt": [
           "Construct an editable GeoGebra diagram from this problem and deliver a local HTML."
         ]

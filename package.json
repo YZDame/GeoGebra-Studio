@@ -15,6 +15,7 @@
     "package.json",
     "README.md",
     "LICENSE",
+    "assets/**/*",
     "plugin.json",
     "mcp.json",
     ".codex-plugin/plugin.json",
