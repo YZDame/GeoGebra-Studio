@@ -1,38 +1,40 @@
 ---
 name: geogebra-construct
-description: Construct editable GeoGebra geometry from a mathematical problem and deliver interactive HTML or a packed GGB file.
+description: Build editable GeoGebra geometry from a problem, delivering a checked local HTML with embedded GGB, a preview, and current-state downloads.
 ---
 
-Use `geogebra_create_html` when the user wants a downloadable interactive page.
-It generates the page without launching Chromium; the recipient's browser loads
-GeoGebra from its network assets. Supply a command array in dependency order.
-The page downloads the current, edited applet state as GGB, PNG, SVG, PDF, XML,
-or another HTML. Generation alone does not verify the rendering.
+Understand the user's mathematical definitions, free inputs, dependent objects and
+requested deliverables. Ask only when ambiguity changes the construction. Prefer
+GeoGebra relations over frozen coordinates for constrained points and intersections.
 
-Use the server-side tools when actual exported files are needed immediately:
-clear the construction, execute a command batch, inspect objects and definitions,
-then export. All calls share one construction; keep a diagram's operations together.
-Do not mix unrelated diagrams in the same live engine.
+Default to `geogebra_build_artifact`: supply commands in dependency order,
+`visibleLabels`, `captionOverrides` where useful, and a new workspace `.html` filename.
+Always pass `workspace` as the absolute path of the user's current project directory
+when saving files. Codex starts the plugin in its cache directory; that directory
+must not become the output destination. MCP roots are used when provided by a client.
+This tool uses an isolated native engine, packs a real GGB, reopens the final viewer,
+checks equal axes and returns a preview. Inspect that preview before claiming visual
+quality; engineVerified and packedGgbVerified are separate from renderVerified.
+Do not call geogebra_clear_construction for this isolated workflow.
 
-For advanced API tasks, call `geogebra_api_list_methods` to inspect methods exposed
-by the running GeoGebra version, then use `geogebra_api_call` with JSON arguments.
-Prefer focused construction/export tools for routine work. Callback-based exports
-can be awaited with `waitForCallbackIndex`; JavaScript event listeners need a real
-callback ID marker (`{"$ggbCallbackId":"listener-1"}`) and events can be read with
-`geogebra_api_get_callback_events`. Methods that
-replace or clear construction data require `allowDestructive: true`.
+Read [visual standards](../../docs/VISUAL-STANDARD.md) when adjusting presentation.
+For tangents/intersections, read [the two-circle regression](../../docs/TANGENT-REGRESSION.md)
+to avoid selecting A again when intersection branches swap. The case is a regression,
+not a requirement to use that construction or sample coordinates for other problems.
 
-Prefer constructions expressing relations: `M=Midpoint(A,B)`, `c=Circle(A,B,C)`,
-`H=Intersect(l,m)`. Keep free coordinates only for unconstrained inputs. GeoGebra's
-three-point circle command is `Circle(A,B,C)`. For LaTeX text objects use the fourth
-Boolean: `Text("A", A+(-0.3,-0.3), true, true)`.
+Deliver the local HTML path and describe how to open the object sidebar, drag free
+points and download the current state. The viewer uses the official GeoGebra engine;
+do not replace it with a custom-drawn canvas/SVG or a desktop GeoGebra workflow.
+It requires internet for official GeoGebra assets; Gikz cleanup runs locally.
 
-The existing GGB export defaults retain LaTeX captions and small point/line sizes.
-Use `visibleLabels` to match the problem's named objects. Avoid exposing automatic
-segment and circle labels unless requested. Inspect the rendered result for label
-collisions, clipping, and equal axis scaling. Reopen the packed GGB to verify
-editability when delivery requires it; XML is not a packed GGB.
+`geogebra_create_html` is a lightweight command-template alternative when explicitly
+appropriate. It does not execute/check commands or embed a prebuilt GGB by default;
+never describe template generation alone as verified geometry.
 
-For editable publication source, use `geogebra_get_semantic_scene` and
-`geogebra_export_source`. Read the packaged `geometry-export` skill when a
-conversion reports unsupported relations or coordinate fallbacks.
+For advanced server-side work, the older focused tools share one construction:
+keep each diagram's calls together. Use geogebra_api_list_methods before unfamiliar
+API calls; persistent callbacks use $ggbCallbackId and event polling. Prefer focused
+tools for routine construction and export.
+
+For source export, read geometry-export. Every TikZ export uses native PGF followed
+by built-in Gikz; no raw fallback. Retain GGB/XML for construction dependencies.

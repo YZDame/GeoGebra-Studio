@@ -1,9 +1,9 @@
 import { GeoGebraInstance } from '../../src/utils/geogebra-instance';
 import { GeoGebraConfig, GeoGebraConnectionError } from '../../src/types/geogebra';
-import { Browser, Page } from 'puppeteer';
+import { Browser, Page } from 'puppeteer-core';
 
 // Mock puppeteer
-jest.mock('puppeteer', () => ({
+jest.mock('puppeteer-core', () => ({
   launch: jest.fn(),
 }));
 
@@ -15,16 +15,13 @@ jest.mock('../../src/utils/logger', () => ({
   warn: jest.fn(),
 }));
 
-// Mock uuid
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-123'),
-}));
+
 
 describe('GeoGebraInstance', () => {
   let instance: GeoGebraInstance;
   let mockBrowser: jest.Mocked<Browser>;
   let mockPage: jest.Mocked<Page>;
-  let puppeteerLaunchMock: jest.MockedFunction<typeof import('puppeteer').launch>;
+  let puppeteerLaunchMock: jest.MockedFunction<typeof import('puppeteer-core').launch>;
 
   beforeEach(() => {
     // Reset all mocks
@@ -35,10 +32,11 @@ describe('GeoGebraInstance', () => {
       setViewport: jest.fn(),
       setContent: jest.fn(),
       waitForFunction: jest.fn(),
-      evaluate: jest.fn(),
+      evaluate: jest.fn().mockImplementation(async fn => String(fn).includes("ggbError") ? undefined : true),
       screenshot: jest.fn(),
       pdf: jest.fn(),
       close: jest.fn(),
+      isClosed: jest.fn().mockReturnValue(false),
     } as any;
 
     // Setup mock browser
@@ -48,7 +46,7 @@ describe('GeoGebraInstance', () => {
     } as any;
 
     // Setup puppeteer launch mock
-    puppeteerLaunchMock = require('puppeteer').launch as jest.MockedFunction<typeof import('puppeteer').launch>;
+    puppeteerLaunchMock = require('puppeteer-core').launch as jest.MockedFunction<typeof import('puppeteer-core').launch>;
     puppeteerLaunchMock.mockResolvedValue(mockBrowser);
   });
 
@@ -56,9 +54,9 @@ describe('GeoGebraInstance', () => {
     it('should create instance with default config', () => {
       instance = new GeoGebraInstance();
       
-      expect(instance.id).toBe('mock-uuid-123');
+      expect(instance.id).toMatch(/^[0-9a-f-]{36}$/);
       expect(instance.config).toEqual({
-        appName: 'graphing',
+        appName: 'classic',
         width: 800,
         height: 600,
         showMenuBar: false,
@@ -107,6 +105,7 @@ describe('GeoGebraInstance', () => {
 
       expect(puppeteerLaunchMock).toHaveBeenCalledWith({
         headless: true,
+        executablePath: "/mock/chrome",
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -123,8 +122,8 @@ describe('GeoGebraInstance', () => {
         height: 600,
       });
       expect(mockPage.setContent).toHaveBeenCalled();
-      expect(mockPage.waitForFunction).toHaveBeenCalledWith('window.ggbApplet', { timeout: 30000 });
-      expect(mockPage.waitForFunction).toHaveBeenCalledWith('window.ggbReady === true', { timeout: 30000 });
+      expect(mockPage.waitForFunction).toHaveBeenCalledWith('window.ggbReady || window.ggbError', { timeout: 60000 });
+      expect(mockPage.waitForFunction).toHaveBeenCalledWith('window.ggbReady === true && window.ggbApplet && typeof window.ggbApplet.evalCommand === "function"', { timeout: 30000 });
     });
 
     it('should initialize with custom browser args', async () => {
@@ -135,6 +134,7 @@ describe('GeoGebraInstance', () => {
 
       expect(puppeteerLaunchMock).toHaveBeenCalledWith({
         headless: false,
+        executablePath: "/mock/chrome",
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -184,7 +184,7 @@ describe('GeoGebraInstance', () => {
         result: undefined,
         error: undefined,
       };
-      mockPage.evaluate.mockResolvedValue(mockResult);
+      mockPage.evaluate.mockResolvedValueOnce({appletExists:true,evalCommandExists:true}).mockResolvedValueOnce(mockResult);
 
       const result = await instance.evalCommand('A = (1, 2)');
 
@@ -199,13 +199,9 @@ describe('GeoGebraInstance', () => {
         result: undefined,
         error: 'Command execution failed',
       };
-      mockPage.evaluate.mockResolvedValue(mockResult);
+      mockPage.evaluate.mockResolvedValueOnce({appletExists:true,evalCommandExists:true}).mockResolvedValueOnce(mockResult);
 
-      const result = await instance.evalCommand('InvalidCommand');
-
-      expect(result).toEqual(mockResult);
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Command execution failed');
+      await expect(instance.evalCommand('InvalidCommand')).rejects.toThrow('Command execution failed');
     });
 
     it('should throw error if not initialized', async () => {
@@ -216,13 +212,13 @@ describe('GeoGebraInstance', () => {
 
     it('should handle special characters in commands', async () => {
       const mockResult = { success: true };
-      mockPage.evaluate.mockResolvedValue(mockResult);
+      mockPage.evaluate.mockResolvedValueOnce({appletExists:true,evalCommandExists:true}).mockResolvedValueOnce(mockResult);
 
       await instance.evalCommand("A = (1, 2) 'test'");
 
       // Verify that the command was properly escaped
-      const evaluateCall = mockPage.evaluate.mock.calls[0]?.[0];
-      expect(evaluateCall).toContain("\\'");
+      const evaluateCall = mockPage.evaluate.mock.calls.at(-1);
+      expect(evaluateCall?.[1]).toBe("A = (1, 2) 'test'");
     });
   });
 
@@ -270,7 +266,8 @@ describe('GeoGebraInstance', () => {
     });
 
     it('should export PNG successfully', async () => {
-      const mockBase64 = 'base64-encoded-image-data';
+      const mockBase64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      jest.spyOn(instance,'validateExportReadiness').mockResolvedValue({ready:true,issues:[],recommendations:[]});
       mockPage.evaluate.mockResolvedValue(mockBase64);
 
       const result = await instance.exportPNG(2);
@@ -280,7 +277,8 @@ describe('GeoGebraInstance', () => {
     });
 
     it('should use default scale if not provided', async () => {
-      const mockBase64 = 'base64-encoded-image-data';
+      const mockBase64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      jest.spyOn(instance,'validateExportReadiness').mockResolvedValue({ready:true,issues:[],recommendations:[]});
       mockPage.evaluate.mockResolvedValue(mockBase64);
 
       await instance.exportPNG();
@@ -335,8 +333,8 @@ describe('GeoGebraInstance', () => {
       const state = instance.getState();
 
       expect(state).toEqual({
-        id: 'mock-uuid-123',
-        initialized: false,
+        id: instance.id,
+        isReady: false,
         lastActivity: expect.any(Date),
         config: instance.config,
       });

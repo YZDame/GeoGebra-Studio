@@ -14,7 +14,8 @@ const xml=`<geogebra><construction>${point('A',0,0)}${point('B',4,0)}${point('C'
   for(const [format,extension] of [['tikz','tex'],['asymptote','asy'],['tsqx','tsqx']]){
     const result=exportSource(scene,format);
     assert(result.complete);
-    await fs.writeFile(`output/verification/semantic.${extension}`,result.code);
+    // Semantic TikZ remains an internal subset check; final TikZ exports use native PGF + Gikz.
+    if(format!=='tikz')await fs.writeFile(`output/verification/semantic.${extension}`,result.code);
   }
   const unsupported=sceneFromXML(xml.replace('name="Midpoint"','name="Intersect"'));
   assert.throws(()=>exportSource(unsupported,'tikz'),/requires review/);
@@ -31,6 +32,6 @@ const xml=`<geogebra><construction>${point('A',0,0)}${point('B',4,0)}${point('C'
   await assert.rejects(saveText('../escape.txt','x'),/outside/);
   await fs.writeFile('output/verification/triangle.xml',xml);
   await fs.writeFile('output/verification/triangle.html',constructionHtml({title:'Triangle and midpoint',commands:['A=(0,0)','B=(4,0)','C=(1,3)','M=Midpoint(A,B)','s=Segment(C,M)','c=Circle(A,B,C)']}));
-  if(process.env.GIKZ_CLI){const code=await cleanWithGikz(xml,{standalone:true});assert(code.includes('tikzpicture'));await fs.writeFile('output/verification/gikz.tex',code);}
+  {const code=await cleanWithGikz(xml,{standalone:true});assert(code.includes('tikzpicture'));await fs.writeFile('output/verification/gikz.tex',code);}
   console.log('Export invariants passed; sources are in output/verification.');
 })().catch(e=>{console.error(e);process.exitCode=1});

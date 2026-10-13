@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * CLI entry point for GeoGebra MCP Tool
- * Enables npx usage: npx @lydt/geogebra-mcp-server
+ * CLI entry point for GeoGebra Studio
+ * Enables npx usage: npx @lydt/geogebra-studio
  */
 
 /**
@@ -13,21 +13,26 @@ function showHelp() {
   const homepage = packageJson.homepage || 'https://github.com/YZDame/geogebra-mcp-server';
 
   console.log(`
-GeoGebra MCP Tool - Mathematical Visualization via Model Context Protocol
+GeoGebra Studio - Mathematical Visualization via Model Context Protocol
 
 Usage:
-  npx @lydt/geogebra-mcp-server [options]
+  npx @lydt/geogebra-studio [options]
 
 Options:
+  install          Install the complete Codex plugin (skills + MCP)
+  doctor           Check built-in Gikz and browser launch
+  browser install  Prepare Chrome or managed Chromium
+  mcp              Start only the MCP server (also the no-argument default)
+
   -h, --help        Show this help message
   -v, --version     Show version information
   --log-level LEVEL Set log level (error, warn, info, debug) [default: info]
   --port PORT       Serve Streamable HTTP at http://127.0.0.1:PORT/mcp
 
 Examples:
-  npx @lydt/geogebra-mcp-server                    # Start MCP server on stdin/stdout
-  npx @lydt/geogebra-mcp-server --log-level debug  # Start with debug logging
-  npx @lydt/geogebra-mcp-server --help             # Show this help
+  npx @lydt/geogebra-studio                    # Start MCP server on stdin/stdout
+  npx @lydt/geogebra-studio --log-level debug  # Start with debug logging
+  npx @lydt/geogebra-studio --help             # Show this help
 
 For more information, visit: ${homepage}
 `);
@@ -38,7 +43,7 @@ For more information, visit: ${homepage}
  */
 function showVersion() {
   const packageJson = require('../package.json');
-  console.log(`GeoGebra MCP Tool v${packageJson.version}`);
+  console.log(`GeoGebra Studio v${packageJson.version}`);
 }
 
 /**
@@ -115,6 +120,20 @@ async function main() {
   try {
     // Parse command line arguments first
     const args = process.argv.slice(2);
+    if(args[0]==='install'){
+      if(args.slice(1).some(arg=>arg!=='--local'))throw new Error('Usage: install [--local]');
+      await (await import('./studio/install')).installPlugin(args.includes('--local'));return;
+    }
+    if(args[0]==='doctor'||args[0]==='browser'){
+      if(args[0]==='browser'&&(args.length!==2||args[1]!=='install'))throw new Error('Usage: browser install');
+      const {prepareBrowser}=await import('./studio/browser');
+      const {cleanWithGikz}=await import('./export/gikz');
+      await cleanWithGikz(String.raw`\begin{tikzpicture}\end{tikzpicture}`);
+      const executablePath=await prepareBrowser(args[0]==='browser');
+      console.log(JSON.stringify({success:true,version:require('../package.json').version,gikz:'built-in',executablePath}));return;
+    }
+    if(args[0]==='mcp')args.shift();
+    if(args[0]&&!args[0].startsWith('-'))throw new Error('Unknown command: '+args[0]);
     const options = parseArgs(args);
 
     // Handle help and version BEFORE loading any dependencies
@@ -137,13 +156,13 @@ async function main() {
 
     // Server configuration
     const config = {
-      name: 'GeoGebra MCP Tool',
+      name: 'GeoGebra Studio',
       version: appInfo.version,
       description: appInfo.description,
       logLevel: options.logLevel as 'error' | 'warn' | 'info' | 'debug'
     };
 
-    logger.info('Starting GeoGebra MCP Tool...');
+    logger.info('Starting GeoGebra Studio...');
     logger.info(`Log level: ${config.logLevel}`);
 
     // Create and start the MCP server

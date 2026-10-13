@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { inWorkspace } from './export/workspace';
 import { createServer, Server as HttpServer } from 'http';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -17,8 +19,10 @@ import { McpServerConfig } from './types/mcp';
 import { instancePool } from './tools/geogebra-tools';
 import { optimizedInstancePool } from './utils/performance/instance-pool';
 
-const guidance = 'Use geogebra_create_html for a browser-only construction without Chromium. ' +
+const guidance = 'Use geogebra_build_artifact by default to produce a checked local HTML with a packed editable GGB and preview. geogebra_create_html is an unverified command-template alternative. ' +
+  'When saving files, pass workspace as the absolute user project directory; never use the installed plugin cache as the output directory. MCP roots are used when available. ' +
   'For server-side work use geogebra_eval_commands, then native exports. ' +
+  'All TikZ exports use native PGF followed by Gikz; never return raw PGF as a final export. ' +
   'Use geogebra_get_semantic_scene before semantic export; report unsupported objects and coordinate fallbacks. ' +
   'Use geogebra_api_list_methods and geogebra_api_call for public Apps API methods not covered by focused tools. ' +
   'All server-side tools share one construction. Do not interleave independent diagrams.';
@@ -37,12 +41,13 @@ export class McpServer extends EventEmitter {
       capabilities: { tools: {}, resources: {}, prompts: {} }, instructions: guidance,
     });
     const ajv = new Ajv({ strict: false, allErrors: true });
-    const core = new Set(['server_info','geogebra_eval_commands','geogebra_clear_construction',
+    const core = new Set(['geogebra_build_artifact','server_info','geogebra_eval_commands','geogebra_clear_construction',
       'geogebra_get_objects','geogebra_instance_status','geogebra_auto_zoom','geogebra_load_ggb',
       'geogebra_export_ggb','geogebra_export_png','geogebra_export_svg','geogebra_export_pdf',
       'geogebra_create_html','geogebra_export_html','geogebra_get_semantic_scene',
-      'geogebra_export_source','geogebra_clean_tikz','geogebra_api_list_methods','geogebra_api_call','geogebra_api_get_callback_events']);
+      'geogebra_export_source','geogebra_export_tikz','geogebra_clean_tikz','geogebra_api_list_methods','geogebra_api_call','geogebra_api_get_callback_events']);
     const tools = toolRegistry.getTools().filter(t => process.env['GEOGEBRA_TOOL_PROFILE'] !== 'core' || core.has(t.name))
+      .map(tool=>tool.inputSchema.properties['filename']?{...tool,inputSchema:{...tool.inputSchema,properties:{...tool.inputSchema.properties,workspace:{type:'string',description:'Absolute user workspace directory for saved files. Pass this when the client does not provide MCP roots; never use the plugin cache directory.'}}}}:tool)
       .sort((a,b)=>a.name.localeCompare(b.name));
     const validators = new Map(tools.map(t => [t.name, ajv.compile(t.inputSchema)]));
     sdk.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
@@ -54,7 +59,15 @@ export class McpServer extends EventEmitter {
       // Queue the entire operation, including export, to avoid cross-request mutation races.
       const operation = this.queue.then(async () => {
         try {
-          const result = await toolRegistry.executeTool(name, args);
+          let workspace=args['workspace'];
+          if(args['filename']!==undefined&&!workspace&&sdk.getClientCapabilities()?.roots){
+            const roots=await sdk.listRoots({}, {timeout:5000});
+            const folders=roots.roots.filter(root=>root.uri.startsWith('file:')).map(root=>fileURLToPath(root.uri));
+            workspace=folders.length===1?folders[0]:folders.find(root=>typeof args['filename']==='string'&&path.isAbsolute(args['filename'])&&args['filename'].startsWith(root+path.sep));
+          }
+          if(args['filename']!==undefined&&!workspace&&process.env['GEOGEBRA_PLUGIN_RUNTIME']==='1'&&!process.env['VSCODE_WORKSPACE_FOLDER'])
+            throw new Error('Provide workspace as the absolute user project directory. The plugin cache is not an output workspace.');
+          const result = await inWorkspace(workspace,()=>toolRegistry.executeTool(name, args));
           if (!result.structuredContent && result.content.length === 1 && result.content[0]?.text) {
             try {
               const value: unknown = JSON.parse(result.content[0].text);

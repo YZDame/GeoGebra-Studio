@@ -1,81 +1,15 @@
-# Modernization audit (2026-10-11)
+# GeoGebra Studio architecture
 
-## Starting points
+GeoGebra Studio is a local Codex plugin with an official MCP SDK server, three agent skills, a native GeoGebra HTML viewer, and the fused Gikz source/core. Portable plugin identity and MCP transport live in the root `plugin.json` and `mcp.json`; `.codex-plugin/plugin.json` and `.mcp.json` are generated compatibility files. `scripts/build-plugin.cjs` regenerates all manifests from `package.json`.
 
-GeoGebra MCP is the implementation repository. Gikz is a separate reference checkout
-at revision `390460600c5ad4b20e3af8912dfe6a412de7ac1b`.
-Existing tool names and text responses remain compatible.
+## Artifact flow
 
-The original server hand-rolls JSON-RPC and negotiates only MCP 2024-11-05.
-SVG calls a callback-based API synchronously; PDF prints a browser page rather
-than exporting the graphics view; GGB uses synchronous getBase64. Initialization
-probes create extra objects. These can be simplified with official APIs.
+`geogebra_build_artifact` creates an isolated `GeoGebraInstance`, executes commands in dependency order, rejects undefined visible objects, exports a real packed ZIP GGB, places that GGB into the final HTML, reopens it, checks object count and equal scales, and returns a PNG preview. A caller must inspect that preview before claiming visual review. The retained `geogebra_create_html` route creates an unverified command template.
 
-## Implementation stages
+The editable GGB/XML is the canonical construction. The HTML loads GeoGebra's official `deployggb.js` and needs network access. SVG, PDF, PNG and TikZ are static views. All TikZ exits run native GeoGebra PGF through the shared Gikz core; failures stop export. Gikz provenance and license are recorded in `gikz/PROVENANCE.md`.
 
-1. Record the audit and boundaries (this document).
-2. Official MCP SDK transport, validation, serialized construction access, resources,
-   prompts, and optional Streamable HTTP. Preserve existing tools.
-3. Browser-independent HTML creation, native callback exports, semantic snapshot,
-   TikZ/Asymptote/TSQX subset exporters, and optional external Gikz cleanup.
-4. Plugin manifests, focused construction/export skills, examples, validation,
-   and documentation of unsupported semantics and deployment requirements.
+## Supported exports
 
-## Export contract
+The viewer exports current-state GGB, PNG, SVG, TikZ, PDF, XML and HTML. TikZ is a cleaned static drawing; dependency semantics stay in GGB/XML. Asymptote and mixed TSQX/Asymptote use the documented semantic subset. The actual supported MCP protocol range follows the installed official SDK rather than a hard-coded latest-date claim.
 
-A `.ggb` is a ZIP archive returned by getBase64; XML alone is not a `.ggb`.
-HTML uses deployggb.js and GGBApplet and needs network access for GeoGebra assets.
-Native PNG/SVG/PDF are rendered exports, not editable construction definitions.
-Construction XML and command inputs/outputs are retained as provenance.
-Semantic converters support an explicit subset and report unsupported objects
-and coordinate fallbacks. They must never claim arbitrary lossless conversion.
-AI skills receive original definitions, styles, and warnings for the remainder.
-
-Gikz derives from GPL upstream. Invoke a separately installed, explicitly configured
-CLI; do not vendor its implementation or change this repository's MIT license.
-
-## Current official references
-
-- https://geogebra.github.io/docs/reference/en/GeoGebra_Apps_API/
-- https://geogebra.github.io/docs/reference/en/GeoGebra_App_Parameters/
-- https://modelcontextprotocol.io/specification/latest (resolved to 2026-07-28)
-- https://developers.openai.com/plugins/build/mcp-server
-- https://developers.openai.com/plugins/build/app-quickstart
-- https://developers.openai.com/plugins/build/plugins
-
-Use SDK negotiation rather than asserting support through a hardcoded date.
-Local plugin packaging is distinct from public directory submission: the latter
-requires a deployed HTTPS endpoint and platform review. No deployment or npm
-publication is part of this source modernization.
-
-## Protocol version boundary
-
-Installed official SDK 1.32.1 advertises up to 2025-11-25. It does **not**
-implement the latest 2026-07-28 revision. That revision removes initialization
-and protocol sessions, adds server/discover, per-request version/capability
-metadata, resultType, cache hints, and method/name HTTP headers. Do not merely
-change a date string to claim conformance. This implementation uses the SDK's
-actual supported versions and stateless HTTP mode; migrate to a supporting SDK
-when available, with discovery and header conformance tests.
-
-Reference: https://modelcontextprotocol.io/specification/2026-07-28/changelog
-
-## Implemented design
-
-The canonical editable artifact remains GGB; XML supplies a renderer-independent
-construction snapshot. Browser HTML and the headless engine use the same small
-applet bootstrap. Native callback exports replace synchronous guessing and page
-printing. A lightweight core tool profile avoids exposing teaching-template and
-performance machinery to every plugin conversation, without removing legacy tools.
-
-The source exporters use an explicit, documented semantic subset. They retain
-relations such as midpoint and circumcircle and emit unsupported-object reports
-for AI skills. TSQX currently combines native point definitions with Asymptote
-style/drawing injection. Gikz is an external CLI integration for cleanup/conversion.
-
-MCP Apps supplies the optional preview bridge; Agent Plugins manifests and Codex
-compatibility metadata package construction, export, and setup skills. These are
-local source/package deliverables. Public distribution needs deployment, identity,
-authentication/isolation, privacy/support metadata, and host-specific validation.
-
-See [VALIDATION.md](VALIDATION.md) for exercised behavior and unverified boundaries.
+See [VISUAL-STANDARD.md](VISUAL-STANDARD.md), [TANGENT-REGRESSION.md](TANGENT-REGRESSION.md), and [VALIDATION.md](VALIDATION.md).

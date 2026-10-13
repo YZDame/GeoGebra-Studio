@@ -73,32 +73,11 @@ export const geometryTemplates: EducationalTemplate[] = [
       });
 
       // Create angle measurements
-      await toolRegistry.executeTool('geogebra_create_angle', {
-        name: 'angleA',
-        vertex: 'A',
-        point1: 'B',
-        point2: 'C',
-        showLabel: true,
-        color: '#00AA00'
-      });
+      await toolRegistry.executeTool('geogebra_eval_command', {command: 'angleA = Angle(B, A, C)'});
 
-      await toolRegistry.executeTool('geogebra_create_angle', {
-        name: 'angleB',
-        vertex: 'B', 
-        point1: 'C',
-        point2: 'A',
-        showLabel: true,
-        color: '#00AA00'
-      });
+      await toolRegistry.executeTool('geogebra_eval_command', {command: 'angleB = Angle(C, B, A)'});
 
-      await toolRegistry.executeTool('geogebra_create_angle', {
-        name: 'angleC',
-        vertex: 'C',
-        point1: 'A', 
-        point2: 'B',
-        showLabel: true,
-        color: '#00AA00'
-      });
+      await toolRegistry.executeTool('geogebra_eval_command', {command: 'angleC = Angle(A, C, B)'});
 
       // Add dynamic text showing angle sum
       await toolRegistry.executeTool('geogebra_create_text', {
@@ -223,23 +202,9 @@ export const geometryTemplates: EducationalTemplate[] = [
       });
 
       // Create angles
-      await toolRegistry.executeTool('geogebra_create_angle', {
-        name: 'inscribedAngle',
-        vertex: 'A',
-        point1: 'B',
-        point2: 'C',
-        showLabel: true,
-        color: '#FF8800'
-      });
+      await toolRegistry.executeTool('geogebra_eval_command', {command: 'inscribedAngle = Angle(B, A, C)'});
 
-      await toolRegistry.executeTool('geogebra_create_angle', {
-        name: 'centralAngle',
-        vertex: 'O',
-        point1: 'B',
-        point2: 'C',
-        showLabel: true,
-        color: '#8800FF'
-      });
+      await toolRegistry.executeTool('geogebra_eval_command', {command: 'centralAngle = Angle(B, O, C)'});
 
       // Add relationship text
       await toolRegistry.executeTool('geogebra_create_text', {
@@ -522,23 +487,9 @@ export const geometryTemplates: EducationalTemplate[] = [
       });
 
       // Add corresponding angle markings
-      await toolRegistry.executeTool('geogebra_create_angle', {
-        name: 'angleA1',
-        vertex: 'A',
-        point1: 'B',
-        point2: 'C',
-        showLabel: true,
-        color: '#00AA00'
-      });
+      await toolRegistry.executeTool('geogebra_eval_command', {command: 'angleA1 = Angle(B, A, C)'});
 
-      await toolRegistry.executeTool('geogebra_create_angle', {
-        name: 'angleA2',
-        vertex: 'A2',
-        point1: 'B2',
-        point2: 'C2',
-        showLabel: true,
-        color: '#00AA00'
-      });
+      await toolRegistry.executeTool('geogebra_eval_command', {command: 'angleA2 = Angle(B2, A2, C2)'});
 
       // Add measurements and ratios
       await toolRegistry.executeTool('geogebra_create_text', {

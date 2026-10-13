@@ -1,5 +1,6 @@
+declare const __STUDIO_VERSION__:string;
 import { App } from '@modelcontextprotocol/ext-apps';
-const app = new App({name:'GeoGebra construction preview',version:'0.2.0'},{});
+const app = new App({name:'GeoGebra construction preview',version:__STUDIO_VERSION__},{});
 const frame = document.querySelector<HTMLIFrameElement>('#preview')!;
 const status = document.querySelector<HTMLElement>('#status')!;
 app.addEventListener('toolresult', result => {

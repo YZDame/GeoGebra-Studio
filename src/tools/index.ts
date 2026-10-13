@@ -156,7 +156,7 @@ const exampleTools: ToolDefinition[] = [
         content: [{
           type: 'text' as const,
           text: JSON.stringify({
-            name: 'GeoGebra MCP Tool',
+            name: 'GeoGebra Studio',
             version: appInfo.version,
             description: appInfo.description,
             toolCount: toolRegistry.getToolCount(),

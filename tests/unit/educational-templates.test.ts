@@ -1,3 +1,9 @@
+jest.mock('../../src/utils/geogebra-instance',()=>({GeoGebraInstance:jest.fn(()=>({
+ initialize:jest.fn(),cleanup:jest.fn(),newConstruction:jest.fn(),setValue:jest.fn(),
+ evalCommand:jest.fn().mockResolvedValue({success:true}),getAllObjectNames:jest.fn().mockResolvedValue([]),
+ getObjectInfo:jest.fn().mockResolvedValue({type:'point',defined:true}),callAppsApi:jest.fn(),
+ setCoordSystem:jest.fn(),setAxesVisible:jest.fn(),setGridVisible:jest.fn()
+}))}));
 /**
  * Educational Templates Unit Tests - GEB-8 Implementation
  * 

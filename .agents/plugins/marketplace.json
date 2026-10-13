@@ -1,0 +1,21 @@
+{
+  "name": "geogebra-studio",
+  "interface": {
+    "displayName": "GeoGebra Studio"
+  },
+  "plugins": [
+    {
+      "name": "geogebra-studio",
+      "source": {
+        "source": "npm",
+        "package": "@lydt/geogebra-studio",
+        "version": "0.4.0"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Education"
+    }
+  ]
+}

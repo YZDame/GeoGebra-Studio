@@ -1,40 +1,31 @@
 ---
 name: geometry-export
-description: Export GeoGebra diagrams to editable TikZ, Asymptote, or TSQX, preserving construction relations and reconstructing unsupported definitions with AI assistance.
+description: Export GeoGebra geometry to GGB, vector/image formats, cleaned TikZ, Asymptote or mixed TSQX/Asymptote, with explicit construction-provenance limits.
 ---
 
-Start from `geogebra_get_semantic_scene`. Retain its original XML, command inputs
-and outputs, captions, styles, visibility, and resolved coordinates. A screenshot
-provides appearance evidence; the XML provides definitions. Use both when available.
+The default HTML viewer downloads the current edited applet as GGB, PNG, SVG,
+TikZ (.tex), PDF, XML or another self-contained viewer HTML. Use native GGB/XML
+when users need editable construction definitions; decode GGB base64 into ZIP bytes.
+When a tool saves a file, pass `workspace` as the absolute user project directory,
+with `filename` relative to that directory. Never save into the installed plugin cache.
 
-Try `geogebra_export_source` with the requested format and `strict=true`. Its
-implemented subset covers free finite points, two-point midpoints, segments,
-polygons, and circles through a center and point or through three points.
-The result's `complete` describes that subset's geometry conversion; it does not
-prove identical layout. Inspect all warnings, including normalized dashes, marker
-styles, label placement, non-point labels, and omitted circle fill.
+Every TikZ path MUST use GeoGebra native PGF followed by built-in Gikz. Use
+geogebra_export_tikz or geogebra_export_source(format=tikz); the generic exportPGF
+bridge and viewer download follow the same policy. A cleaner failure is an error,
+never an excuse to return raw PGF. Gikz is included; do not install an external CLI.
+Its cleaning normalizes precision, colors, widths and labels. TikZ is a static
+visual snapshot, not a guaranteed dependency-preserving replacement for GGB.
+Use geogebra_clean_tikz for existing native PGF or explicit XML conversion.
 
-For unsupported definitions, get a `strict=false` draft and use the original XML
-to rebuild relations in the target language. Resolve dependencies before their
-outputs; retain intersection branch choices, tangency conditions, constrained
-points, orientation, and hidden helper objects. Do not substitute the current
-coordinates for a constrained point without identifying that loss. Keep a short
-mapping from each source object to its target definition and any unresolved choice.
+For Asymptote/TSQX, start from geogebra_get_semantic_scene and retain original XML,
+commands, captions, styles and coordinates. geogebra_export_source strict=true
+supports independent finite points, midpoints, segments, polygons and basic circles.
+Inspect all warnings. strict=false yields an explicit partial draft. Reconstruct
+unsupported relations using the XML; do not silently freeze dependent points.
+TSQX with injected Asymptote is mixed TSQX/Asymptote, not pure TSQX.
 
-TikZ's calc/intersections libraries can preserve basic affine and line relations.
-Asymptote's geometry module can represent constructions and intersections.
-TSQX handles native point definitions and common geometry expressions; use `!`
-Asymptote lines for operations or appearance it cannot express directly. Call such
-output **mixed TSQX/Asymptote** and keep one labeling mechanism. Do not label it pure
-TSQX when most geometry is injected Asymptote.
-
-For an existing noisy GeoGebra TikZ export, `geogebra_clean_tikz` invokes an external
-Gikz installation configured with `GIKZ_CLI`. Gikz also accepts XML. Its coordinate
-cleanup does not establish preserved construction dependencies. Preserve its
-separate upstream licensing; do not copy its implementation into this plugin.
-
-If the target toolchain exists, compile the source and inspect the rendered figure.
-Check mathematical relations separately from layout: equal-axis scale, branch
-choices, point incidence, clipped curves, label positions, and visibility. Deliver
-editable source, rendered output when requested, and specific unresolved warnings.
-Do not claim verification for a toolchain or host that was not exercised.
+Compile source when a toolchain is available/requested and inspect the figure.
+For an open .tex editor, edit that file in place and use its built-in compiler.
+Check point incidence, tangency, equal-axis scale, clipping, branches and labels.
+Report actual checks and remaining limitations; successful compilation is not proof
+of mathematical or visual correctness. See [regression](../../docs/TANGENT-REGRESSION.md).

@@ -5,7 +5,7 @@ import logger from './utils/logger';
 import { getAppInfo } from './utils/app-info';
 
 /**
- * Main entry point for the GeoGebra MCP Tool server
+ * Main entry point for the GeoGebra Studio server
  */
 async function main() {
   try {
@@ -13,7 +13,7 @@ async function main() {
 
     // Server configuration
     const config: McpServerConfig = {
-      name: 'GeoGebra MCP Tool',
+      name: 'GeoGebra Studio',
       version: appInfo.version,
       description: appInfo.description,
       logLevel: (process.env['LOG_LEVEL'] as 'error' | 'warn' | 'info' | 'debug') || 'info'

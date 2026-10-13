@@ -1,80 +1,28 @@
-# Validation evidence — 2026-10-11
+# Validation status — GeoGebra Studio 0.4.0 source candidate
 
-Validated locally on macOS with Node 25.2.1, official MCP SDK 1.32.1,
-MCP Apps helpers 2.0.3, Puppeteer 25.13.0, and installed Google Chrome.
-The Node minimum in package.json follows dependency requirements; Node 22 itself
-was not exercised in this run.
+## Passed locally
 
-## Exercised paths
+- TypeScript build and generated canonical/compatibility plugin manifests.
+- Jest unit suite: 15 suites, 200 tests, including explicit workspace isolation and MCP roots.
+- Official MCP SDK stdio handshake: 55 tools, including `geogebra_build_artifact`.
+- Clean npm package install with lifecycle scripts disabled, no external Gikz checkout, built-in TikZ cleanup, and MCP server startup.
+- The `rc.2` tarball passed an unpacked-plugin launcher test with no plugin node_modules; its npx prefix selected the actual runtime, workspace output succeeded, and missing-workspace writes were rejected.
+- A fresh local-source `rc.2` Codex session loaded three skills and generated the verified tangent HTML and preview in the user project, with the returned path checked against that project.
+- Native headless GeoGebra: actual packed GGB ZIP, final HTML reopen, 16 construction objects, and rejection of an invalid command without a success artifact.
+- Real Chrome viewer checks at four viewport sizes; equal axes and circle dimensions, 24 moving-A tangent/branch samples, LaTeX-label XML flags, editable original object sidebar, all seven downloads, saved HTML reopen, and native-edited PGF equality with shared Gikz output.
+- Gikz output is built into the HTML with its license notice; no `new Function` loading path or `GIKZ_CLI` dependency remains.
+- Every MCP TikZ route passed native PGF → built-in Gikz checks; the standalone cleaned result compiled to PDF with `latexmk`.
+- npm tarball and versioned plugin ZIP were built as local candidate artifacts.
+- Both the local-source path and the unmodified public `rc.2` npm plugin loaded all three skills, discovered the MCP server, called Gikz, and produced a verified native artifact in the user project through real fresh Codex app-server sessions.
+- Public `rc.2` was anonymously installed using a fresh npm cache and CODEX_HOME with lifecycle scripts disabled. Registry tarball integrity matched the accepted artifact. Its generated HTML passed responsive geometry, native editing, seven-download and shared-Gikz checks.
 
-- TypeScript build and self-contained MCP Apps widget bundle.
-- Official SDK stdio client: negotiation, tools, argument rejection, unknown tools,
-  resource reads, prompts, and backward-compatible echo output.
-- Official Streamable HTTP client: original 16-tool core profile, structured tool result,
-  no session ID, and untrusted Origin rejection. Temporary loopback port closed.
-- Three focused Jest suites: **37 tests passed** (server contract, semantic export,
-  and existing error handling). This is not a claim that the entire historical
-  integration/performance suite was run.
-- Real GeoGebra commands: free points, midpoint, segment, and three-point circle.
-  Original XML retains command dependencies. No extra health-probe object appears.
-- Native GGB/PNG/SVG/PDF exports. The packed GGB reopens in a fresh applet; direct
-  base64 loading also preserves objects and midpoint coordinates.
-- Real HTML button downloads: GGB, PNG, SVG, PDF, XML, and HTML, written by Chrome.
-  Reopening saved HTML retains the changed coordinate of a dragged/edited point.
-  Fit view uses equal axis scales; screenshots were inspected.
-- TikZ, Asymptote, and mixed TSQX/Asymptote sources compile to PDF. Rendered output
-  was compared. A compile-only check initially missed a TikZ length-unit error;
-  `verify-source.cjs` now checks the actual compiled circumcenter coordinates
-  against the fixture's known center (2,1).
-- External Gikz XML conversion at pinned reference revision produces standalone
-  TikZ and compiles. Gikz remains outside this MIT repository.
-- Portable plugin and MCP manifests validate against the published Agent Plugins
-  1.0.0 JSON schemas. All three skills pass Skill Creator's frontmatter validator.
-- npm pack dry run includes dist/widget.html, both plugin formats, and all skills.
-- Apps API bridge build and stdio negotiation: 53 full-profile tools; core profile
-  exposes 19 tools, including method discovery, invocation, and callback event reads.
-- Local Codex marketplace registration and plugin installation completed at
-  `geogebra-geometry@geogebra-local` version 0.3.1. The installed manifest points
-  to this local checkout for its MCP process. The live Apps API call could not be
-  smoke-tested in the restricted shell because Chromium failed to launch there.
-- `npm audit --omit=dev`: **0 known runtime vulnerabilities** after updates.
-  The legacy development dependency tree still reports findings; a full test/lint
-  tooling upgrade is separate work.
+## Release blockers
 
-## Reproduce
+- On 2026-10-13, `0.4.0-rc.1` was published and verified anonymously against the local tarball integrity. Public npx installation passed, but the installed MCP failed because npx mistook the unpacked package for a locally installed executable. A prefix probe fixed startup and revealed that output paths defaulted to the plugin cache.
+- `rc.2` is published and passed public marketplace acceptance. It fixes startup with a packaged neutral npm prefix, scopes output to an explicit workspace or MCP roots, and refuses silent writes into the plugin cache. The `next` tag points to `rc.2`; the automatic initial `latest` tag still points to `rc.1` pending separate npm authorization to remove it.
+- The accepted browser and Codex session checks ran on macOS with installed Google Chrome. The pinned managed-Chromium installation and Linux/macOS/Windows clean setups still need release CI before making cross-platform claims.
+- The source/workflow changes are local and have not been pushed. The workflow now publishes the exact acceptance tarball, tolerates the Registry scan delay, then runs public plugin acceptance; this updated GitHub workflow has not yet executed.
 
-```sh
-npm run verify
-npx jest --runInBand tests/server.test.ts tests/unit/semantic-export.test.ts tests/unit/errors.test.ts
-GEOGEBRA_TOOL_PROFILE=core node scripts/verify-http.cjs
-node scripts/verify-native.cjs
-node scripts/verify-html.cjs
-GIKZ_CLI=/absolute/path/to/Gikz/gikz.js node scripts/verify-exports.cjs
-node scripts/verify-source.cjs
-```
+## Candidate artifacts
 
-Set `PUPPETEER_EXECUTABLE_PATH` if using installed Chrome. Native/browser checks
-need network access. `verify-source.cjs` needs `pdflatex`, `asy`, and `tsqx`.
-Artifacts are retained locally in ignored `output/verification/`; the reproducible
-interactive example is [triangle.html](../examples/triangle.html). The Chinese problem example is [circle-tangency.html](../examples/circle-tangency.html); it includes an editable construction for the two circles and the moving point A, together with a single export selector.
-
-![Native construction and export controls](images/native-construction.png)
-
-## Boundaries
-
-- Codex plugin files are installed and enabled, but the desktop UI has not yet been
-  restarted or exercised with a new conversation. No ChatGPT sandbox validation was
-  performed. The MCP Apps resource and bridge are implemented, but host CSP,
-  download permissions, and GeoGebra assets must still be checked in that host.
-- No remote deployment, public plugin submission, or npm publication was performed.
-- MCP protocol coverage is the SDK's actual supported range, through 2025-11-25.
-  This does not implement the newer 2026-07-28 stateless/discovery revision.
-- Geometry export is an explicit subset. Unsupported objects, branch choices, and
-  coordinate fallbacks require review or AI reconstruction from original XML.
-  Presentation fidelity is limited as stated in result warnings.
-- Tests use representative 2D constructions; arbitrary 3D geometry, large projects,
-  macros, animation exports, CAS, and non-Latin label/font workflows remain outside
-  this validation. GeoGebra CDN availability can vary; initialization failures are
-  surfaced rather than converted into placeholder files.
-- Apps API bridge enumerates and calls methods available in the running applet.
-  Methods requiring DOM/browser-specific values still need dedicated wrappers.
+`release/` contains npm tarballs, versioned plugin ZIPs, and the current package inventory. `output/verification/` contains native MCP, browser, Registry-integrity and screenshot evidence. Build outputs are ignored by Git; only versions separately acknowledged and publicly readable on npm count as published.

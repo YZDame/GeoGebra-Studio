@@ -3,13 +3,17 @@
   "mcpServers": {
     "geogebra": {
       "type": "stdio",
-      "cwd": "./",
-      "command": "node",
+      "command": "npx",
       "args": [
-        "./dist/cli.js"
+        "--yes",
+        "--prefix",
+        "./runtime",
+        "@lydt/geogebra-studio@0.4.0",
+        "mcp"
       ],
       "env": {
-        "GEOGEBRA_TOOL_PROFILE": "core"
+        "GEOGEBRA_TOOL_PROFILE": "core",
+        "GEOGEBRA_PLUGIN_RUNTIME": "1"
       }
     }
   }

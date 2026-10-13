@@ -1,6 +1,8 @@
 // @ts-nocheck
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser, Page } from 'puppeteer-core';
+import { resolveBrowser } from '../studio/browser';
 import { constructionHtml } from '../export/html';
+import { currentWorkspace } from '../export/workspace';
 import { 
   GeoGebraConfig, 
   GeoGebraAPI, 
@@ -61,7 +63,7 @@ export class GeoGebraInstance implements GeoGebraAPI {
       // Launch browser
       this.browser = await puppeteer.launch({
         headless,
-        ...(process.env['PUPPETEER_EXECUTABLE_PATH'] ? { executablePath: process.env['PUPPETEER_EXECUTABLE_PATH'] } : {}),
+        executablePath: resolveBrowser(),
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -956,11 +958,13 @@ export class GeoGebraInstance implements GeoGebraAPI {
    * Export construction as SVG
    * GEB-17: Enhanced with better validation and error handling, no more placeholder responses
    */
+  /** Raw PGF is internal input to the mandatory Gikz pipeline. */
+  async exportNativeTikZ(): Promise<string> { return this.nativeExport('tikz'); }
   async exportSVG(): Promise<string> { return this.nativeExport('svg'); }
   async exportPDF(): Promise<string> { return this.nativeExport('pdf'); }
   async exportGGB(): Promise<string> { return this.nativeExport('ggb'); }
 
-  private async nativeExport(format: 'svg' | 'pdf' | 'ggb'): Promise<string> {
+  private async nativeExport(format: 'svg' | 'pdf' | 'ggb' | 'tikz'): Promise<string> {
     this.ensureInitialized();
     this.updateActivity();
     const result = await this.page!.evaluate((kind) => new Promise<string>((resolve, reject) => {
@@ -974,9 +978,14 @@ export class GeoGebraInstance implements GeoGebraAPI {
       try {
         if (kind === 'ggb') api.getBase64(done);
         else if (kind === 'svg') api.exportSVG(done);
+        else if (kind === 'tikz') api.exportPGF(done);
         else api.exportPDF(1, done);
       } catch (e) { clearTimeout(timer); reject(e); }
     }), format);
+    if (format === 'tikz') {
+      if (!result.includes('\\begin{tikzpicture}')) throw new GeoGebraError('Invalid native TikZ export');
+      return result;
+    }
     if (format === 'svg') {
       if (!result.includes('<svg')) throw new GeoGebraError('Invalid SVG export');
       return result;
@@ -986,6 +995,29 @@ export class GeoGebraInstance implements GeoGebraAPI {
     if (format === 'ggb' && bytes.subarray(0, 2).toString() !== 'PK') throw new GeoGebraError('GGB export is not a ZIP archive');
     if (format === 'pdf' && bytes.subarray(0, 5).toString() !== '%PDF-') throw new GeoGebraError('Invalid native PDF export');
     return base64;
+  }
+
+  /** Load a generated viewer and wait for its native applet and responsive layout. */
+  async renderHtml(html: string): Promise<void> {
+    this.ensureInitialized();
+    // A fresh document prevents lexical globals and old applet callbacks leaking between renders.
+    await this.page!.goto("about:blank");
+    await this.page!.setContent(html);
+    await this.page!.waitForFunction('window.ggbReady || window.ggbError', {timeout:60000});
+    const error=await this.page!.evaluate(()=>(window as any).ggbError);
+    if(error)throw new GeoGebraConnectionError(error);
+    await this.page!.waitForFunction(()=>{
+      const view=JSON.parse((window as any).ggbApplet.getViewProperties(1));
+      return view.width>0&&view.height>0&&Math.abs(view.invXscale/view.invYscale-1)<1e-6;
+    },{timeout:10000});
+  }
+  async capturePreview(): Promise<Uint8Array> {
+    this.ensureInitialized();
+    // Native LaTeX loads fonts after appletOnLoad; capture the completed paint.
+    // GeoGebra maintains background requests, so network idle is not a readiness condition.
+    await this.page!.evaluate(()=>new Promise(resolve=>setTimeout(resolve,2000)));
+    await this.page!.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
+    return this.page!.screenshot({type:'png'});
   }
 
   async getConstructionXML(): Promise<string> {
@@ -1129,7 +1161,7 @@ export class GeoGebraInstance implements GeoGebraAPI {
         const path = await import('path');
         
         // Resolve path relative to workspace or current directory
-        const workspaceDir = process.env['VSCODE_WORKSPACE_FOLDER'] || process.cwd();
+        const workspaceDir = currentWorkspace();
         const fullPath = this.validateFilePath(ggbBase64OrPath, workspaceDir);
         
         try {

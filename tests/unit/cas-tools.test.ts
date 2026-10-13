@@ -46,10 +46,13 @@ describe('CAS Tools (GEB-6)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Setup mock GeoGebra instance
     mockGeoGebraInstance = {
-      evalCommand: jest.fn(),
+      evalCommand: jest.fn().mockResolvedValue({success:true}),
+      exists: jest.fn().mockResolvedValue(true),
+      getValueString: jest.fn().mockResolvedValue('1'),
+      deleteObject: jest.fn().mockResolvedValue(undefined),
       getAllObjectNames: jest.fn(),
       getObjectInfo: jest.fn(),
       newConstruction: jest.fn(),
@@ -73,7 +76,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should solve a simple equation', async () => {
       // Mock successful equation solving
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: '{{-2, 2}}' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('{{-2, 2}}');
+
       const result = await toolRegistry.executeTool('geogebra_solve_equation', {
         equation: 'x^2 - 4 = 0'
       });
@@ -88,7 +92,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should solve equation with specified variable', async () => {
       // Mock successful equation solving with variable
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: '{{-3, 3}}' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('{{-3, 3}}');
+
       const result = await toolRegistry.executeTool('geogebra_solve_equation', {
         equation: 'y^2 - 9 = 0',
         variable: 'y'
@@ -116,7 +121,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should solve a system of equations', async () => {
       // Mock successful system solving
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: '{{3, 2}}' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('{{3, 2}}');
+
       const result = await toolRegistry.executeTool('geogebra_solve_system', {
         equations: ['x + y = 5', 'x - y = 1'],
         variables: ['x', 'y']
@@ -146,7 +152,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should differentiate a simple expression', async () => {
       // Mock successful differentiation
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: '2*x' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('2*x');
+
       const result = await toolRegistry.executeTool('geogebra_differentiate', {
         expression: 'x^2'
       });
@@ -162,7 +169,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should differentiate with respect to specified variable', async () => {
       // Mock successful differentiation with variable
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: '3*t^2' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('3*t^2');
+
       const result = await toolRegistry.executeTool('geogebra_differentiate', {
         expression: 't^3',
         variable: 't'
@@ -191,7 +199,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should integrate a simple expression', async () => {
       // Mock successful integration
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: 'x^2/2' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('x^2/2');
+
       const result = await toolRegistry.executeTool('geogebra_integrate', {
         expression: 'x'
       });
@@ -207,7 +216,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should integrate with respect to specified variable', async () => {
       // Mock successful integration with variable
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: 't^3/3' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('t^3/3');
+
       const result = await toolRegistry.executeTool('geogebra_integrate', {
         expression: 't^2',
         variable: 't'
@@ -225,7 +235,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should simplify a simple expression', async () => {
       // Mock successful simplification
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: '5*x' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('5*x');
+
       const result = await toolRegistry.executeTool('geogebra_simplify', {
         expression: '2*x + 3*x'
       });
@@ -240,7 +251,8 @@ describe('CAS Tools (GEB-6)', () => {
     it('should handle already simplified expressions', async () => {
       // Mock expression that's already simplified
       mockGeoGebraInstance.evalCommand.mockResolvedValueOnce({ success: true, result: 'x + 1' });
-      
+      mockGeoGebraInstance.getValueString = jest.fn().mockResolvedValue('x + 1');
+
       const result = await toolRegistry.executeTool('geogebra_simplify', {
         expression: 'x + 1'
       });
@@ -262,4 +274,6 @@ describe('CAS Tools (GEB-6)', () => {
       expect(response.error).toContain('Invalid expression');
     });
   });
-}); 
+});
+// Each test owns a new pooled mock; never reuse a prior test's instance.
+afterEach(async()=>{await require('../../src/tools/geogebra-tools').instancePool.cleanup();});

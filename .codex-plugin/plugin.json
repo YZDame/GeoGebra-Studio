@@ -1,7 +1,21 @@
 {
-  "name": "geogebra-geometry",
-  "version": "0.3.1",
-  "description": "Editable GeoGebra construction and semantic figure export",
+  "name": "geogebra-studio",
+  "version": "0.4.0",
+  "description": "GeoGebra Studio: editable geometry plugin with MCP, agent skills, interactive HTML and built-in Gikz",
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./.mcp.json",
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/geogebra-setup/SKILL.md",
+      "interface": {
+        "displayName": "GeoGebra Studio",
+        "shortDescription": "Editable geometry, interactive HTML and cleaned TikZ",
+        "developerName": "YZDame",
+        "category": "Education",
+        "defaultPrompt": [
+          "Construct an editable GeoGebra diagram from this problem and deliver a local HTML."
+        ]
+      }
+    }
+  }
 }

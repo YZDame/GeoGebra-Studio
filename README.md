@@ -1,182 +1,109 @@
-# GeoGebra MCP + geometry skills
+# GeoGebra Studio
 
-An MCP server and local plugin for editable GeoGebra constructions, interactive
-HTML, native file exports, and publication source with construction provenance.
+> Release status: `0.4.0-rc.2` is published on npm and passed anonymous public installation, fresh Codex-session MCP/artifact checks, and real-browser export checks on macOS with Chrome. Stable `0.4.0` awaits platform/CI checks. Use the pinned candidate below; see the [release record](docs/RELEASE-0.4.0-rc.2.md).
 
-[中文说明](README.zh-CN.md) · [Architecture and protocol audit](docs/MODERNIZATION.md)
+A local Codex plugin combining **MCP tools, agent skills, an editable GeoGebra HTML
+viewer, and built-in Gikz**. Describe a geometry problem; get a local HTML carrying
+a packed, editable GGB, then modify objects and download the current construction.
 
-## Quick start
+[中文](README.zh-CN.md) · [Visual standard](docs/VISUAL-STANDARD.md) · [Regression](docs/TANGENT-REGRESSION.md)
 
-Requires **Node >=22.12.0**. From this checkout:
+## Install the complete plugin
+
+Requires Node >=22.12.0, npm/npx and a Codex installation supporting plugin commands.
 
 ```sh
-npm ci
+npx @lydt/geogebra-studio@0.4.0-rc.2 install
+```
+
+Installation registers a persistent, version-pinned npm marketplace and installs
+both skills and MCP through Codex. It probes existing Chrome; if none is usable,
+it downloads managed Chromium. No GeoGebra desktop app or external Gikz is needed.
+Start a **new Codex session**, invoke `@geogebra-studio`, and describe the problem.
+
+```text
+Draw Gamma: x²+y²=25 and omega: (x−3)²+y²=64/25. A moves on Gamma.
+The two tangents from A to omega meet Gamma again at B and C.
+Deliver an editable local HTML with labels O, I, A, B, C, Γ and ω.
+```
+
+The agent uses `geogebra_build_artifact`: execute native commands, check visible
+objects, embed packed GGB, reopen the final viewer, check equal axes and return a
+preview for visual review. Output files are new files within the workspace; existing
+files are not overwritten. The example commands are in
+[examples/tangent-construction.json](examples/tangent-construction.json).
+The agent passes the absolute user project directory as `workspace` when saving;
+clients can also supply MCP roots. Output is never silently directed into the plugin cache.
+
+## Edit and download
+
+Open the HTML in a browser, drag A, or expand the left object sidebar to change
+original definitions/styles. Theme, light/dark and download buttons sit at the
+upper right. Nine paired themes are included.
+
+| Download | What it preserves |
+| --- | --- |
+| GGB | Native editable construction, relationships and styling |
+| HTML | Packed GGB, interactive viewer, themes and local cleaner |
+| XML | GeoGebra definitions and styles; not a packed GGB |
+| SVG / PDF | Static vector rendering |
+| PNG | Static raster rendering |
+| TikZ (.tex) | Native PGF passed through Gikz; normalized static source |
+
+**Every TikZ export uses native PGF → built-in Gikz → .tex.** This includes viewer
+downloads, geogebra_export_tikz, geogebra_export_source(format=tikz), and the generic
+exportPGF bridge. Failure is an error, with no raw fallback. Gikz normalizes colors,
+widths, label placement and precision; construction dependencies remain in GGB/XML.
+Asymptote and mixed TSQX/Asymptote retain the existing explicit semantic subset and
+strict/partial warnings. General relation reconstruction still requires review.
+
+## MCP-only and diagnostics
+
+```sh
+npx @lydt/geogebra-studio@0.4.0-rc.2 mcp          # MCP only; no-argument invocation also works
+npx @lydt/geogebra-studio@0.4.0-rc.2 doctor       # Browser launch and built-in Gikz check
+npx @lydt/geogebra-studio@0.4.0-rc.2 browser install
+```
+
+`mcp` alone does not install skills. PUPPETEER_EXECUTABLE_PATH selects a custom Chrome.
+GEOGEBRA_STUDIO_HOME controls Studio's browser cache; CODEX_HOME controls Codex's
+persistent catalog location. Never configure an ephemeral npx directory as a plugin.
+The plugin's MCP configuration invokes the exact matching package version.
+
+Native execution and opening the viewer require official GeoGebra network assets.
+Generated HTML is a local file, not a fully offline GeoGebra distribution. Gikz
+cleanup is local and makes no network request. Loading errors are shown explicitly.
+The initial release targets local Codex, not a hosted ChatGPT endpoint/public listing.
+
+## Develop and validate
+
+```sh
+npm ci --ignore-scripts
 npm run build
-node dist/cli.js
-```
-
-For server-side rendering, install Chromium with `npx puppeteer browsers install chrome`,
-or set `PUPPETEER_EXECUTABLE_PATH` to an installed Chrome executable.
-HTML generation itself does not launch a browser; opening the generated page
-requires internet access to GeoGebra's assets.
-
-Configure an MCP client:
-
-```json
-{
-  "mcpServers": {
-    "geogebra": {
-      "command": "node",
-      "args": ["/absolute/path/to/geogebra-mcp-server/dist/cli.js"],
-      "env": { "GEOGEBRA_TOOL_PROFILE": "core" }
-    }
-  }
-}
-```
-
-The core profile exposes 19 construction, inspection, export, and Apps API tools. Omit
-`GEOGEBRA_TOOL_PROFILE` to expose all 53 tools, including the original educational,
-CAS, animation, and performance tools. Existing names and text payloads are retained;
-object results also expose `structuredContent`.
-
-The Apps API bridge adds `geogebra_api_list_methods` and `geogebra_api_call` for
-public methods exposed by the running applet version. It complements the focused
-tools rather than replacing them. One-shot callback exports can be awaited, and
-persistent listeners can queue events under a callback ID for later retrieval. API
-availability varies by GeoGebra app/version, so inspect the live method list first.
-Construction replacement methods require an explicit `allowDestructive: true`.
-This bridge controls the MCP server's applet; it does not reach into an unrelated
-browser tab. Browser-only API arguments may still need dedicated wrappers. See
-[the API bridge notes](docs/APPS-API-BRIDGE.md).
-
-## Choose a workflow
-
-### Interactive HTML without a server-side browser
-
-Call `geogebra_create_html` with the arguments in [examples/triangle.json](examples/triangle.json).
-
-For a ready-to-open, draggable geometry example with compact Chinese controls and combined export selection, see [圆与切线](examples/circle-tangency.html) and its construction data in [circle-tangency.json](examples/circle-tangency.json). The page loads GeoGebra Classic from geogebra.org, so an internet connection is required.
-The returned HTML renders a Classic applet with LaTeX point labels and small,
-black point/line styling. Its buttons download the **current edited state** as
-GGB, PNG, SVG, PDF, XML, or HTML. Optional `filename` writes a new workspace file.
-Generated HTML is not an offline GeoGebra distribution.
-
-To package an existing live construction and its styles, call `geogebra_export_html`.
-
-### Direct native files
-
-1. `geogebra_clear_construction`
-2. `geogebra_eval_commands` with a dependency-ordered command batch
-3. Inspect with `geogebra_get_objects`; fit with `geogebra_auto_zoom` if needed
-4. `geogebra_export_ggb`, `geogebra_export_png`, `geogebra_export_svg`, or `geogebra_export_pdf`
-
-GGB uses the official asynchronous `getBase64(callback)` and is a real ZIP archive.
-SVG and PDF use native GeoGebra callbacks for the graphics view. XML is retained
-for provenance and is not renamed to GGB. GGB label controls (`labelMode`,
-`visibleLabels`) and original point/line defaults remain available.
-
-All server-side tools share **one construction per process**. Operations are queued,
-but separate diagrams must still be kept together by the client. This is a local,
-single-user server, not an isolated multi-tenant service.
-
-### Editable TikZ, Asymptote, and TSQX
-
-`geogebra_get_semantic_scene` returns original XML, command inputs/outputs,
-coordinates, visibility, captions, and styles. Pass `xml` to inspect an existing
-XML export without launching GeoGebra.
-
-Call `geogebra_export_source` with `format: "tikz"`, `"asymptote"`, or `"tsqx"`.
-It preserves an explicit subset: finite independent points, two-point midpoints,
-segments, polygons, and center-point or three-point circles. Dependencies remain
-expressions, rather than turning every derived point into a coordinate literal.
-
-- `strict: true` (default) refuses unsupported definitions or coordinate freezing.
-- `strict: false` produces a partial draft with `coordinateFallbacks`,
-  `unsupportedObjects`, and warnings.
-- `standalone: false` returns a TikZ fragment; default is a complete LaTeX document
-  using the `calc` library.
-- TSQX output is **mixed TSQX/Asymptote**, with native point definitions and explicit
-  Asymptote drawing/style operations.
-
-`complete` concerns the supported geometry subset. Label placement, dash patterns,
-marker styles, non-point labels, and circle fills have documented presentation
-limits. Read warnings and inspect the result. General conics, loci, arbitrary
-functions, constrained points, and intersection branches need additional backends
-or the packaged `geometry-export` skill's AI-assisted reconstruction workflow.
-
-### Optional Gikz integration
-
-Gikz remains a separately installed GPL CLI. No Gikz implementation is vendored.
-Set `GIKZ_CLI` to its absolute `gikz.js` path in the MCP server environment:
-
-```json
-{ "GIKZ_CLI": "/absolute/path/to/Gikz/gikz.js" }
-```
-
-`geogebra_clean_tikz` accepts native TikZ text or GeoGebra XML in `source`, plus
-Gikz's `standalone`, `points`, `labels`, and `round` options. Cleanup is not a promise
-of preserved geometric dependencies. For a saved GGB, load it with
-`geogebra_load_ggb`, retrieve its XML, then use this tool, or use Gikz's own file CLI.
-The integration was checked against Gikz revision
-`390460600c5ad4b20e3af8912dfe6a412de7ac1b`.
-
-New HTML/source/cleaned-text exports only create new files inside the workspace;
-existing files and symlink destinations are rejected. Existing native export
-options retain their previous behavior.
-
-## Plugin and MCP Apps UI
-
-This root is a portable Agent Plugins package: `plugin.json`, `mcp.json`, and
-three skills (`geogebra-setup`, `geogebra-construct`, `geometry-export`).
-`.codex-plugin/plugin.json` and `.mcp.json` provide Codex compatibility.
-Build and install dependencies in the checkout before connecting its local MCP.
-Plugin-relative `cwd` runs the CLI from this root; clients that do not support that
-resolution should use the absolute CLI configuration above.
-
-HTML tools link to the standard MCP Apps resource `ui://geogebra/preview.html`
-using `_meta.ui.resourceUri`. The bundled view uses the official MCP Apps bridge,
-with GeoGebra network domains declared in its resource CSP. Hosts without MCP Apps
-support can use the HTML returned by the tool. In-host ChatGPT installation and
-sandbox permissions still require verification; browser HTML verification alone
-does not establish ChatGPT compatibility.
-
-## Protocol and remote deployment
-
-The official TypeScript MCP SDK handles stdio framing, initialization, negotiation,
-and Streamable HTTP. SDK 1.32.1 supports through **2025-11-25**. The latest published
-specification found during this audit is **2026-07-28**, which introduces a stateless
-request/discovery model. This project does not claim that newer revision's
-conformance; see the [migration boundary](docs/MODERNIZATION.md#protocol-version-boundary).
-
-```sh
-node dist/cli.js --port 8787
-# http://127.0.0.1:8787/mcp
-```
-
-HTTP is loopback-only with Host/Origin checks and no protocol session IDs.
-Public OpenAI connections require a deployed HTTPS endpoint, appropriate
-authentication, per-user construction/workspace isolation, and host testing.
-Local plugin packaging does not publish an app, npm release, or directory listing.
-
-## Verification
-
-```sh
+npm run test:unit
 npm run verify
-npx jest --runInBand tests/server.test.ts tests/unit/semantic-export.test.ts
-# Real browser/network required:
 npm run verify:native
-node scripts/verify-html.cjs
-# Optional external Gikz:
-GIKZ_CLI=/absolute/path/to/Gikz/gikz.js node scripts/verify-exports.cjs
 ```
 
-The scripts write artifacts under ignored `output/verification/`. Optional
-`pdflatex`, `asy`, and `tsqx` can compile the generated source independently.
-See [validation evidence](docs/VALIDATION.md) for the exercised paths and limits.
+Native/browser checks need Chrome and internet. `node scripts/verify-viewer.cjs`
+checks responsive geometry, native sidebar editing and seven downloads;
+`node scripts/verify-gikz-mcp.cjs` checks the actual MCP TikZ routes.
+Build outputs and all licenses ship in npm and versioned plugin ZIP artifacts.
+Published marketplace packages do not rely on install-time build/lifecycle scripts.
+For unpublished authoring, `node dist/cli.js install --local` installs a stable local
+copy; use a fresh CODEX_HOME to isolate a test installation. Source-build validation
+and an SDK handshake alone do not establish real plugin loading in a fresh session.
 
-## Origin and license
+## Migration and licensing
 
-Independently maintained fork of [efebausal/gebrai](https://github.com/efebausal/gebrai),
-retaining MIT licensing and upstream attribution. Gikz derives from
-[GGB-Tikz-Code-Filter](https://github.com/By990920/GGB-Tikz-Code-Filter) and is GPL;
-keep its license and notices with that separate installation.
+GeoGebra Studio succeeds @lydt/geogebra-mcp-server and plugin geogebra-geometry.
+Existing geogebra_* tool names and the geogebra-mcp binary alias remain. Install the
+new plugin, verify it in a new session, then remove the old one if desired; the
+installer does not remove it automatically. GIKZ_CLI is no longer needed or used.
+The GitHub repository URL remains valid under its original name until its owner
+renames it; package branding does not require an immediate repository rename.
+
+The combined distribution is GPL-2.0-or-later. Original MCP portions retain their
+MIT notices in LICENSE-MIT; Gikz's upstream attribution and source are in gikz/.
+Clipper-derived palettes retain their MIT notices in THIRD_PARTY_NOTICES.md.
+This plugin is independently maintained and is not an official GeoGebra product.

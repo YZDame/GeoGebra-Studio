@@ -1,53 +1,89 @@
-# GeoGebra MCP 与几何导出插件
+# GeoGebra Studio
 
-本项目通过 MCP 调用 GeoGebra，生成可编辑的图形与出版用源码。
-完整配置见 [English README](README.md)，改造依据见 [审计记录](docs/MODERNIZATION.md)。
+> 发布状态：`0.4.0-rc.2` 已发布到 npm，并在 macOS + Chrome 上通过匿名公共安装、全新 Codex 会话中的 MCP/图形交付和真实浏览器导出验收。正式 `0.4.0` 仍待平台及 CI 检查。请使用下面的固定候选版本；详见[发布记录](docs/RELEASE-0.4.0-rc.2.md)。
 
-需要 Node >=22.12.0。源码安装：`npm ci`、`npm run build`，启动：`node dist/cli.js`。
-直接导出需要 Chromium；可用 `npx puppeteer browsers install chrome` 安装，或用
-`PUPPETEER_EXECUTABLE_PATH` 指定已有 Chrome。
+将 **MCP、agent skills、可编辑 GeoGebra HTML 查看器与内置 Gikz** 打包在一起的
+本地 Codex 插件。描述几何题，获得内嵌真正 GGB 的本地 HTML，随后编辑与下载。
 
-## 两种作图方式
+[English](README.md) · [视觉规范](docs/VISUAL-STANDARD.md) · [回归案例](docs/TANGENT-REGRESSION.md)
 
-- `geogebra_create_html`：提供 GeoGebra 命令数组，直接生成 HTML，生成时不启动浏览器。
-  用户打开页面后加载 GeoGebra，可拖动点，再下载当前状态的 GGB、PNG、SVG、PDF、XML 或 HTML。
-  页面依赖 GeoGebra 网络资源，不能当作离线 GeoGebra 安装包。
-- 服务端作图：清空构造，批量执行命令，再通过原有工具导出。
-  GGB 使用官方异步 `getBase64`，SVG/PDF 使用原生回调，保留 LaTeX 标签和小点、细线默认设置。
-  自动缩放保持坐标轴等比例，并等待缩放动画完成。
+## 安装完整插件
 
-## 保留图形语义的导出
+需要 Node ≥22.12.0、npm/npx，以及支持 plugin 命令的 Codex。
 
-`geogebra_get_semantic_scene` 提取原始 XML、命令输入输出、坐标与样式。
-`geogebra_export_source` 支持 TikZ、Asymptote 和混合 TSQX/Asymptote。
-当前实现覆盖自由点、两点中点、线段、多边形、圆心加圆上一点以及三点圆。
-中点等从属对象保留依赖表达式。
+```sh
+npx @lydt/geogebra-studio@0.4.0-rc.2 install
+```
 
-默认严格模式拒绝不支持的定义。`strict=false` 可输出草稿，并明确列出省略对象、
-退回坐标的对象以及样式警告。标签位置、部分点型和线型不保证与原图一致。
-复杂交点、切线、一般圆锥曲线和轨迹等，可由插件内的 `geometry-export` skill
-结合原始定义辅助重建。TSQX 内含 Asymptote 注入时，明确标为混合流程。
+安装器登记持久化、固定版本的 npm marketplace，通过 Codex 安装 skills 和 MCP。
+优先检测并试启动现有 Chrome；没有可用版本时下载受管理的 Chromium。
+不需要 GeoGebra 桌面客户端，也不需要单独安装 Gikz。
+安装后开启**新会话**，引用 `@geogebra-studio` 并描述题意，例如：
 
-## Gikz
+> 画圆 Γ：x²+y²=25 与圆 ω：(x−3)²+y²=64/25。A 在 Γ 上运动，过 A 作 ω 的两条
+> 切线，与 Γ 再交于 B、C。生成可编辑的本地 HTML，标注 O、I、A、B、C、Γ、ω。
 
-`geogebra_clean_tikz` 调用单独安装的 Gikz，支持 TikZ 清洗与 XML 转换。
-设置 `GIKZ_CLI` 为其 `gikz.js` 的绝对路径。Gikz 带有 GPL 上游代码，项目没有把它复制到
-MIT 本体中。清洗后的坐标图不能直接视为保留全部几何依赖。
+默认工具 `geogebra_build_artifact` 执行原生构造、检查可见对象、打包 GGB，重新
+打开最终 HTML 并检查等比画布，返回预览供 agent 检查。仅创建工作区内新文件，
+不会覆盖已有文件。完整参数见 examples/tangent-construction.json。
+保存文件时，agent 将用户项目的绝对目录传入 `workspace`；客户端也可以提供 MCP roots。
+输出文件不会默认落入插件缓存目录。
 
-## 插件与协议边界
+## 编辑与下载
 
-仓库包含标准 `plugin.json`、`mcp.json`，以及 Codex 兼容配置和三个 skills。
-插件默认使用 19 个工具的 core profile；原有客户端不设置 profile 时仍可访问完整工具集。
-新增 `geogebra_api_list_methods` 和 `geogebra_api_call`，可查询并调用当前 GeoGebra 版本公开的 Apps API 方法。
-`geogebra_api_get_callback_events` 可读取持续事件监听的回调队列；一次性导出回调也可等待结果。
-清空、替换构造的 API 方法需要显式传入 `allowDestructive: true`。
-详细说明见 [Apps API 桥接说明](docs/APPS-API-BRIDGE.md)。这个桥接操作的是 MCP 自己的服务端 GeoGebra 实例，
-不会直接控制另一个浏览器标签页中打开的 HTML 图形；需要 DOM 或浏览器文件对象的 API 仍可能需要专用封装。
-HTML 工具提供 MCP Apps 标准 UI 资源；真实 ChatGPT 沙箱内仍需另行安装验证。
+打开 HTML 后可拖动 A；左侧按钮展开原生对象栏，可修改定义与样式。
+右上角有主题菜单、独立深浅色切换和下载菜单，提供九组配色。
 
-本项目采用官方 MCP SDK 1.32.1，实际协商版本最高为 2025-11-25。
-审计时官网最新规范为 2026-07-28，已大幅改变握手与请求模型，本项目没有把日期字符串
-改成新版本来宣称兼容。迁移差异已记录，需配合支持新规范的 SDK 继续升级。
+| 格式 | 内容 |
+| --- | --- |
+| GGB | 原生可编辑对象、构造关系和样式 |
+| HTML | GGB、交互查看器、主题和本地清洗器 |
+| XML | GeoGebra 定义与样式，不是打包 GGB |
+| SVG / PDF | 静态矢量图 |
+| PNG | 静态位图 |
+| TikZ | 原生 PGF 经 Gikz 清洗的静态源码 |
 
-`--port 8787` 提供仅绑定本机的 Streamable HTTP。公开接入 OpenAI 还需要 HTTPS、鉴权、
-用户隔离与平台验证。此源码改造不等于发布插件目录、部署远程服务或发布 npm 包。
+所有 TikZ 入口统一经过**原生 PGF → 内置 Gikz → .tex**；清洗失败报错，没有原始
+代码回退。清洗会规范化颜色、线宽、坐标精度及标签位置；完整构造关系保存在
+GGB/XML。Asymptote 与混合 TSQX/Asymptote 保留原有语义子集及 strict/partial 警告，
+一般构造关系的转换仍需检查。
+
+## 单独启动 MCP 与诊断
+
+```sh
+npx @lydt/geogebra-studio@0.4.0-rc.2 mcp
+npx @lydt/geogebra-studio@0.4.0-rc.2 doctor
+npx @lydt/geogebra-studio@0.4.0-rc.2 browser install
+```
+
+无参数也启动 MCP；单独运行 MCP 不会安装 skills。
+PUPPETEER_EXECUTABLE_PATH 可指定 Chrome；GEOGEBRA_STUDIO_HOME 控制浏览器缓存，
+CODEX_HOME 控制 Codex 持久化目录。插件配置绑定同版本 npm 包，不指向临时 npx 目录。
+
+执行原生构造、打开 HTML 均需要联网加载 GeoGebra 官方资源；HTML 不是完整离线版
+GeoGebra。Gikz 本地清洗不上传图形。加载失败会显示具体错误。
+首发面向本地 Codex，不包含远程 HTTPS 服务或 ChatGPT 公共目录上架。
+
+## 开发、验收与迁移
+
+```sh
+npm ci --ignore-scripts
+npm run build
+npm run test:unit
+npm run verify
+npm run verify:native
+```
+
+真实引擎/浏览器检查需要 Chrome 和网络。verify-viewer.cjs 检查响应式画布、原生
+对象栏编辑与七种下载；verify-gikz-mcp.cjs 检查实际 MCP TikZ 出口。
+npm 和 plugin ZIP 包携带构建结果、源码及许可证，不依赖安装时编译。
+未发布的开发测试可运行 `node dist/cli.js install --local`，使用独立 CODEX_HOME
+隔离测试；SDK 调通或源码构建成功，均不能代替新会话中的插件加载验收。
+
+新包替代 @lydt/geogebra-mcp-server 与 geogebra-geometry 插件，保留 geogebra_* 工具名
+和 geogebra-mcp 命令别名。新插件验收后可手动删除旧插件；安装器不会自动卸载。
+不再使用 GIKZ_CLI。GitHub 仓库由维护者后续改名，届时更新链接。
+
+融合发行版采用 GPL-2.0-or-later。原 MCP 的 MIT 声明保留在 LICENSE-MIT，Gikz
+源码及来源保存在 gikz/，Clipper 配色的 MIT 声明保留在 THIRD_PARTY_NOTICES.md。
+本插件独立维护，并非 GeoGebra 官方产品。

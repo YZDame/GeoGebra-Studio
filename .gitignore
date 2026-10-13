@@ -108,3 +108,5 @@ Thumbs.db /.env.example
 
 # npm configuration with tokens
 .npmrc
+
+/release/

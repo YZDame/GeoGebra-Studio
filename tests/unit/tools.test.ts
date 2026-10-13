@@ -7,6 +7,7 @@ jest.mock('../../src/utils/geogebra-instance', () => {
       // Return the global mock instance that will be set up in beforeEach
       return globalMockInstance || {
         evalCommand: jest.fn().mockResolvedValue({ success: true, result: 'fallback' }),
+        callAppsApi: jest.fn().mockResolvedValue(undefined),
         getAllObjectNames: jest.fn().mockResolvedValue([]),
         getObjectInfo: jest.fn().mockResolvedValue({ name: 'fallback', type: 'point', visible: true, defined: true }),
         newConstruction: jest.fn().mockResolvedValue(undefined),
@@ -48,6 +49,7 @@ describe('ToolRegistry', () => {
     // Each test will set up the specific responses it needs
     mockGeoGebraInstance = {
       evalCommand: jest.fn(),
+      callAppsApi: jest.fn(),
       getAllObjectNames: jest.fn(),
       getObjectInfo: jest.fn(),
       newConstruction: jest.fn(),
@@ -453,3 +455,6 @@ describe('ToolRegistry', () => {
     });
   });
 }); 
+
+// Each test owns a new pooled mock; never reuse a prior test's instance.
+afterEach(async()=>{await require('../../src/tools/geogebra-tools').instancePool.cleanup();});

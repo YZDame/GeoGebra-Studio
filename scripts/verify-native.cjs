@@ -2,6 +2,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');
 const {GeoGebraInstance}=require('../dist/utils/geogebra-instance');
 const {sceneFromXML,exportSource}=require('../dist/export/semantic');
+const {cleanWithGikz}=require('../dist/export/gikz');
 const {constructionHtml}=require('../dist/export/html');
 (async()=>{
   await fs.mkdir('output/verification',{recursive:true});
@@ -30,7 +31,7 @@ const {constructionHtml}=require('../dist/export/html');
     }
     for(const format of ['tikz','asymptote','tsqx']){
       const result=exportSource(scene,format);
-      assert(result.complete);await fs.writeFile(`output/verification/live.${{tikz:'tex',asymptote:'asy',tsqx:'tsqx'}[format]}`,result.code);
+      assert(result.complete);const code=format==='tikz'?await cleanWithGikz(await instance.exportNativeTikZ(),{standalone:true}):result.code;await fs.writeFile(`output/verification/live.${{tikz:'tex',asymptote:'asy',tsqx:'tsqx'}[format]}`,code);
     }
     const ggb=await instance.exportGGB();
     await fs.writeFile('output/verification/live.html',constructionHtml({title:'Live exported construction',ggbBase64:ggb}));

@@ -41,10 +41,10 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Setup mock GeoGebra instance
     mockGeoGebraInstance = {
-      evalCommand: jest.fn(),
+      evalCommand: jest.fn().mockResolvedValue({success:true}),
       isReady: jest.fn(),
       cleanup: jest.fn(),
       getState: jest.fn(),
@@ -65,7 +65,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
   describe('Standard Function Plotting (geogebra_plot_function)', () => {
     it('should plot a simple quadratic function', async () => {
-      // Mock specific function info for this test
+      // Mock specific function info for this tes
       mockGeoGebraInstance.getObjectInfo.mockResolvedValueOnce({
         name: 'f',
         type: 'function',
@@ -74,7 +74,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
         defined: true,
         color: '#FF0000'
       });
-      
+
       const result = await toolRegistry.executeTool('geogebra_plot_function', {
         name: 'f',
         expression: 'x^2'
@@ -82,7 +82,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.command).toBe('f(x) = x^2');
       expect(response.function?.name).toBe('f');
@@ -100,7 +100,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.command).toBe('g(x) = If(0 <= x <= 6.28, sin(x), ?)');
       expect(response.domain).toEqual({ xMin: 0, xMax: 6.28 });
@@ -117,7 +117,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.styling.color).toBe('#FF0000');
       expect(response.styling.thickness).toBe(3);
@@ -132,7 +132,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(false);
       expect(response.error).toContain('Invalid expression');
     });
@@ -147,7 +147,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(false);
       expect(response.error).toContain('Invalid domain');
     });
@@ -161,7 +161,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(false);
       expect(response.error).toContain('Invalid styling');
     });
@@ -180,7 +180,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.command).toBe('circle = Curve(cos(t), sin(t), t, 0, 6.28)');
       expect(response.parametric.xExpression).toBe('cos(t)');
@@ -201,7 +201,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.command).toBe('spiral = Curve(s*cos(s), s*sin(s), s, 0, 10)');
       expect(response.parametric.parameter).toBe('s');
@@ -221,7 +221,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.styling.color).toBe('#00FF00');
       expect(response.styling.thickness).toBe(2);
@@ -240,7 +240,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(false);
       expect(response.error).toContain('Invalid expressions');
     });
@@ -257,7 +257,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.parametric.parameter).toBe('t');
     });
@@ -272,7 +272,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.command).toBe('circle = ImplicitCurve(x^2 + y^2 - 4)');
       expect(response.implicit.expression).toBe('x^2 + y^2 - 4');
@@ -289,7 +289,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.styling.color).toBe('#0000FF');
       expect(response.styling.thickness).toBe(4);
@@ -304,7 +304,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(true);
       expect(response.command).toBe('hyperbola = ImplicitCurve(x^2 - y^2 - 1)');
     });
@@ -317,7 +317,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(false);
       expect(response.error).toContain('Invalid expression');
       expect(response.error).toContain('both x and y variables');
@@ -331,7 +331,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
-      
+
       expect(response.success).toBe(false);
       expect(response.error).toContain('Invalid expression');
     });
@@ -345,14 +345,14 @@ describe('Function Plotting Tools (GEB-5)', () => {
         'f2': { name: 'f2', type: 'curve', value: 'parametric', visible: true, defined: true, color: '#00FF00' },
         'f3': { name: 'f3', type: 'implicitcurve', value: 'x^2 + y^2 - 1', visible: true, defined: true, color: '#0000FF' }
       };
-      
+
       // Override getAllObjectNames and getObjectInfo to work together
       mockGeoGebraInstance.getAllObjectNames.mockResolvedValue(['f1', 'f2', 'f3']);
       mockGeoGebraInstance.getObjectInfo.mockImplementation((name: string) => {
         return Promise.resolve(objectInfoMap[name as keyof typeof objectInfoMap] || null);
       });
 
-      // Clear construction first
+      // Clear construction firs
       await toolRegistry.executeTool('geogebra_clear_construction', {});
 
       // Plot standard function
@@ -385,7 +385,7 @@ describe('Function Plotting Tools (GEB-5)', () => {
 
       expect(objectsResponse.success).toBe(true);
       expect(objectsResponse.objectCount).toBe(3);
-      
+
       const objectNames = objectsResponse.objects.map((obj: any) => obj.name);
       expect(objectNames).toContain('f1');
       expect(objectNames).toContain('f2');
@@ -416,4 +416,6 @@ describe('Function Plotting Tools (GEB-5)', () => {
       expect(exportResponse.success).toBe(true);
     });
   });
-}); 
+});
+// Each test owns a new pooled mock; never reuse a prior test's instance.
+afterEach(async()=>{await require('../../src/tools/geogebra-tools').instancePool.cleanup();});

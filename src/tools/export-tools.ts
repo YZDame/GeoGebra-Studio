@@ -1,3 +1,5 @@
+import { buildArtifact } from '../studio/artifact';
+import { HtmlOptions } from '../export/html';
 import { ToolDefinition } from '../types/mcp';
 import { constructionHtml } from '../export/html';
 import { sceneFromXML, exportSource, SourceFormat } from '../export/semantic';
@@ -13,17 +15,52 @@ const safe = (handler: ToolDefinition['handler']): ToolDefinition['handler'] => 
 const scene = async (params: Record<string, unknown>) => sceneFromXML(
   typeof params['xml']==='string' ? params['xml'] : await (await instancePool.getDefaultInstance()).getConstructionXML()
 );
+/** Both named TikZ export and format=tikz use native PGF, then mandatory Gikz.
+ * Optional XML is loaded temporarily; restore the shared live construction even on failure.
+ */
+async function nativeCleanedTikz(p: Record<string, unknown>) {
+  const engine = await instancePool.getDefaultInstance();
+  const xml = typeof p['xml'] === 'string' ? sceneFromXML(p['xml']).xml : undefined;
+  const previous = xml ? await engine.getConstructionXML() : undefined;
+  let source: string;
+  try {
+    if (xml) await engine.callAppsApi('setXML', [xml]);
+    source = await engine.exportNativeTikZ();
+  } finally {
+    if (previous) await engine.callAppsApi('setXML', [previous]);
+  }
+  const code = await cleanWithGikz(source, {standalone: p['standalone'] !== false});
+  const saved = await saveText(p['filename'], code);
+  return textResult({success:true,format:'tikz',code,backend:'native-pgf+gikz',cleaned:true,
+    semantics:'visual-snapshot',complete:false,coordinateFallbacks:[],unsupportedObjects:[],
+    warnings:['Native PGF followed by Gikz produces a visual snapshot; construction dependencies are retained in GGB/XML, not guaranteed in TikZ.',
+      'Gikz normalizes colors, line widths, labels and coordinate precision. Inspect the printed result.'],
+    ...(saved ? {filename:saved} : {}),renderVerified:false});
+}
 const filename = {type:'string',description:'Optional new file within workspace; existing files are not overwritten.'};
 export const exportTools: ToolDefinition[] = [
   {
-    tool:{name:'geogebra_create_html',description:'Generate a standalone interactive GeoGebra HTML with current-state GGB, PNG, SVG, PDF, XML and HTML downloads. No Chromium needed to generate; opening requires GeoGebra network access.',
+    tool:{name:'geogebra_build_artifact',description:'Default geometry delivery: execute ordered commands in an isolated GeoGebra engine, check visible definitions, embed a packed editable GGB into local HTML, reopen and check equal axes, and return a preview for visual review. Requires Chrome and GeoGebra network access; writes new workspace files only.',
+      _meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},
+      inputSchema:{type:'object',properties:{
+        commands:{type:'array',items:{type:'string',maxLength:10000},maxItems:2000},ggbBase64:{type:'string'},
+        title:{type:'string',maxLength:500},filename:{type:'string',description:'New .html file within the workspace; a sibling .preview.png is also created.'},
+        width:{type:'integer',minimum:200,maximum:4000},height:{type:'integer',minimum:200,maximum:4000},
+        visibleLabels:{type:'array',items:{type:'string'}},captionOverrides:{type:'object',additionalProperties:{type:'string'}}
+      },required:['filename'],additionalProperties:false}},
+    handler:safe(async p=>buildArtifact(p as unknown as HtmlOptions & {filename:string})),
+  },
+  {
+    tool:{name:'geogebra_create_html',description:'Generate an unverified command-template GeoGebra HTML; prefer geogebra_build_artifact for default checked delivery. This generates an interactive GeoGebra HTML with current-state GGB, PNG, SVG, Gikz-cleaned native TikZ, PDF, XML and HTML downloads. No Chromium needed to generate; opening requires GeoGebra network access.',
       annotations:{readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:false},
       _meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},
       inputSchema:{type:'object',properties:{
         title:{type:'string',maxLength:500},commands:{type:'array',items:{type:'string',maxLength:10000},maxItems:2000},
         ggbBase64:{type:'string',description:'Optional packed GGB; commands run after loading it.'},
         width:{type:'integer',minimum:200,maximum:4000},height:{type:'integer',minimum:200,maximum:4000},
-        visibleLabels:{type:'array',items:{type:'string'}},filename,
+        visibleLabels:{type:'array',items:{type:'string'}},
+        captionOverrides:{type:'object',description:'Optional LaTeX or plain-text captions keyed by GeoGebra object name.',additionalProperties:{type:'string'}},
+        filename,
       },additionalProperties:false}},
     handler:safe(async p=>{
       if(!p['commands']&&!p['ggbBase64']) throw new Error('Provide commands or ggbBase64');
@@ -47,21 +84,27 @@ export const exportTools: ToolDefinition[] = [
     handler:safe(async p=>textResult({success:true,scene:await scene(p)})),
   },
   {
-    tool:{name:'geogebra_export_source',description:'Export an explicit semantic subset to TikZ, Asymptote, or mixed TSQX/Asymptote. Supports independent points, two-point midpoint, segments, polygons, center-point and three-point circles. Strict by default; partial drafts report omissions and frozen dependencies.',
+    tool:{name:'geogebra_export_tikz',description:'Export current GeoGebra native PGF through mandatory Gikz cleanup. Returns a visual snapshot, not editable construction dependencies. No raw fallback.',
+      inputSchema:{type:'object',properties:{xml:{type:'string'},standalone:{type:'boolean',default:true},filename},additionalProperties:false}},
+    handler:safe(nativeCleanedTikz),
+  },
+  {
+    tool:{name:'geogebra_export_source',description:'TikZ always uses GeoGebra native PGF followed by mandatory Gikz cleanup (visual snapshot). Asymptote and mixed TSQX/Asymptote use the explicit semantic subset with strict validation; strict applies to those formats only.',
       inputSchema:{type:'object',properties:{format:{type:'string',enum:['tikz','asymptote','tsqx']},xml:{type:'string'},strict:{type:'boolean',default:true},standalone:{type:'boolean',default:true},filename},required:['format'],additionalProperties:false}},
     handler:safe(async p=>{
+      if (p['format'] === 'tikz') return nativeCleanedTikz(p);
       const result=exportSource(await scene(p),p['format'] as SourceFormat,p['strict']!==false,p['standalone']!==false);
       const saved=await saveText(p['filename'],result.code);
       return textResult({success:true,...result,...(saved?{filename:saved}:{}),renderVerified:false});
     }),
   },
   {
-    tool:{name:'geogebra_clean_tikz',description:'Clean native GeoGebra TikZ text or convert XML through a separately configured Gikz CLI. This is visual cleanup, not a guarantee of preserved construction semantics.',
+    tool:{name:'geogebra_clean_tikz',description:'Clean native GeoGebra TikZ text or convert XML through built-in Gikz. This is visual cleanup, not a guarantee of preserved construction semantics.',
       inputSchema:{type:'object',properties:{source:{type:'string',maxLength:10000000},standalone:{type:'boolean'},points:{type:'boolean'},labels:{type:'boolean'},round:{type:'boolean'},filename},required:['source'],additionalProperties:false}},
     handler:safe(async p=>{
       const code=await cleanWithGikz(p['source'] as string,p);
       const saved=await saveText(p['filename'],code);
-      return textResult({success:true,format:'tikz',code,...(saved?{filename:saved}:{}),backend:'external-gikz',semantics:'not-guaranteed',renderVerified:false});
+      return textResult({success:true,format:'tikz',code,...(saved?{filename:saved}:{}),backend:'built-in-gikz',semantics:'not-guaranteed',renderVerified:false});
     }),
   },
 ];

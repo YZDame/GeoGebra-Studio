@@ -18,14 +18,14 @@ export function getAppInfo(): AppInfo {
   try {
     const packageJson = require('../../package.json');
     cachedAppInfo = {
-      name: packageJson.name || 'GeoGebra MCP Tool',
+      name: packageJson.name || 'GeoGebra Studio',
       version: packageJson.version || '0.0.0',
       description: packageJson.description || 'Model Context Protocol server for GeoGebra mathematical visualization',
       homepage: packageJson.homepage
     };
   } catch (_error) {
     cachedAppInfo = {
-      name: 'GeoGebra MCP Tool',
+      name: 'GeoGebra Studio',
       version: '0.0.0',
       description: 'Model Context Protocol server for GeoGebra mathematical visualization'
     };

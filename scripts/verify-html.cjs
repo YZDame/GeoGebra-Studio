@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');
 const path=require('node:path');
-const puppeteer=require('puppeteer').default;
+const puppeteer=require('puppeteer-core').default;
 const {constructionHtml}=require('../dist/export/html');
 (async()=>{
   const directory=path.resolve('output/verification/downloads');await fs.mkdir(directory,{recursive:true});

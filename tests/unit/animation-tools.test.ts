@@ -54,7 +54,7 @@ describe('Animation Tools (GEB-7)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Setup mock GeoGebra instance
     mockGeoGebraInstance = {
       evalCommand: jest.fn(),
@@ -80,13 +80,14 @@ describe('Animation Tools (GEB-7)', () => {
               setTrace: jest.fn(), // Add the correct method name
         clearTrace: jest.fn(),
         exists: jest.fn().mockResolvedValue(true), // Default to object existing
+        exportAnimation: jest.fn().mockResolvedValue(Array(10).fill('base64-frame-data')),
         setValue: jest.fn(), // Add missing setValue method
       } as any;
 
       // Update the global mock instance so new instances created by the tools use this one
       globalMockInstance = mockGeoGebraInstance;
-      
-      // Clear all mock history to ensure clean state for each test
+
+      // Clear all mock history to ensure clean state for each tes
       jest.clearAllMocks();
   });
 
@@ -356,7 +357,7 @@ describe('Animation Tools (GEB-7)', () => {
     });
 
     it('should validate export parameters', async () => {
-      // No need to set up getAllObjectNames mock since validation should happen first
+      // No need to set up getAllObjectNames mock since validation should happen firs
       const result = await toolRegistry.executeTool('geogebra_export_animation', {
         frameCount: 500,  // Invalid: > 300
         frameDelay: 100
@@ -447,8 +448,8 @@ describe('Animation Tools (GEB-7)', () => {
       expect(result.content[0]?.type).toBe('text');
       const response = JSON.parse(result.content[0]?.text!);
       expect(response.success).toBe(true);
-      expect(response.demo.type).toBe('parametric_spiral'); // default
-      expect(response.demo.animationSpeed).toBe(1); // default
+      expect(response.demo.type).toBe('parametric_spiral'); // defaul
+      expect(response.demo.animationSpeed).toBe(1); // defaul
     });
   });
 
@@ -474,7 +475,7 @@ describe('Animation Tools (GEB-7)', () => {
     it('should have proper schemas for animation tools', () => {
       const tools = toolRegistry.getTools();
       const sliderTool = tools.find(t => t.name === 'geogebra_create_slider');
-      
+
       expect(sliderTool).toBeDefined();
       expect(sliderTool!.inputSchema.properties).toHaveProperty('name');
       expect(sliderTool!.inputSchema.properties).toHaveProperty('min');
@@ -484,4 +485,6 @@ describe('Animation Tools (GEB-7)', () => {
       expect(sliderTool!.inputSchema.required).toContain('max');
     });
   });
-}); 
+});
+// Each test owns a new pooled mock; never reuse a prior test's instance.
+afterEach(async()=>{await require('../../src/tools/geogebra-tools').instancePool.cleanup();});

@@ -5,6 +5,7 @@ import { GeoGebraInstance } from '../utils/geogebra-instance'; // Real implement
 import logger from '../utils/logger';
 import fs from 'fs';
 import path from 'path';
+import { currentWorkspace } from '../export/workspace';
 import { 
   validateObjectName, 
   validateCoordinates, 
@@ -81,7 +82,7 @@ interface LabelVisibilityOptions {
 }
 
 function getWorkspaceDir(): string {
-  return process.env['VSCODE_WORKSPACE_FOLDER'] || process.cwd();
+  return currentWorkspace();
 }
 
 function getRequestedFilename(params: Record<string, unknown>): string | undefined {
@@ -187,21 +188,7 @@ async function setSingleLabelVisibility(
   objectName: string,
   visible: boolean
 ): Promise<void> {
-  const desired = visible ? 'true' : 'false';
-  const rawCommand = `SetLabelVisible(${objectName}, ${desired})`;
-  const result = await instance.evalCommand(rawCommand);
-
-  if (result.success) {
-    return;
-  }
-
-  // Retry with quoted name for labels that need explicit string reference.
-  const quotedName = JSON.stringify(objectName);
-  const quotedCommand = `SetLabelVisible(${quotedName}, ${desired})`;
-  const fallbackResult = await instance.evalCommand(quotedCommand);
-  if (!fallbackResult.success) {
-    throw new Error(fallbackResult.error || `Failed to set label visibility for ${objectName}`);
-  }
+  await instance.callAppsApi('setLabelVisible', [objectName, visible]);
 }
 
 async function applyLabelVisibilityPolicy(
@@ -288,7 +275,7 @@ async function evalCommandWithLatexCaptionDefaults(
   }
 
   return {
-    success: true,
+    ...fallbackResult,
     labels: []
   };
 }
@@ -348,6 +335,7 @@ export const geogebraTools: ToolDefinition[] = [
     handler: async (params) => {
       try {
         const command = params['command'] as string;
+        if(typeof command !== 'string'||!command.trim())throw new Error('command must be a nonempty string');
         const instance = await instancePool.getDefaultInstance();
         
         const result = await evalCommandWithLatexCaptionDefaults(instance, command);
@@ -574,7 +562,8 @@ export const geogebraTools: ToolDefinition[] = [
           y: {
             type: 'number',
             description: 'Y coordinate of the point'
-          }
+          },
+          z: {type:'number',description:'Optional Z coordinate'}
         },
         required: ['name', 'x', 'y']
       }
@@ -596,7 +585,9 @@ export const geogebraTools: ToolDefinition[] = [
           throw new Error(`Invalid coordinates: ${coordValidation.error}`);
         }
         
-        const command = `${name} = (${x}, ${y})`;
+        const z=params['z'];
+        if(z!==undefined&&(typeof z!=='number'||!Number.isFinite(z)))throw new Error('Invalid z coordinate');
+        const command = z===undefined?`${name} = (${x}, ${y})`:`${name} = (${x}, ${y}, ${z})`;
         const instance = await instancePool.getDefaultInstance();
         
         const result = await evalCommandWithLatexCaptionDefaults(instance, command);
@@ -1694,6 +1685,11 @@ export const geogebraTools: ToolDefinition[] = [
               type: 'string'
             },
             description: 'Explicit label whitelist. If provided, only these labels are shown (equivalent to labelMode=specified).'
+          },
+          captionOverrides: {
+            type: 'object',
+            description: 'Optional captions keyed by object name. When supplied, unspecified objects use their names as labels.',
+            additionalProperties: { type: 'string' }
           }
         },
         required: []
@@ -1716,11 +1712,19 @@ export const geogebraTools: ToolDefinition[] = [
         const labelOptions: LabelVisibilityOptions = visibleLabels.length > 0
           ? { mode: 'specified', visibleLabels }
           : { mode: parsedLabelMode ?? 'points_only' };
+        const captionOverrides = (params['captionOverrides'] ?? {}) as Record<string, string>;
         
         const instance = await instancePool.getDefaultInstance();
 
         const allObjectNames = await instance.getAllObjectNames();
         await applyObjectDefaults(instance, allObjectNames, labelOptions);
+        if (Object.keys(captionOverrides).length > 0) {
+          for (const name of allObjectNames) {
+            const hasCaption = Object.prototype.hasOwnProperty.call(captionOverrides, name);
+            await instance.callAppsApi('setCaption', [name, hasCaption ? captionOverrides[name] : '']);
+            await instance.callAppsApi('setLabelStyle', [name, hasCaption ? 3 : 0]);
+          }
+        }
         
         // Auto-zoom if requested
         if (autoZoom) {

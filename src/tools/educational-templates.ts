@@ -236,7 +236,7 @@ export const educationalTemplateTools: ToolDefinition[] = [
         selectedTemplates = templateRegistry.getAllTemplates()
           .filter(t => t.gradeLevel === gradeLevel)
           .filter(t => t.estimatedTime <= (duration as number))
-          .slice(0, 3); // Limit to 3 templates for a lesson
+          .reduce((chosen: EducationalTemplate[],t)=>{if(chosen.length<3&&chosen.reduce((sum,item)=>sum+item.estimatedTime,0)+t.estimatedTime<=(duration as number))chosen.push(t);return chosen;},[]);
       }
 
       const lessonPlan = {
@@ -247,6 +247,7 @@ export const educationalTemplateTools: ToolDefinition[] = [
           id: t.id,
           name: t.name,
           category: t.category,
+          gradeLevel: t.gradeLevel,
           estimatedTime: t.estimatedTime,
           objectives: t.objectives,
           prerequisites: t.prerequisites

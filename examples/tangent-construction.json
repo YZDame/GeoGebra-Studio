@@ -1,0 +1,26 @@
+{
+  "commands": [
+    "Gamma: x^2 + y^2 = 25",
+    "omega: (x - 3)^2 + y^2 = 64 / 25",
+    "O = (0, 0)",
+    "I = (3, 0)",
+    "A = Point(Gamma)",
+    "Tangent(A, omega)",
+    "B = If(Distance(Intersect(Gamma, f, 1), A) > 0.000001, Intersect(Gamma, f, 1), Intersect(Gamma, f, 2))",
+    "C = If(Distance(Intersect(Gamma, g, 1), A) > 0.000001, Intersect(Gamma, g, 1), Intersect(Gamma, g, 2))"
+  ],
+  "visibleLabels": [
+    "O",
+    "I",
+    "A",
+    "B",
+    "C",
+    "Gamma",
+    "omega"
+  ],
+  "captionOverrides": {
+    "Gamma": "Γ",
+    "omega": "ω"
+  },
+  "filename": "tangent-construction.html"
+}

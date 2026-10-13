@@ -1,15 +1,35 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "geogebra-geometry",
-  "version": "0.3.1",
-  "description": "Construct editable GeoGebra diagrams and export print-ready figures with semantic provenance.",
-  "author": { "name": "YZDame" },
+  "name": "geogebra-studio",
+  "version": "0.4.0",
+  "description": "GeoGebra Studio: editable geometry plugin with MCP, agent skills, interactive HTML and built-in Gikz",
+  "author": {
+    "name": "YZDame"
+  },
   "repository": "https://github.com/YZDame/geogebra-mcp-server",
-  "license": "MIT",
-  "keywords": ["geometry", "geogebra", "tikz", "asymptote", "tsqx"],
+  "license": "GPL-2.0-or-later",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "geogebra",
+    "mathematics",
+    "visualization",
+    "ai-tools",
+    "educational-technology",
+    "mathematical-modeling"
+  ],
   "extensions": {
     "com.openai": {
-      "onboardingSkill": "./skills/geogebra-setup/SKILL.md"
+      "onboardingSkill": "./skills/geogebra-setup/SKILL.md",
+      "interface": {
+        "displayName": "GeoGebra Studio",
+        "shortDescription": "Editable geometry, interactive HTML and cleaned TikZ",
+        "developerName": "YZDame",
+        "category": "Education",
+        "defaultPrompt": [
+          "Construct an editable GeoGebra diagram from this problem and deliver a local HTML."
+        ]
+      }
     }
   }
 }

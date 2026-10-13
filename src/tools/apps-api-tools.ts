@@ -1,4 +1,5 @@
 import { ToolDefinition } from '../types/mcp';
+import { cleanWithGikz } from '../export/gikz';
 import { instancePool } from './geogebra-tools';
 
 const result = (value: Record<string, unknown>) => ({
@@ -26,7 +27,7 @@ export const appsApiTools: ToolDefinition[] = [
   {
     tool: {
       name: 'geogebra_api_call',
-      description: 'Call a public GeoGebra Apps API method by name with JSON arguments. Use geogebra_api_list_methods first. For one-shot callback exports set waitForCallbackIndex (0 for getBase64/exportSVG/getScreenshotBase64; 1 for exportPDF). For persistent listener functions put {"$ggbCallbackId":"my-id"} at that argument, then poll geogebra_api_get_callback_events; reuse the same marker to unregister. Destructive methods require allowDestructive=true.',
+      description: 'Call a public GeoGebra Apps API method by name with JSON arguments. Use geogebra_api_list_methods first. For one-shot callback exports set waitForCallbackIndex (0 for getBase64/exportSVG/getScreenshotBase64; 1 for exportPDF). For persistent listener functions put {"$ggbCallbackId":"my-id"} at that argument, then poll geogebra_api_get_callback_events; reuse the same marker to unregister. exportPGF always returns Gikz-cleaned standalone TikZ through this bridge. Destructive methods require allowDestructive=true.',
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       inputSchema: {
         type: 'object',
@@ -43,6 +44,11 @@ export const appsApiTools: ToolDefinition[] = [
     handler: async params => {
       try {
         const method = params['method'] as string;
+        if (method === 'exportPGF') {
+          const source = await (await instancePool.getDefaultInstance()).exportNativeTikZ();
+          const value = await cleanWithGikz(source, {standalone:true});
+          return result({success:true,method,value,backend:'native-pgf+gikz',cleaned:true,semantics:'visual-snapshot'});
+        }
         const dangerous = new Set(['newConstruction','reset','openFile','setXML','evalXML','setBase64','remove']);
         if (dangerous.has(method) && params['allowDestructive'] !== true) {
           throw new Error(`${method} can replace or clear construction data; set allowDestructive=true to proceed`);

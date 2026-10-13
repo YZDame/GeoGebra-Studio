@@ -1,29 +1,37 @@
 ---
 name: geogebra-setup
-description: Set up the GeoGebra geometry plugin from a local checkout and diagnose its Node, Chromium, Gikz, and export-toolchain dependencies.
+description: Install or diagnose the local GeoGebra Studio Codex plugin, its built-in Gikz, Chrome runtime, and geometry export workflow.
 ---
 
-Locate this plugin's root from the current skill path. Check Node >=22.12.0,
-`package.json`, and `dist/cli.js`. In a source checkout run `npm ci` then
-`npm run build`. The bundled MCP configuration runs `node ./dist/cli.js` with
-`cwd` set to the plugin root. For a client that does not resolve plugin-relative
-working directories, configure the absolute CLI path explicitly.
+GeoGebra Studio includes MCP, three skills, the HTML viewer and built-in Gikz.
+Node >=22.12.0 and npm/npx are required. A full plugin installation is:
 
-Use `server_info` and `geogebra_instance_status` to inspect connection and engine
-state. HTML generation works without Chromium. For server-side rendering, install
-Puppeteer's browser with `npx puppeteer browsers install chrome` or set
-`PUPPETEER_EXECUTABLE_PATH` to an existing compatible Chrome executable. Check
-network access to GeoGebra if loading fails. Do not report mock results as live exports.
+```sh
+npx @lydt/geogebra-studio install
+```
 
-Gikz is optional: configure `GIKZ_CLI` with an absolute path to its separately
-installed `gikz.js`. Keep GPL notices with that installation. Do not auto-download
-or execute a replacement CLI merely because an export reports it missing.
+This registers a persistent version-pinned marketplace and installs the complete
+plugin through Codex. It probes existing Chrome and prepares managed Chromium when
+needed. Start a new session and invoke @geogebra-studio. Verify both skills and MCP
+tool availability; a standalone SDK connection alone does not verify plugin loading.
+For candidate versions, use the exact installed version or the npm `next` tag.
+The packaged launcher uses a neutral npm prefix so an unpacked plugin without
+node_modules does not shadow the version-pinned npm runtime. For file output, pass
+the absolute user project directory in `workspace`, or use client-provided MCP roots.
+Old geogebra-geometry plugins are not removed automatically. Avoid using both against
+the same diagram; remove the old plugin only when the user asks.
 
-`pdflatex`, `asy`, and `tsqx` are optional source-verification tools; their absence
-does not prevent native GGB/PNG/SVG/PDF exports. Do not overwrite the user's MCP
-configuration or publish a server as part of setup unless requested.
+`npx @lydt/geogebra-studio mcp` (also the no-argument default) starts only stdio MCP.
+Use `doctor` for a browser-launch and built-in-cleaner check; `browser install`
+prepares a usable browser. PUPPETEER_EXECUTABLE_PATH selects an explicit executable.
+No GeoGebra desktop client and no GIKZ_CLI installation are required.
 
-The bundled Streamable HTTP mode binds only to loopback and shares one workspace
-construction. Public ChatGPT connections need a separately deployed HTTPS endpoint
-and appropriate authentication/isolation. Installing a local plugin does not
-publish it to a directory or verify ChatGPT UI compatibility.
+Default artifact creation needs Chrome and network access to official GeoGebra
+assets. Browser downloads and generated HTML also need GeoGebra network assets.
+Do not bypass load errors with a custom drawing. Diagnose missing browser, network,
+command, and plugin-loading failures separately.
+
+Read [visual standards](../../docs/VISUAL-STANDARD.md) for the delivered viewer and
+[the regression](../../docs/TANGENT-REGRESSION.md) when diagnosing its geometry.
+This release targets local Codex; it does not publish a remote endpoint or submit
+to the public ChatGPT directory. No credentials are stored in the package.
