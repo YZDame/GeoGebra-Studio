@@ -9,6 +9,10 @@ GeoGebra relations over frozen coordinates for constrained points and intersecti
 
 Default to `geogebra_build_artifact`: supply commands in dependency order,
 `visibleLabels`, `captionOverrides` where useful, and a new workspace `.html` filename.
+For every diagram defined or interpreted in Cartesian coordinates, pass `showAxes: true`
+so both x- and y-axes are visible. This coordinate-diagram rule overrides the general
+axes-hidden visual default; non-coordinate geometry may keep axes hidden. Inspect the
+preview to confirm the axes are actually visible and the plotted objects fit the view.
 Always pass `workspace` as the absolute path of the user's current project directory
 when saving files. Codex starts the plugin in its cache directory; that directory
 must not become the output destination. MCP roots are used when provided by a client.

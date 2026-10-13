@@ -46,6 +46,7 @@ export const exportTools: ToolDefinition[] = [
         commands:{type:'array',items:{type:'string',maxLength:10000},maxItems:2000},ggbBase64:{type:'string'},
         title:{type:'string',maxLength:500},filename:{type:'string',description:'New .html file within the workspace; a sibling .preview.png is also created.'},
         width:{type:'integer',minimum:200,maximum:4000},height:{type:'integer',minimum:200,maximum:4000},
+        showAxes:{type:'boolean',description:'Show Cartesian x- and y-axes; required for coordinate-based diagrams.'},
         visibleLabels:{type:'array',items:{type:'string'}},captionOverrides:{type:'object',additionalProperties:{type:'string'}}
       },required:['filename'],additionalProperties:false}},
     handler:safe(async p=>buildArtifact(p as unknown as HtmlOptions & {filename:string})),
@@ -58,6 +59,7 @@ export const exportTools: ToolDefinition[] = [
         title:{type:'string',maxLength:500},commands:{type:'array',items:{type:'string',maxLength:10000},maxItems:2000},
         ggbBase64:{type:'string',description:'Optional packed GGB; commands run after loading it.'},
         width:{type:'integer',minimum:200,maximum:4000},height:{type:'integer',minimum:200,maximum:4000},
+        showAxes:{type:'boolean',description:'Show Cartesian x- and y-axes; use true for coordinate-based diagrams.'},
         visibleLabels:{type:'array',items:{type:'string'}},
         captionOverrides:{type:'object',description:'Optional LaTeX or plain-text captions keyed by GeoGebra object name.',additionalProperties:{type:'string'}},
         filename,
@@ -70,10 +72,10 @@ export const exportTools: ToolDefinition[] = [
     }),
   },
   {
-    tool:{name:'geogebra_export_html',description:'Package the current server-side construction in an interactive HTML, preserving its GGB styling and definitions.',_meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},inputSchema:{type:'object',properties:{title:{type:'string'},filename},additionalProperties:false}},
+    tool:{name:'geogebra_export_html',description:'Package the current server-side construction in an interactive HTML, preserving its GGB styling and definitions. Set showAxes=true for coordinate-based diagrams.',_meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},inputSchema:{type:'object',properties:{title:{type:'string'},showAxes:{type:'boolean',description:'Show Cartesian axes in the exported viewer; use true for coordinate-based diagrams.'},filename},additionalProperties:false}},
     handler:safe(async p=>{
       const ggbBase64=await (await instancePool.getDefaultInstance()).exportGGB();
-      const html=constructionHtml({title:typeof p['title']==='string'?p['title']:'GeoGebra construction',ggbBase64});
+      const html=constructionHtml({title:typeof p['title']==='string'?p['title']:'GeoGebra construction',ggbBase64,showAxes:p['showAxes']===true});
       const saved=await saveText(p['filename'],html);
       return textResult({success:true,format:'html',html,...(saved?{filename:saved}:{}),requiresNetwork:true});
     }),
