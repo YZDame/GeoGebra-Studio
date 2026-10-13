@@ -1,109 +1,46 @@
 # GeoGebra Studio
 
-> Release status: `0.4.0-rc.2` is published on npm and passed anonymous public installation, fresh Codex-session MCP/artifact checks, and real-browser export checks on macOS with Chrome. Stable `0.4.0` awaits platform/CI checks. Use the pinned candidate below; see the [release record](docs/RELEASE-0.4.0-rc.2.md).
+[![npm next version](https://img.shields.io/npm/v/%40lydt%2Fgeogebra-studio/next?label=npm%20%28next%29)](https://www.npmjs.com/package/@lydt/geogebra-studio)
+[![npm monthly downloads](https://img.shields.io/npm/dm/%40lydt%2Fgeogebra-studio)](https://www.npmjs.com/package/@lydt/geogebra-studio)
+[![GitHub stars](https://img.shields.io/github/stars/YZDame/GeoGebra-Studio)](https://github.com/YZDame/GeoGebra-Studio)
+[![License](https://img.shields.io/github/license/YZDame/GeoGebra-Studio)](LICENSE)
 
-A local Codex plugin combining **MCP tools, agent skills, an editable GeoGebra HTML
-viewer, and built-in Gikz**. Describe a geometry problem; get a local HTML carrying
-a packed, editable GGB, then modify objects and download the current construction.
+**Create editable GeoGebra diagrams by describing the geometry you want.** GeoGebra Studio is a Codex plugin that builds a local HTML page with an interactive construction. You can move points, edit objects, and download the diagram in several formats.
 
-[中文](README.zh-CN.md) · [Visual standard](docs/VISUAL-STANDARD.md) · [Regression](docs/TANGENT-REGRESSION.md)
+[中文说明](README.zh-CN.md) · [GitHub](https://github.com/YZDame/GeoGebra-Studio) · [npm](https://www.npmjs.com/package/@lydt/geogebra-studio)
 
-## Install the complete plugin
+## Install
 
-Requires Node >=22.12.0, npm/npx and a Codex installation supporting plugin commands.
+You need [Codex](https://openai.com/codex/) and Node.js 22.12 or newer. In a terminal, run:
 
 ```sh
 npx @lydt/geogebra-studio@0.4.0-rc.2 install
 ```
 
-Installation registers a persistent, version-pinned npm marketplace and installs
-both skills and MCP through Codex. It probes existing Chrome; if none is usable,
-it downloads managed Chromium. No GeoGebra desktop app or external Gikz is needed.
-Start a **new Codex session**, invoke `@geogebra-studio`, and describe the problem.
+Open a **new Codex chat** after installation and ask for a diagram. The installer uses Chrome if available; otherwise it downloads Chromium for the plugin.
 
-```text
-Draw Gamma: x²+y²=25 and omega: (x−3)²+y²=64/25. A moves on Gamma.
-The two tangents from A to omega meet Gamma again at B and C.
-Deliver an editable local HTML with labels O, I, A, B, C, Γ and ω.
-```
+> Version `0.4.0-rc.2` is a preview release. It is published under npm's `next` tag while the final `0.4.0` release is being prepared.
 
-The agent uses `geogebra_build_artifact`: execute native commands, check visible
-objects, embed packed GGB, reopen the final viewer, check equal axes and return a
-preview for visual review. Output files are new files within the workspace; existing
-files are not overwritten. The example commands are in
-[examples/tangent-construction.json](examples/tangent-construction.json).
-The agent passes the absolute user project directory as `workspace` when saving;
-clients can also supply MCP roots. Output is never silently directed into the plugin cache.
+## Try it
 
-## Edit and download
+For example, ask Codex:
 
-Open the HTML in a browser, drag A, or expand the left object sidebar to change
-original definitions/styles. Theme, light/dark and download buttons sit at the
-upper right. Nine paired themes are included.
+> Draw the circles Γ: x² + y² = 25 and ω: (x − 3)² + y² = 64/25. Let A move on Γ. Draw the two tangents from A to ω, and label their other intersections with Γ as B and C. Save an editable HTML diagram in my project.
 
-| Download | What it preserves |
-| --- | --- |
-| GGB | Native editable construction, relationships and styling |
-| HTML | Packed GGB, interactive viewer, themes and local cleaner |
-| XML | GeoGebra definitions and styles; not a packed GGB |
-| SVG / PDF | Static vector rendering |
-| PNG | Static raster rendering |
-| TikZ (.tex) | Native PGF passed through Gikz; normalized static source |
+GeoGebra Studio creates the HTML file in your project and shows a preview. Open the file in a browser to continue working with it.
 
-**Every TikZ export uses native PGF → built-in Gikz → .tex.** This includes viewer
-downloads, geogebra_export_tikz, geogebra_export_source(format=tikz), and the generic
-exportPGF bridge. Failure is an error, with no raw fallback. Gikz normalizes colors,
-widths, label placement and precision; construction dependencies remain in GGB/XML.
-Asymptote and mixed TSQX/Asymptote retain the existing explicit semantic subset and
-strict/partial warnings. General relation reconstruction still requires review.
+## Edit and export
 
-## MCP-only and diagnostics
+Drag points to explore the construction. Use the button beside the canvas to show GeoGebra's object list and edit definitions or styles. The controls in the upper right let you change the theme and download the current diagram.
 
-```sh
-npx @lydt/geogebra-studio@0.4.0-rc.2 mcp          # MCP only; no-argument invocation also works
-npx @lydt/geogebra-studio@0.4.0-rc.2 doctor       # Browser launch and built-in Gikz check
-npx @lydt/geogebra-studio@0.4.0-rc.2 browser install
-```
+- **GGB** keeps the editable GeoGebra construction.
+- **HTML** keeps the interactive diagram in one local file.
+- **SVG, PDF, PNG** are useful for documents and handouts.
+- **TikZ** exports a cleaned, static LaTeX drawing.
+- **XML** contains the construction data.
 
-`mcp` alone does not install skills. PUPPETEER_EXECUTABLE_PATH selects a custom Chrome.
-GEOGEBRA_STUDIO_HOME controls Studio's browser cache; CODEX_HOME controls Codex's
-persistent catalog location. Never configure an ephemeral npx directory as a plugin.
-The plugin's MCP configuration invokes the exact matching package version.
+## A note about internet access
 
-Native execution and opening the viewer require official GeoGebra network assets.
-Generated HTML is a local file, not a fully offline GeoGebra distribution. Gikz
-cleanup is local and makes no network request. Loading errors are shown explicitly.
-The initial release targets local Codex, not a hosted ChatGPT endpoint/public listing.
+GeoGebra's drawing engine is loaded from GeoGebra's website, so you need an internet connection when creating or opening the interactive diagram. Your saved HTML file is local, but it is not an offline copy of GeoGebra.
 
-## Develop and validate
-
-```sh
-npm ci --ignore-scripts
-npm run build
-npm run test:unit
-npm run verify
-npm run verify:native
-```
-
-Native/browser checks need Chrome and internet. `node scripts/verify-viewer.cjs`
-checks responsive geometry, native sidebar editing and seven downloads;
-`node scripts/verify-gikz-mcp.cjs` checks the actual MCP TikZ routes.
-Build outputs and all licenses ship in npm and versioned plugin ZIP artifacts.
-Published marketplace packages do not rely on install-time build/lifecycle scripts.
-For unpublished authoring, `node dist/cli.js install --local` installs a stable local
-copy; use a fresh CODEX_HOME to isolate a test installation. Source-build validation
-and an SDK handshake alone do not establish real plugin loading in a fresh session.
-
-## Migration and licensing
-
-GeoGebra Studio succeeds @lydt/geogebra-mcp-server and plugin geogebra-geometry.
-Existing geogebra_* tool names and the geogebra-mcp binary alias remain. Install the
-new plugin, verify it in a new session, then remove the old one if desired; the
-installer does not remove it automatically. GIKZ_CLI is no longer needed or used.
-The GitHub repository URL remains valid under its original name until its owner
-renames it; package branding does not require an immediate repository rename.
-
-The combined distribution is GPL-2.0-or-later. Original MCP portions retain their
-MIT notices in LICENSE-MIT; Gikz's upstream attribution and source are in gikz/.
-Clipper-derived palettes retain their MIT notices in THIRD_PARTY_NOTICES.md.
-This plugin is independently maintained and is not an official GeoGebra product.
+GeoGebra Studio is an independent community project and is not affiliated with GeoGebra.
