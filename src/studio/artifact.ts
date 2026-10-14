@@ -19,6 +19,7 @@ export async function buildArtifact(options:HtmlOptions & {filename:string}) {
       return {objects:names.length,undefinedVisibleObjects:names.filter((name:string)=>api.getVisible(name)&&!api.isDefined(name))};
     });
     if(checks.undefinedVisibleObjects.length)throw new Error('Undefined visible objects: '+checks.undefinedVisibleObjects.join(', '));
+    const constructionXml=await engine.getConstructionXML();
     const ggbBase64=await engine.exportGGB();
     const html=constructionHtml({...options,commands:[],ggbBase64});
     filename=await saveText(options.filename,html);
@@ -38,7 +39,7 @@ export async function buildArtifact(options:HtmlOptions & {filename:string}) {
     const preview=await engine.capturePreview();
     previewFilename=await saveFile(options.filename.replace(/\.html$/i,'.preview.png'),preview);
     committed=true;
-    const data={success:true,format:'html',filename,previewFilename,html,engineVerified:true,packedGgbVerified:true,
+    const data={success:true,format:'html',filename,previewFilename,html,constructionXml,engineVerified:true,packedGgbVerified:true,
       layoutChecks:{loaded:true,equalAxes:layout.equalAxes,viewWidth:layout.viewWidth,viewHeight:layout.viewHeight},renderVerified:true,requiresNetwork:true,objectCount:checks.objects,
       note:'Native execution, saved HTML reopen, packed GGB, equal axes and preview capture passed. Inspect the attached preview for visual quality.'};
     return {content:[{type:'text' as const,text:JSON.stringify(data)},{type:'image' as const,mimeType:'image/png',data:Buffer.from(preview).toString('base64')}],structuredContent:data};

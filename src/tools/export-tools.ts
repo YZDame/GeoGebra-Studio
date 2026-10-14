@@ -40,7 +40,7 @@ async function nativeCleanedTikz(p: Record<string, unknown>) {
 const filename = {type:'string',description:'Optional new file within workspace; existing files are not overwritten.'};
 export const exportTools: ToolDefinition[] = [
   {
-    tool:{name:'geogebra_build_artifact',description:'Default geometry delivery: execute ordered commands in an isolated GeoGebra engine, check visible definitions, embed a packed editable GGB into local HTML, reopen and check equal axes, and return a preview for visual review. Requires Chrome and GeoGebra network access; writes new workspace files only.',
+    tool:{name:'geogebra_build_artifact',description:'Standard problem-to-diagram flow: execute ordered commands through the official GeoGebra applet, create editable local HTML with a packed GGB and return an interactive preview plus constructionXml for source export. Requires Chrome and GeoGebra network access; writes new workspace files only.',
       _meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},
       inputSchema:{type:'object',properties:{
         commands:{type:'array',items:{type:'string',maxLength:10000},maxItems:2000},ggbBase64:{type:'string'},
@@ -52,7 +52,7 @@ export const exportTools: ToolDefinition[] = [
     handler:safe(async p=>buildArtifact(p as unknown as HtmlOptions & {filename:string})),
   },
   {
-    tool:{name:'geogebra_create_html',description:'Generate an unverified command-template GeoGebra HTML; prefer geogebra_build_artifact for default checked delivery. This generates an interactive GeoGebra HTML with current-state GGB, PNG, SVG, Gikz-cleaned native TikZ, PDF, XML and HTML downloads. No Chromium needed to generate; opening requires GeoGebra network access.',
+    tool:{name:'geogebra_create_html',description:'Advanced compatibility route: generate an unchecked command-template GeoGebra HTML. For normal problem-to-diagram work use geogebra_build_artifact. The page includes GGB, PNG, SVG, Gikz-cleaned native TikZ, PDF, XML and HTML downloads.',
       annotations:{readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:false},
       _meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},
       inputSchema:{type:'object',properties:{
@@ -72,7 +72,7 @@ export const exportTools: ToolDefinition[] = [
     }),
   },
   {
-    tool:{name:'geogebra_export_html',description:'Package the current server-side construction in an interactive HTML, preserving its GGB styling and definitions. Set showAxes=true for coordinate-based diagrams.',_meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},inputSchema:{type:'object',properties:{title:{type:'string'},showAxes:{type:'boolean',description:'Show Cartesian axes in the exported viewer; use true for coordinate-based diagrams.'},filename},additionalProperties:false}},
+    tool:{name:'geogebra_export_html',description:'Advanced compatibility route: package the shared server-side construction in an interactive HTML. For normal problem-to-diagram work use geogebra_build_artifact. Set showAxes=true for coordinate-based diagrams.',_meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},inputSchema:{type:'object',properties:{title:{type:'string'},showAxes:{type:'boolean',description:'Show Cartesian axes in the exported viewer; use true for coordinate-based diagrams.'},filename},additionalProperties:false}},
     handler:safe(async p=>{
       const ggbBase64=await (await instancePool.getDefaultInstance()).exportGGB();
       const html=constructionHtml({title:typeof p['title']==='string'?p['title']:'GeoGebra construction',ggbBase64,showAxes:p['showAxes']===true});
@@ -91,8 +91,8 @@ export const exportTools: ToolDefinition[] = [
     handler:safe(nativeCleanedTikz),
   },
   {
-    tool:{name:'geogebra_export_source',description:'TikZ always uses GeoGebra native PGF followed by mandatory Gikz cleanup (visual snapshot). Asymptote and mixed TSQX/Asymptote use the explicit semantic subset with strict validation; strict applies to those formats only.',
-      inputSchema:{type:'object',properties:{format:{type:'string',enum:['tikz','asymptote','tsqx']},xml:{type:'string'},strict:{type:'boolean',default:true},standalone:{type:'boolean',default:true},filename},required:['format'],additionalProperties:false}},
+    tool:{name:'geogebra_export_source',description:'Export a construction as TikZ, Asymptote, or TSQX. Pass constructionXml returned by geogebra_build_artifact to export that same diagram. TikZ uses native GeoGebra PGF followed by mandatory Gikz cleanup; Asymptote and TSQX use the validated semantic subset.',
+      inputSchema:{type:'object',properties:{format:{type:'string',enum:['tikz','asymptote','tsqx']},xml:{type:'string',description:'Original construction XML; pass constructionXml from geogebra_build_artifact to export that diagram.'},strict:{type:'boolean',default:true},standalone:{type:'boolean',default:true},filename},required:['format'],additionalProperties:false}},
     handler:safe(async p=>{
       if (p['format'] === 'tikz') return nativeCleanedTikz(p);
       const result=exportSource(await scene(p),p['format'] as SourceFormat,p['strict']!==false,p['standalone']!==false);

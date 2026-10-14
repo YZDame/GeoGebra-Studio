@@ -4,7 +4,8 @@
 
 - TypeScript build and generated canonical/compatibility plugin manifests.
 - Jest unit suite: 15 suites, 200 tests, including explicit workspace isolation and MCP roots.
-- Official MCP SDK stdio handshake: 55 tools, including `geogebra_build_artifact`.
+- The plugin's default `core` profile exposes two task-level tools: `geogebra_build_artifact` and `geogebra_export_source`. The full profile retains all advanced and compatibility tools.
+- Official MCP SDK stdio handshake: 55 tools in the full profile, including `geogebra_build_artifact`.
 - Clean npm package install with lifecycle scripts disabled, no external Gikz checkout, built-in TikZ cleanup, and MCP server startup.
 - The `rc.2` tarball passed an unpacked-plugin launcher test with no plugin node_modules; its npx prefix selected the actual runtime, workspace output succeeded, and missing-workspace writes were rejected.
 - A fresh local-source `rc.2` Codex session loaded three skills and generated the verified tangent HTML and preview in the user project, with the returned path checked against that project.

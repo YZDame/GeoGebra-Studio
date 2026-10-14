@@ -7,12 +7,17 @@ Understand the user's mathematical definitions, free inputs, dependent objects a
 requested deliverables. Ask only when ambiguity changes the construction. Prefer
 GeoGebra relations over frozen coordinates for constrained points and intersections.
 
-Default to `geogebra_build_artifact`: supply commands in dependency order,
-`visibleLabels`, `captionOverrides` where useful, and a new workspace `.html` filename.
+Use `geogebra_build_artifact` as the one standard problem-to-diagram flow. Supply
+GeoGebra commands in dependency order, `visibleLabels`, `captionOverrides` where useful,
+and a new workspace `.html` filename. It runs the commands through the official applet,
+saves editable HTML with a packed GGB, and returns `constructionXml` for source export.
 For every diagram defined or interpreted in Cartesian coordinates, pass `showAxes: true`
 so both x- and y-axes are visible. This coordinate-diagram rule overrides the general
 axes-hidden visual default; non-coordinate geometry may keep axes hidden. Inspect the
 preview to confirm the axes are actually visible and the plotted objects fit the view.
+For TikZ, Asymptote, or TSQX, call `geogebra_export_source` with the desired `format`
+and the same result's `constructionXml`. Do not rebuild the figure in a second shared
+construction or use the generic Apps API bridge for routine drawing.
 Always pass `workspace` as the absolute path of the user's current project directory
 when saving files. Codex starts the plugin in its cache directory; that directory
 must not become the output destination. MCP roots are used when provided by a client.
@@ -31,9 +36,9 @@ points and download the current state. The viewer uses the official GeoGebra eng
 do not replace it with a custom-drawn canvas/SVG or a desktop GeoGebra workflow.
 It requires internet for official GeoGebra assets; Gikz cleanup runs locally.
 
-`geogebra_create_html` is a lightweight command-template alternative when explicitly
-appropriate. It does not execute/check commands or embed a prebuilt GGB by default;
-never describe template generation alone as verified geometry.
+`geogebra_create_html` and `geogebra_export_html` remain advanced compatibility routes;
+use them only when the user explicitly asks for a command template or a shared live
+construction. The normal page already contains themes and current-state downloads.
 
 For advanced server-side work, the older focused tools share one construction:
 keep each diagram's calls together. Use geogebra_api_list_methods before unfamiliar
