@@ -1,18 +1,3 @@
 {
-  "mcpServers": {
-    "geogebra": {
-      "command": "npx",
-      "args": [
-        "--yes",
-        "--prefix",
-        "./runtime",
-        "@lydt/geogebra-studio@0.4.0",
-        "mcp"
-      ],
-      "env": {
-        "GEOGEBRA_TOOL_PROFILE": "core",
-        "GEOGEBRA_PLUGIN_RUNTIME": "1"
-      }
-    }
-  }
+  "mcpServers": {}
 }

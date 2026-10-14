@@ -1,21 +1,20 @@
 {
   "name": "geogebra-studio",
   "version": "0.4.0",
-  "description": "GeoGebra Studio: editable geometry plugin with MCP, agent skills, interactive HTML and built-in Gikz",
+  "description": "GeoGebra Studio: editable HTML geometry in the Codex browser, agent skills and built-in Gikz; optional MCP automation",
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json",
   "extensions": {
     "com.openai": {
       "onboardingSkill": "./skills/geogebra-setup/SKILL.md",
       "interface": {
         "displayName": "GeoGebra Studio",
-        "shortDescription": "Editable geometry, interactive HTML and cleaned TikZ",
+        "shortDescription": "Editable geometry in the Codex browser panel",
         "developerName": "YZDame",
         "category": "Education",
         "composerIcon": "./assets/geogebra-icon.png",
         "logo": "./assets/geogebra-icon.png",
         "defaultPrompt": [
-          "Construct an editable GeoGebra diagram from this problem and deliver a local HTML."
+          "Construct an editable GeoGebra HTML and open it in the Codex browser panel."
         ]
       }
     }

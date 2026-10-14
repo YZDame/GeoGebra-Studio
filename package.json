@@ -1,7 +1,7 @@
 {
   "name": "@lydt/geogebra-studio",
   "version": "0.4.0",
-  "description": "GeoGebra Studio: editable geometry plugin with MCP, agent skills, interactive HTML and built-in Gikz",
+  "description": "GeoGebra Studio: editable HTML geometry in the Codex browser, agent skills and built-in Gikz; optional MCP automation",
   "main": "dist/index.js",
   "private": false,
   "bin": {
@@ -32,14 +32,16 @@
     "examples/tangent-construction.json",
     "src/**/*",
     "tsconfig.json",
-    "scripts/build-plugin.cjs"
+    "scripts/build-plugin.cjs",
+    "viewer/**/*",
+    "mcp.optional.json"
   ],
   "scripts": {
     "dev": "ts-node src/index.ts",
     "build": "npm run clean && tsc && node scripts/build-widget.cjs && node scripts/build-plugin.cjs",
     "build:watch": "tsc --watch",
     "start": "node dist/index.js",
-    "clean": "rimraf dist",
+    "clean": "node -e \"require('node:fs').rmSync('dist', {recursive:true, force:true})\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci --coverage --watchAll=false",
@@ -49,11 +51,12 @@
     "format": "prettier --write src/**/*.ts",
     "format:check": "prettier --check src/**/*.ts",
     "prepublishOnly": "npm run build",
-    "verify": "npm run build && node scripts/verify-protocol.cjs && node scripts/verify-exports.cjs",
+    "verify": "npm run build && npm run verify:manifests && node scripts/verify-generator.cjs",
     "verify:native": "node scripts/verify-native.cjs",
     "test:unit": "jest --runInBand --testPathIgnorePatterns tests/e2e tests/performance tests/real-geogebra tests/geogebra-integration",
-    "release:artifacts": "npm run build && npm run test:unit && npm run verify:manifests && node scripts/verify-protocol.cjs && node scripts/verify-exports.cjs && node scripts/package-release.cjs",
-    "verify:manifests": "node scripts/verify-manifests.cjs"
+    "release:artifacts": "npm run verify && npm run test:unit && node scripts/package-release.cjs",
+    "verify:manifests": "node scripts/verify-manifests.cjs",
+    "verify:mcp": "node scripts/verify-protocol.cjs && node scripts/verify-exports.cjs"
   },
   "keywords": [
     "mcp",

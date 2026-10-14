@@ -1,49 +1,55 @@
 ---
 name: geogebra-construct
-description: Build editable GeoGebra geometry from a problem, delivering a checked local HTML with embedded GGB, a preview, and current-state downloads.
+description: Generate editable GeoGebra HTML and open it in the Codex browser panel, with no MCP server or separate Chrome installation.
 ---
 
-Understand the user's mathematical definitions, free inputs, dependent objects and
-requested deliverables. Ask only when ambiguity changes the construction. Prefer
-GeoGebra relations over frozen coordinates for constrained points and intersections.
+Understand mathematical definitions, free inputs and dependent objects. Prefer
+GeoGebra relations over frozen coordinates. Generate commands in dependency order.
 
-Use `geogebra_build_artifact` as the one standard problem-to-diagram flow. Supply
-GeoGebra commands in dependency order, `visibleLabels`, `captionOverrides` where useful,
-and a new workspace `.html` filename. It runs the commands through the official applet,
-saves editable HTML with a packed GGB, and returns `constructionXml` for source export.
-For every diagram defined or interpreted in Cartesian coordinates, pass `showAxes: true`
-so both x- and y-axes are visible. This coordinate-diagram rule overrides the general
-axes-hidden visual default; non-coordinate geometry may keep axes hidden. Inspect the
-preview to confirm the axes are actually visible and the plotted objects fit the view.
-For TikZ, Asymptote, or TSQX, call `geogebra_export_source` with the desired `format`
-and the same result's `constructionXml`. Do not rebuild the figure in a second shared
-construction or use the generic Apps API bridge for routine drawing.
-Always pass `workspace` as the absolute path of the user's current project directory
-when saving files. Codex starts the plugin in its cache directory; that directory
-must not become the output destination. MCP roots are used when provided by a client.
-This tool uses an isolated native engine, packs a real GGB, reopens the final viewer,
-checks equal axes and returns a preview. Inspect that preview before claiming visual
-quality; engineVerified and packedGgbVerified are separate from renderVerified.
-Do not call geogebra_clear_construction for this isolated workflow.
+## Default workflow
 
-Read [visual standards](../../docs/VISUAL-STANDARD.md) when adjusting presentation.
-For tangents/intersections, read [the two-circle regression](../../docs/TANGENT-REGRESSION.md)
-to avoid selecting A again when intersection branches swap. The case is a regression,
-not a requirement to use that construction or sample coordinates for other problems.
+1. Write a construction JSON in the user's project with `commands`, `filename`
+   (a new `.html` path relative to the project), and optionally `visibleLabels`,
+   `captionOverrides`, `showAxes`. For Cartesian diagrams use `showAxes: true`.
+2. Resolve the installed plugin root from this skill's location (`../..`). Run:
+   `node <PLUGIN_ROOT>/dist/cli.js generate --input <ABSOLUTE_SPEC_JSON> --workspace <ABSOLUTE_USER_PROJECT>`.
+   Quote every path. The generator needs Node >=22.12, no node_modules, MCP, or Chrome.
+   Do not use an unversioned npx command to run unpublished local changes.
+3. Open the returned HTML in the Codex right-side **browser panel**, not just the
+   source editor. Use the available in-app browser/open-panel tools. If local file
+   navigation is unsupported, serve the project on loopback, e.g.
+   `python3 -m http.server 8765 --bind 127.0.0.1 --directory <USER_PROJECT>` and open
+   `http://127.0.0.1:8765/<RELATIVE_HTML_PATH>` with proper URL encoding.
+   Reuse a running server or select another port if occupied. Do not expose it publicly.
+4. Wait for `window.geogebraStudio.status === 'ready'` or `'error'` using the
+   available browser inspection tools. `window.ggbReady` and `window.ggbError`
+   remain compatibility flags. A failed command reports its index and text;
+   fix the JSON, generate a new filename (existing files are not overwritten),
+   and reload the correct URL. Never claim engine validation from generation alone.
+5. Inspect the rendered page for tangency, incidence, branch selection, equal-axis
+   scale, clipping and labels. Verify dragging a free point and the object sidebar.
+   Keep the live viewer visible as the main deliverable. No background screenshot
+   is required. If browser inspection is unavailable, report that verification remains pending.
 
-Deliver the local HTML path and describe how to open the object sidebar, drag free
-points and download the current state. The viewer uses the official GeoGebra engine;
-do not replace it with a custom-drawn canvas/SVG or a desktop GeoGebra workflow.
-It requires internet for official GeoGebra assets; Gikz cleanup runs locally.
+The viewer uses the official GeoGebra applet and needs internet access for engine
+assets. Do not replace it with a custom-drawn approximation. Read
+[visual standards](../../docs/VISUAL-STANDARD.md) for presentation and
+[the tangent regression](../../docs/TANGENT-REGRESSION.md) for intersection branches.
 
-`geogebra_create_html` and `geogebra_export_html` remain advanced compatibility routes;
-use them only when the user explicitly asks for a command template or a shared live
-construction. The normal page already contains themes and current-state downloads.
+## Edits and exports
 
-For advanced server-side work, the older focused tools share one construction:
-keep each diagram's calls together. Use geogebra_api_list_methods before unfamiliar
-API calls; persistent callbacks use $ggbCallbackId and event polling. Prefer focused
-tools for routine construction and export.
+Dragging/editing changes the current applet, not the original JSON or disk file.
+Use Download → current HTML or GGB to preserve changes before closing or refreshing.
+Reopened downloaded HTML loads packed GGB instead of replaying the original commands.
+For inspection, `await window.geogebraStudio.snapshot()` returns current `ggbBase64`,
+`constructionXml` and checks; this is a page-local API, not a tool connection.
+Do not regenerate from old commands when the user wants to keep manual edits.
+Read geometry-export for current-state downloads and source export limitations.
 
-For source export, read geometry-export. Every TikZ export uses native PGF followed
-by built-in Gikz; no raw fallback. Retain GGB/XML for construction dependencies.
+## Optional automation
+
+Only use `generate ... --verify` when background browser verification is requested
+or necessary for batch/CI work. It opts into Chrome, packed-GGB round-trip checks
+and a preview PNG. Prepare that runtime with `browser install` only when needed.
+The legacy `mcp` command and tools remain available for explicit integrations;
+normal construction does not require starting or registering them.

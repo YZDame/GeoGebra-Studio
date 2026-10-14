@@ -85,20 +85,20 @@ describe('Official MCP SDK contract', () => {
   it('ships responsive sizing, native math labels, and paired reader themes', () => {
     const html=constructionHtml({commands:['A=(0,0)']});
     expect(html.indexOf('id="theme-toggle"')).toBeLessThan(html.indexOf('id="download-toggle"'));
-    expect(html).toContain('disableAutoScale:true');
+    expect(html).toMatch(/disableAutoScale:\s*true/);
     expect(html).toContain('ResizeObserver');
     expect(html).toContain('id="mode-toggle"');
     expect(html).toContain('id="sidebar-toggle"');
     expect(html).toContain('api.exportPGF(done)');
-    expect(html).toContain('showToolBar:true,showMenuBar:true,showAlgebraInput:true');
+    for (const option of ['showToolBar', 'showMenuBar', 'showAlgebraInput']) expect(html).toMatch(new RegExp(option + ':\\s*true'));
     expect(html).toContain('api.showToolBar(false)');
     expect(html).toContain('themeObjectColors.has(api.getColor(object).toLowerCase())');
     expect(html).not.toContain('<select');
     expect(html).toContain('true, true)');
-    expect(html).toContain('setGraphicsOptions(1,{bgColor:palette.paper})');
+    expect(html).toMatch(/setGraphicsOptions\(1,\s*\{\s*bgColor:\s*palette.paper\s*\}\)/);
     expect(html).toContain('catppuccin');
     expect(html).not.toContain('#ggb-element>div');
-    expect(html).toContain("format==='pdf'||format==='ggb'");
+    expect(html).toMatch(/format\s*===\s*['"]pdf['"]\s*\|\|\s*format\s*===\s*['"]ggb['"]/);
   });
   it('emits syntactically valid bootstrap JavaScript in the generated HTML', () => {
     const html=constructionHtml({commands:['A=(0,0)']});

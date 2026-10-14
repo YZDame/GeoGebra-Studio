@@ -3,7 +3,7 @@ const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
 const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio.js');
 (async () => {
   const client = new Client({name:'geogebra-verification',version:'1.0.0'});
-  const transport = new StdioClientTransport({command:process.execPath,args:['dist/cli.js'],stderr:'pipe'});
+  const transport = new StdioClientTransport({command:process.execPath,args:['dist/cli.js','mcp'],stderr:'pipe'});
   try {
     await client.connect(transport);
     const tools = await client.listTools();
@@ -14,7 +14,7 @@ const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio
     await assert.rejects(client.callTool({name:'does_not_exist',arguments:{}}));
     const resources = await client.listResources();
     assert(resources.resources.some(r => r.uri === 'geogebra://guide'));
-    assert((await client.readResource({uri:'geogebra://guide'})).contents[0].text.includes('share one construction'));
+    assert((await client.readResource({uri:'geogebra://guide'})).contents[0].text.includes('shared-construction'));
     assert((await client.getPrompt({name:'construct-geometry',arguments:{problem:'Triangle ABC'}})).messages.length);
     console.log(JSON.stringify({status:'passed',tools:tools.tools.length,server:client.getServerVersion()}));
   } finally { await client.close(); }

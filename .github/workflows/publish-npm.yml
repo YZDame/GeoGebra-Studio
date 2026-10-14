@@ -1,5 +1,11 @@
 name: Verify GeoGebra Studio and publish to npm
 on:
+  workflow_dispatch:
+    inputs:
+      native:
+        description: Run optional Chrome and LaTeX checks
+        type: boolean
+        default: false
   release:
     types: [published]
 jobs:
@@ -17,23 +23,30 @@ jobs:
           node-version: 24.10.0
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - run: node -e 'if (require("./package.json").version !== process.env.GITHUB_REF_NAME.replace(/^v/, "")) process.exit(1)'
+      - if: github.event_name == 'release'
+        run: node -e 'if (require("./package.json").version !== process.env.GITHUB_REF_NAME.replace(/^v/, "")) process.exit(1)'
       - run: npm run build
       - run: npm run test:unit
       - run: npm run verify:manifests
+      - run: node scripts/verify-generator.cjs
       - run: node scripts/verify-protocol.cjs
       - run: node scripts/verify-exports.cjs
       - run: node scripts/verify-gikz-mcp.cjs
-      - run: sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra
-      - run: node scripts/verify-gikz-latex.cjs
-      - run: node dist/cli.js browser install
-      - run: node scripts/verify-artifact.cjs
-      - run: STUDIO_HTML_FIXTURE=output/verification/studio/tangent-construction.html node scripts/verify-viewer.cjs
+      - if: github.event_name == 'workflow_dispatch' && inputs.native
+        run: sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra
+      - if: github.event_name == 'workflow_dispatch' && inputs.native
+        run: node scripts/verify-gikz-latex.cjs
+      - if: github.event_name == 'workflow_dispatch' && inputs.native
+        run: node dist/cli.js browser install
+      - if: github.event_name == 'workflow_dispatch' && inputs.native
+        run: node scripts/verify-artifact.cjs
+      - if: github.event_name == 'workflow_dispatch' && inputs.native
+        run: STUDIO_HTML_FIXTURE=output/verification/studio/tangent-construction.html node scripts/verify-viewer.cjs
       - run: node scripts/package-release.cjs
       - run: npm_config_cache=${{ runner.temp }}/npm-cache node scripts/verify-package.cjs
       - run: npm install --global @openai/codex@0.162.1
       - run: node dist/cli.js install --local
-      - run: STUDIO_VERIFY_ARTIFACT=1 node scripts/verify-plugin-session.cjs
+      - run: node scripts/verify-plugin-session.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: geogebra-studio-acceptance-${{ github.event.release.tag_name }}
@@ -48,6 +61,7 @@ jobs:
             output/verification/plugin-session.json
   publish:
     needs: acceptance
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     environment: npm
     env:
@@ -78,7 +92,6 @@ jobs:
         run: node -e 'const p=require("./package.json");require("node:child_process").execFileSync("npx",["--yes",p.name+"@"+p.version,"install"],{stdio:"inherit"})'
       - name: Verify the public plugin in a fresh Codex session
         env:
-          STUDIO_VERIFY_ARTIFACT: '1'
           STUDIO_REPORT_FILE: output/verification/registry-plugin-session.json
         run: node -e 'process.env.STUDIO_EXPECTED_VERSION=require("./package.json").version;require("./scripts/verify-plugin-session.cjs")'
       - uses: actions/upload-artifact@v4

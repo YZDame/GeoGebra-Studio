@@ -1,7 +1,8 @@
 # GeoGebra Studio viewer standard (v1)
 
-The official Classic applet renders all geometry. Local HTML carries a real packed
-GGB by default; generated previews are evidence for visual review, not substitutes.
+The official Classic applet renders all geometry. Default HTML carries ordered commands, executed in the Codex browser panel.
+Downloaded current-state HTML carries packed GGB. Background Chrome verification
+and preview screenshots are optional; inspect the visible diagram for visual quality.
 
 - Full available viewport, responsive ResizeObserver, isotropic x/y coordinates.
   Never stretch a native canvas with independent CSS width/height scales.

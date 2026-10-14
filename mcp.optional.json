@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "geogebra": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "--yes",
+        "--prefix",
+        "./runtime",
+        "@lydt/geogebra-studio@0.4.0",
+        "mcp"
+      ],
+      "env": {
+        "GEOGEBRA_TOOL_PROFILE": "core",
+        "GEOGEBRA_PLUGIN_RUNTIME": "1"
+      }
+    }
+  }
+}

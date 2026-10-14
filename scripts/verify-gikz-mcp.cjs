@@ -4,7 +4,7 @@ const {Client}=require('@modelcontextprotocol/sdk/client/index.js');
 const {StdioClientTransport}=require('@modelcontextprotocol/sdk/client/stdio.js');
 (async()=>{
  const client=new Client({name:'mandatory-gikz-check',version:'1'});
- const transport=new StdioClientTransport({command:process.execPath,args:['dist/cli.js'],stderr:'pipe'});
+ const transport=new StdioClientTransport({command:process.execPath,args:['dist/cli.js','mcp'],stderr:'pipe'});
  const call=async(name,args={})=>{const response=await client.callTool({name,arguments:args});assert(!response.isError,JSON.stringify(response.content));return response.structuredContent||JSON.parse(response.content[0].text)};
  try{
   await client.connect(transport);

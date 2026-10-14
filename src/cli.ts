@@ -13,16 +13,18 @@ function showHelp() {
   const homepage = packageJson.homepage || 'https://github.com/YZDame/geogebra-mcp-server';
 
   console.log(`
-GeoGebra Studio - Mathematical Visualization via Model Context Protocol
+GeoGebra Studio - Editable geometry in the Codex browser panel
 
 Usage:
   npx @lydt/geogebra-studio [options]
 
 Options:
-  install          Install the complete Codex plugin (skills + MCP)
-  doctor           Check built-in Gikz and browser launch
+  generate --input SPEC.json --workspace DIR [--output FILE.html] [--verify]
+                   Generate HTML without Chrome; --verify opts into Chrome checks
+  install          Install the skills and HTML generator (no MCP or Chrome setup)
+  doctor           Check the HTML generator and built-in Gikz
   browser install  Prepare Chrome or managed Chromium
-  mcp              Start only the MCP server (also the no-argument default)
+  mcp              Start the optional legacy MCP server
 
   -h, --help        Show this help message
   -v, --version     Show version information
@@ -30,8 +32,8 @@ Options:
   --port PORT       Serve Streamable HTTP at http://127.0.0.1:PORT/mcp
 
 Examples:
-  npx @lydt/geogebra-studio                    # Start MCP server on stdin/stdout
-  npx @lydt/geogebra-studio --log-level debug  # Start with debug logging
+  npx @lydt/geogebra-studio generate --input diagram.json --workspace /absolute/project
+  npx @lydt/geogebra-studio mcp                # Optional compatibility server
   npx @lydt/geogebra-studio --help             # Show this help
 
 For more information, visit: ${homepage}
@@ -120,18 +122,48 @@ async function main() {
   try {
     // Parse command line arguments first
     const args = process.argv.slice(2);
+    if (args[0] === 'generate') {
+      const options: Record<string, string> = {};
+      let verify = false;
+      for (let i = 1; i < args.length; i++) {
+        const arg = args[i]!;
+        if (arg === '--verify') { verify = true; continue; }
+        if (!['--input', '--workspace', '--output'].includes(arg) || !args[i + 1] || args[i + 1]!.startsWith('--') || options[arg]) throw new Error('Usage: generate --input SPEC.json --workspace ABSOLUTE_DIR [--output FILE.html] [--verify]');
+        options[arg] = args[++i]!;
+      }
+      if (!options['--input'] || !options['--workspace']) throw new Error('generate requires --input and --workspace');
+      const { readFile } = await import('fs/promises');
+      const { validateViewerSpec, generateViewer } = await import('./studio/generate');
+      const value: unknown = JSON.parse(await readFile(options['--input'], 'utf8'));
+      const spec = validateViewerSpec(value);
+      if (options['--output']) spec.filename = options['--output'];
+      validateViewerSpec(spec);
+      if (verify) {
+        const { inWorkspace } = await import('./export/workspace');
+        const { buildArtifact } = await import('./studio/artifact');
+        const result = await inWorkspace(options['--workspace'], () => buildArtifact(spec));
+        const { html: _html, constructionXml: _xml, ...summary } = result.structuredContent;
+        console.log(JSON.stringify(summary));
+      } else console.log(JSON.stringify(await generateViewer(spec, options['--workspace'])));
+      return;
+    }
     if(args[0]==='install'){
       if(args.slice(1).some(arg=>arg!=='--local'))throw new Error('Usage: install [--local]');
       await (await import('./studio/install')).installPlugin(args.includes('--local'));return;
     }
     if(args[0]==='doctor'||args[0]==='browser'){
       if(args[0]==='browser'&&(args.length!==2||args[1]!=='install'))throw new Error('Usage: browser install');
-      const {prepareBrowser}=await import('./studio/browser');
       const {cleanWithGikz}=await import('./export/gikz');
       await cleanWithGikz(String.raw`\begin{tikzpicture}\end{tikzpicture}`);
-      const executablePath=await prepareBrowser(args[0]==='browser');
-      console.log(JSON.stringify({success:true,version:require('../package.json').version,gikz:'built-in',executablePath}));return;
+      const { constructionHtml } = await import('./export/html');
+      constructionHtml({ commands: ['A=(0,0)'] });
+      if (args[0] === 'browser') {
+        const { prepareBrowser } = await import('./studio/browser');
+        console.log(JSON.stringify({success:true,executablePath:await prepareBrowser(true)}));
+      } else console.log(JSON.stringify({success:true,version:require('../package.json').version,gikz:'built-in',execution:'viewer',chromeRequired:false}));
+      return;
     }
+    if (!args.length && !process.argv[1]?.includes('geogebra-mcp')) { showHelp(); return; }
     if(args[0]==='mcp')args.shift();
     if(args[0]&&!args[0].startsWith('-'))throw new Error('Unknown command: '+args[0]);
     const options = parseArgs(args);

@@ -1,46 +1,58 @@
 # GeoGebra Studio
 
-[![npm next 版本](https://img.shields.io/npm/v/%40lydt%2Fgeogebra-studio/next?label=npm%20%28next%29)](https://www.npmjs.com/package/@lydt/geogebra-studio)
-[![npm 月下载量](https://img.shields.io/npm/dm/%40lydt%2Fgeogebra-studio)](https://www.npmjs.com/package/@lydt/geogebra-studio)
-[![GitHub 星标](https://img.shields.io/github/stars/YZDame/GeoGebra-Studio)](https://github.com/YZDame/GeoGebra-Studio)
-[![许可证](https://img.shields.io/github/license/YZDame/GeoGebra-Studio)](LICENSE)
+描述数学问题，让 Codex 生成可编辑的 GeoGebra HTML，并直接在 Codex 侧栏浏览器中查看和操作。
 
-**用文字描述几何图形，生成可编辑的 GeoGebra 图。** GeoGebra Studio 是一个 Codex 插件，可以创建本地 HTML 页面，其中的图形可以交互操作。你可以拖动点、修改对象，并将图形下载为多种格式。
+默认流程无需启动 MCP，也无需安装独立 Chrome。页面运行官方 GeoGebra 引擎，需要联网。
 
-[English](README.md) · [GitHub 仓库](https://github.com/YZDame/GeoGebra-Studio) · [npm 包](https://www.npmjs.com/package/@lydt/geogebra-studio)
+## 使用流程
 
-## 安装
+安装已发布版本：`npx @lydt/geogebra-studio@<版本号> install`。
+本仓库的新流程尚需发布；本地开发使用 `npm ci`、`npm run build`，再运行
+`node dist/cli.js install --local`。安装不会探测或下载浏览器。重新打开 Codex 聊天以加载技能。
 
-需要安装 [Codex](https://openai.com/codex/) 和 Node.js 22.12 或更新版本。在终端运行：
+让 Codex 根据问题编写构造 JSON，例如：
 
-```sh
-npx @lydt/geogebra-studio@0.4.0-rc.2 install
+```json
+{
+  "commands": ["A=(0,0)", "B=(4,0)", "c=Circle(A,B)"],
+  "visibleLabels": ["A", "B"],
+  "filename": "circle.html"
+}
 ```
 
-安装后新建一个 **Codex 对话**，直接描述你要画的图形。安装程序会优先使用电脑上已有的 Chrome；如果没有可用的 Chrome，就会为插件下载 Chromium。
+从插件目录运行：
 
-> `0.4.0-rc.2` 是预览版，目前通过 npm 的 `next` 标签发布。正式版 `0.4.0` 尚在准备中。
+```sh
+node dist/cli.js generate --input /绝对路径/diagram.json --workspace /绝对路径/项目
+```
 
-## 试着画一个图形
+生成器只创建新文件，不覆盖已有 HTML，也不执行几何构造。Codex 将返回的文件在右侧浏览器打开；
+如果内置浏览器不允许本地文件 URL，可在项目目录启动仅监听 `127.0.0.1` 的静态服务器，再打开对应 HTTP URL。
+页面加载后执行命令，显示具体失败命令，并检查可见对象是否有定义及坐标轴比例。
+生成成功不等于几何正确，仍需检查实际图形。
 
-例如，可以这样告诉 Codex：
+## 编辑和保存
 
-> 画圆 Γ：x² + y² = 25 和圆 ω：(x − 3)² + y² = 64/25。让点 A 在 Γ 上运动，过 A 作 ω 的两条切线，并把它们与 Γ 的另一个交点标为 B、C。请在我的项目中保存为可编辑的 HTML 图形。
+拖动自由点，点击画布左上角按钮展开 GeoGebra 对象栏，编辑定义或样式。
+右上角可以切换主题和下载 GGB、HTML、PNG、SVG、PDF、XML、TikZ。
+TikZ 使用原生 PGF，经内置 Gikz 清洗。
 
-GeoGebra Studio 会在你的项目中生成 HTML 文件并提供预览。之后可以用浏览器打开文件继续操作。
+**编辑不会自动写回原始 HTML 或 JSON。关闭或刷新前，下载当前 HTML/GGB 保存。**
+下载的 HTML 内嵌当前 GGB，重新打开后保留编辑状态。
 
-## 编辑和导出
+页面提供 `window.geogebraStudio.status`（loading/executing/ready/error）、失败命令和检查结果。
+`await window.geogebraStudio.snapshot()` 可读取当前 GGB、XML 和检查结果，不需要后台 MCP。
 
-拖动点可以观察图形变化。点击画布旁的按钮，可以展开 GeoGebra 对象列表并修改定义或样式。右上角的按钮可以切换主题，并下载当前图形。
+## 可选后台自动化
 
-- **GGB**：保留可编辑的 GeoGebra 图形。
-- **HTML**：将交互图形保存在一个本地文件中。
-- **SVG、PDF、PNG**：适合放入文档或讲义。
-- **TikZ**：导出经过清理的静态 LaTeX 图形代码。
-- **XML**：保存 GeoGebra 的构造数据。
+`generate ... --verify` 显式启用 Chrome，执行构造、打包 GGB、重新打开文件验证，并生成预览 PNG。
+仅在批量处理或后台验证时使用；需要时运行 `node dist/cli.js browser install` 准备浏览器。
 
-## 关于联网
+旧 MCP 工具保持兼容，使用 `node dist/cli.js mcp` 启动。
+默认插件清单不注册任何 MCP 服务；`mcp.optional.json` 是可选接入配置。
+解压后的无依赖插件运行生成器无需 npm install；可选后台功能需要安装运行时依赖。
 
-绘图引擎来自 GeoGebra 官方网站，因此创建或打开交互图形时需要联网。保存的 HTML 文件在本地，但其中的 GeoGebra 并非完整离线版本。
+开发检查：`npm run verify`、`npm run test:unit`。
+可选 MCP 检查：`npm run verify:mcp`。`doctor` 只检查生成器与 Gikz，不启动 Chrome。
 
-GeoGebra Studio 是独立的社区项目，与 GeoGebra 官方无隶属关系。
+项目独立于 GeoGebra 官方。许可证与第三方声明见 LICENSE 和 THIRD_PARTY_NOTICES.md。

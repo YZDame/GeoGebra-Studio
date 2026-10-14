@@ -1,3 +1,12 @@
+# Unreleased
+
+- Default to a dependency-free HTML generator and execution in the Codex browser panel.
+- Stop registering MCP or preparing Chrome during default plugin installation.
+- Add `generate --input ... --workspace ...`, with opt-in `--verify` for Chrome checks.
+- Extract the viewer script; report failed commands, undefined objects and page-local snapshots.
+- Preserve current edits through packed-GGB HTML downloads. Keep legacy MCP opt-in.
+- Replace the plugin icon with the supplied five-node graphic.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

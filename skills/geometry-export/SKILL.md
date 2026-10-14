@@ -6,18 +6,20 @@ description: Export GeoGebra geometry to GGB, vector/image formats, cleaned TikZ
 The default HTML viewer downloads the current edited applet as GGB, PNG, SVG,
 TikZ (.tex), PDF, XML or another self-contained viewer HTML. Use native GGB/XML
 when users need editable construction definitions; decode GGB base64 into ZIP bytes.
-When a tool saves a file, pass `workspace` as the absolute user project directory,
+Manual changes are not written back to the original HTML or JSON. Download current
+HTML/GGB before refreshing to preserve them. When a tool saves a file, pass `workspace` as the absolute user project directory,
 with `filename` relative to that directory. Never save into the installed plugin cache.
 
-Every TikZ path MUST use GeoGebra native PGF followed by built-in Gikz. Use
-geogebra_export_tikz or geogebra_export_source(format=tikz); the generic exportPGF
-bridge and viewer download follow the same policy. A cleaner failure is an error,
+Every TikZ path MUST use GeoGebra native PGF followed by built-in Gikz. Use the viewer Download menu in the default workflow. Optional MCP tools
+geogebra_export_tikz and geogebra_export_source(format=tikz) use the same policy. A cleaner failure is an error,
 never an excuse to return raw PGF. Gikz is included; do not install an external CLI.
 Its cleaning normalizes precision, colors, widths and labels. TikZ is a static
 visual snapshot, not a guaranteed dependency-preserving replacement for GGB.
 Use geogebra_clean_tikz for existing native PGF or explicit XML conversion.
 
-For Asymptote/TSQX, start from geogebra_get_semantic_scene and retain original XML,
+For Asymptote/TSQX, obtain current XML from a viewer XML download or
+`await window.geogebraStudio.snapshot()`. Optional MCP geogebra_get_semantic_scene
+can parse that XML. Retain original XML,
 commands, captions, styles and coordinates. geogebra_export_source strict=true
 supports independent finite points, midpoints, segments, polygons and basic circles.
 Inspect all warnings. strict=false yields an explicit partial draft. Reconstruct

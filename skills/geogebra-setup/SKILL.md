@@ -1,37 +1,36 @@
 ---
 name: geogebra-setup
-description: Install or diagnose the local GeoGebra Studio Codex plugin, its built-in Gikz, Chrome runtime, and geometry export workflow.
+description: Install or diagnose the skills-first GeoGebra HTML workflow; Chrome and MCP are optional automation features.
 ---
 
-GeoGebra Studio includes MCP, three skills, the HTML viewer and built-in Gikz.
-Node >=22.12.0 and npm/npx are required. A full plugin installation is:
+The default plugin contains three skills, a lightweight HTML generator, the viewer
+and bundled Gikz. Node >=22.12 is required. Install a published version with
+`npx @lydt/geogebra-studio@<VERSION> install`; for a built checkout use
+`node <CHECKOUT>/dist/cli.js install --local`.
 
-```sh
-npx @lydt/geogebra-studio install
-```
+Installation registers the plugin and skills without starting MCP, probing Chrome,
+or downloading Chromium. Start a new Codex chat to load changed installed skills.
+For local authoring, build first. Local installation copies built files to a stable
+location and does not install dependencies there. `install --local` requires a fresh
+installation target; use an isolated CODEX_HOME for acceptance tests.
 
-This registers a persistent version-pinned marketplace and installs the complete
-plugin through Codex. It probes existing Chrome and prepares managed Chromium when
-needed. Start a new session and invoke @geogebra-studio. Verify both skills and MCP
-tool availability; a standalone SDK connection alone does not verify plugin loading.
-For candidate versions, use the exact installed version or the npm `next` tag.
-The packaged launcher uses a neutral npm prefix so an unpacked plugin without
-node_modules does not shadow the version-pinned npm runtime. For file output, pass
-the absolute user project directory in `workspace`, or use client-provided MCP roots.
-Old geogebra-geometry plugins are not removed automatically. Avoid using both against
-the same diagram; remove the old plugin only when the user asks.
+From the installed plugin root, `node dist/cli.js doctor` checks bundled generation
+assets and Gikz without a browser. Use geogebra-construct to generate HTML and open
+it in the Codex browser panel. A successful generator run does not establish applet
+execution: diagnose page network/loading and command errors in the visible page.
+If file URLs fail, serve the user project over loopback and open its HTTP URL.
 
-`npx @lydt/geogebra-studio mcp` (also the no-argument default) starts only stdio MCP.
-Use `doctor` for a browser-launch and built-in-cleaner check; `browser install`
-prepares a usable browser. PUPPETEER_EXECUTABLE_PATH selects an explicit executable.
-No GeoGebra desktop client and no GIKZ_CLI installation are required.
+Optional background automation uses `generate ... --verify`. Only that path needs
+an external Chrome runtime. `browser install` probes Chrome or downloads managed
+Chromium; PUPPETEER_EXECUTABLE_PATH selects a specific executable.
 
-Default artifact creation needs Chrome and network access to official GeoGebra
-assets. Browser downloads and generated HTML also need GeoGebra network assets.
-Do not bypass load errors with a custom drawing. Diagnose missing browser, network,
-command, and plugin-loading failures separately.
+Legacy integrations may explicitly start `node dist/cli.js mcp`; npm installs
+include its dependencies. An unpacked dependency-free plugin needs runtime dependencies
+installed before optional MCP/Chrome use. `mcp.optional.json` provides an opt-in
+configuration; default `mcp.json` and `.mcp.json` have no servers.
+Do not automatically enable MCP or remove older plugins.
 
-Read [visual standards](../../docs/VISUAL-STANDARD.md) for the delivered viewer and
-[the regression](../../docs/TANGENT-REGRESSION.md) when diagnosing its geometry.
-This release targets local Codex; it does not publish a remote endpoint or submit
-to the public ChatGPT directory. No credentials are stored in the package.
+Read [visual standards](../../docs/VISUAL-STANDARD.md) and
+[the tangent regression](../../docs/TANGENT-REGRESSION.md) as relevant.
+The HTML is local but GeoGebra engine assets require internet. No API key,
+GeoGebra desktop app or external Gikz installation is required.

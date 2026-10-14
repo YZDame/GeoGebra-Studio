@@ -39,33 +39,22 @@ const path=require('node:path');
   assert(installed.installed.some(p=>p.name==='geogebra-studio'&&p.enabled),'Plugin is not installed and enabled in Codex');
   const session=await call('thread/start',{cwd:process.cwd(),ephemeral:true,approvalPolicy:'never',sandbox:'read-only'});
   const threadId=session.thread.id;
-  let inventory;
-  for(let attempt=0;attempt<15;attempt++){
-   inventory=await call('mcpServerStatus/list',{threadId});
-   if(JSON.stringify(inventory).includes('geogebra_build_artifact'))break;
-   await new Promise(resolve=>setTimeout(resolve,1000));
-  }
-  const server=inventory.data.find(s=>Object.values(s.tools||{}).some(t=>t.name==='geogebra_build_artifact'));
-  assert(server,'Installed plugin MCP tool discovery failed: '+JSON.stringify(inventory));
-  const source='\\begin{tikzpicture}\\draw (0,0) circle (1cm);\\end{tikzpicture}';
-  const result=await call('mcpServer/tool/call',{threadId,server:server.name,tool:'geogebra_clean_tikz',arguments:{source,standalone:true}});
-  assert(!result.isError&&JSON.stringify(result).includes('tikzpicture'));
-  const info=await call('mcpServer/tool/call',{threadId,server:server.name,tool:'server_info',arguments:{}});
-  assert(!info.isError);
-  const serverInfo=info.structuredContent||JSON.parse(info.content.find(c=>c.type==='text').text);
-  if(process.env.STUDIO_EXPECTED_VERSION)assert.equal(serverInfo.version,process.env.STUDIO_EXPECTED_VERSION);
-  const report={realPluginSession:true,installedSkills:3,server:server.name,version:serverInfo.version,tool:'geogebra_clean_tikz',modelTurn:false};
-  if(process.env.STUDIO_VERIFY_ARTIFACT==='1'){
-   const filename='output/verification/registry-studio/tangent-construction.html';
-   await fs.rm(filename,{force:true});await fs.rm(filename.replace('.html','.preview.png'),{force:true});
-   const artifact=await call('mcpServer/tool/call',{threadId,server:server.name,tool:'geogebra_build_artifact',arguments:{...require('../examples/tangent-construction.json'),workspace:process.cwd(),filename}},180000);
-   assert(!artifact.isError,'Registry plugin artifact failed: '+JSON.stringify(artifact));
-   const data=artifact.structuredContent||JSON.parse(artifact.content.find(c=>c.type==='text').text);
-   assert(data.engineVerified&&data.packedGgbVerified&&data.renderVerified);
-   assert.equal(data.filename,path.resolve(filename),'Artifact must be saved in the user project, not the installed plugin cache');
-   await fs.access(data.filename);await fs.access(data.previewFilename);
-   report.artifact={filename:data.filename,previewFilename:data.previewFilename,renderVerified:true};
-  }
+  const inventory=await call('mcpServerStatus/list',{threadId});
+  assert(!inventory.data.some(s=>Object.values(s.tools||{}).some(t=>t.name==='geogebra_build_artifact')),
+    'Default plugin unexpectedly registered GeoGebra MCP');
+  const skill=listedSkills.find(s=>s.name==='geogebra-construct'||s.name.endsWith(':geogebra-construct'));
+  assert(skill.path,'Installed skill path is required to locate the bundled generator');
+  const pluginRoot=path.resolve(path.dirname(skill.path),'../..');
+  const metadata=JSON.parse(await fs.readFile(path.join(pluginRoot,'package.json'),'utf8'));
+  if(process.env.STUDIO_EXPECTED_VERSION)assert.equal(metadata.version,process.env.STUDIO_EXPECTED_VERSION);
+  const spec=path.resolve('output/verification/plugin-generator.json');
+  const filename='output/verification/plugin-generated.html';
+  await fs.mkdir(path.dirname(spec),{recursive:true});await fs.rm(filename,{force:true});
+  await fs.writeFile(spec,JSON.stringify({commands:['A=(0,0)','B=(4,0)','c=Circle(A,B)'],filename}));
+  const generated=JSON.parse(execFileSync(process.execPath,[path.join(pluginRoot,'dist/cli.js'),'generate','--input',spec,'--workspace',process.cwd()],{encoding:'utf8'}));
+  assert.equal(generated.engineVerified,false);await fs.access(generated.filename);
+  const report={realPluginSession:true,installedSkills:3,defaultMcpServers:0,version:metadata.version,
+    generator:generated.filename,modelTurn:false,renderVerified:false};
   await fs.mkdir('output/verification',{recursive:true});
   await fs.writeFile(process.env.STUDIO_REPORT_FILE||'output/verification/plugin-session.json',JSON.stringify(report,null,2)+String.fromCharCode(10));
   console.log(JSON.stringify(report));

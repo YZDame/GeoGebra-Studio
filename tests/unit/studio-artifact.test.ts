@@ -8,7 +8,7 @@ describe('Atomic Studio artifact',()=>{
  let root:string,previous:string|undefined,engine:any;
  beforeEach(async()=>{
   root=await fs.mkdtemp(path.join(os.tmpdir(),'studio-artifact-unit-'));previous=process.env['VSCODE_WORKSPACE_FOLDER'];process.env['VSCODE_WORKSPACE_FOLDER']=root;
-  engine={initialize:jest.fn(),renderHtml:jest.fn(),debugEvaluate:jest.fn().mockResolvedValue({objects:1,undefinedVisibleObjects:[]}),exportGGB:jest.fn().mockResolvedValue(Buffer.from('PKfixture').toString('base64')),getAllObjectNames:jest.fn().mockResolvedValue(['A']),capturePreview:jest.fn().mockResolvedValue(Buffer.from('preview')),cleanup:jest.fn()};
+  engine={getConstructionXML:jest.fn().mockResolvedValue('<geogebra><construction/></geogebra>'),initialize:jest.fn(),renderHtml:jest.fn(),debugEvaluate:jest.fn().mockResolvedValue({objects:1,undefinedVisibleObjects:[]}),exportGGB:jest.fn().mockResolvedValue(Buffer.from('PKfixture').toString('base64')),getAllObjectNames:jest.fn().mockResolvedValue(['A']),capturePreview:jest.fn().mockResolvedValue(Buffer.from('preview')),cleanup:jest.fn()};
   (GeoGebraInstance as jest.Mock).mockImplementation(()=>engine);
  });
  afterEach(async()=>{if(previous===undefined)delete process.env['VSCODE_WORKSPACE_FOLDER'];else process.env['VSCODE_WORKSPACE_FOLDER']=previous;await fs.rm(root,{recursive:true,force:true});});
