@@ -1,6 +1,6 @@
 import path from 'path';
 import os from 'os';
-import { mkdir, writeFile, readFile, cp, access } from 'fs/promises';
+import { mkdir, writeFile, readFile, cp, rm } from 'fs/promises';
 import { spawn } from 'child_process';
 export async function run(command:string,args:string[],cwd?:string):Promise<void>{
   await new Promise<void>((resolve,reject)=>{
@@ -18,10 +18,10 @@ export async function installPlugin(local=false):Promise<void>{
   if(local){
     // The default generator uses bundled files and Node built-ins, with no runtime install.
     const target=path.join(root,'plugin');
-    try{await access(path.join(target,'package.json'));throw new Error(`Local package already exists: ${target}. Use a fresh CODEX_HOME for a clean test.`);}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}
+    await rm(target,{recursive:true,force:true});
     await mkdir(target,{recursive:true});
     const packageRoot=path.join(__dirname,'../..');
-    for(const entry of ['dist','runtime','gikz','skills','docs','examples','plugin.json','mcp.json','mcp.optional.json','.codex-plugin','.mcp.json','package.json','LICENSE','LICENSE-MIT','THIRD_PARTY_NOTICES.md'])await cp(path.join(packageRoot,entry),path.join(target,entry),{recursive:true});
+    for(const entry of ['dist','runtime','gikz','skills','docs','examples','assets','plugin.json','mcp.json','mcp.optional.json','.codex-plugin','.mcp.json','package.json','LICENSE','LICENSE-MIT','THIRD_PARTY_NOTICES.md'])await cp(path.join(packageRoot,entry),path.join(target,entry),{recursive:true});
     const localPackagePath=path.join(target,'package.json');
     const localPackage=JSON.parse(await readFile(localPackagePath,'utf8'));
     delete localPackage.devDependencies;
