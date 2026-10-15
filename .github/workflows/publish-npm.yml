@@ -6,6 +6,14 @@ on:
         description: Run optional Chrome and LaTeX checks
         type: boolean
         default: false
+      publish:
+        description: Publish the npm package for release_tag after acceptance
+        type: boolean
+        default: false
+      release_tag:
+        description: Existing GitHub release tag (for example v0.4.0)
+        type: string
+        required: false
   release:
     types: [published]
 jobs:
@@ -23,8 +31,10 @@ jobs:
           node-version: 24.10.0
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - if: github.event_name == 'release'
-        run: node -e 'if (require("./package.json").version !== process.env.GITHUB_REF_NAME.replace(/^v/, "")) process.exit(1)'
+      - if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+        env:
+          STUDIO_RELEASE_NAME: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: node -e 'if (require("./package.json").version !== process.env.STUDIO_RELEASE_NAME.replace(/^v/, "")) process.exit(1)'
       - run: npm run build
       - run: npm run test:unit
       - run: npm run verify:manifests
@@ -49,7 +59,7 @@ jobs:
       - run: node scripts/verify-plugin-session.cjs
       - uses: actions/upload-artifact@v4
         with:
-          name: geogebra-studio-acceptance-${{ github.event.release.tag_name }}
+          name: geogebra-studio-acceptance-${{ github.event.release.tag_name || inputs.release_tag || 'manual' }}
           path: |
             release/*.tgz
             release/*.zip
@@ -61,7 +71,7 @@ jobs:
             output/verification/plugin-session.json
   publish:
     needs: acceptance
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish && inputs.release_tag != '')
     runs-on: ubuntu-latest
     environment: npm
     env:
@@ -79,7 +89,7 @@ jobs:
           registry-url: https://registry.npmjs.org
       - uses: actions/download-artifact@v4
         with:
-          name: geogebra-studio-acceptance-${{ github.event.release.tag_name }}
+          name: geogebra-studio-acceptance-${{ github.event.release.tag_name || inputs.release_tag }}
           path: .
       - name: Publish the exact accepted tarball
         run: node -e 'const r=require("./release/package-report.json");require("node:child_process").execFileSync("npm",["publish","./release/"+r.npm,"--ignore-scripts","--access","public","--provenance","--tag",process.env.STUDIO_RELEASE_TAG],{stdio:"inherit"})'
