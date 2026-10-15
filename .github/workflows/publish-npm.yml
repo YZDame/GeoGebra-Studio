@@ -32,7 +32,7 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
       - run: npm ci
-      - if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+      - if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
         env:
           STUDIO_RELEASE_NAME: ${{ github.event.release.tag_name || inputs.release_tag }}
         run: node -e 'if (require("./package.json").version !== process.env.STUDIO_RELEASE_NAME.replace(/^v/, "")) process.exit(1)'
@@ -72,7 +72,7 @@ jobs:
             output/verification/plugin-session.json
   publish:
     needs: acceptance
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish && inputs.release_tag != '')
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
     runs-on: ubuntu-latest
     environment: npm
     env:
@@ -94,6 +94,7 @@ jobs:
           name: geogebra-studio-acceptance-${{ github.event.release.tag_name || inputs.release_tag }}
           path: .
       - name: Publish the exact accepted tarball
+        if: github.event_name == 'release' || inputs.publish
         run: node -e 'const r=require("./release/package-report.json");require("node:child_process").execFileSync("npm",["publish","./release/"+r.npm,"--ignore-scripts","--access","public","--provenance","--tag",process.env.STUDIO_RELEASE_TAG],{stdio:"inherit"})'
       - name: Wait for public Registry availability and verify integrity
         run: node scripts/verify-registry.cjs
@@ -101,7 +102,9 @@ jobs:
       - name: Install the public npm plugin
         env:
           npm_config_ignore_scripts: 'true'
-        run: node -e 'const p=require("./package.json");require("node:child_process").execFileSync("npx",["--yes",p.name+"@"+p.version,"install"],{stdio:"inherit"})'
+          STUDIO_EXPECTED_VERSION: ${{ github.event.release.tag_name || inputs.release_tag }}
+        working-directory: ${{ runner.temp }}
+        run: npx --yes --package=@lydt/geogebra-studio@${STUDIO_EXPECTED_VERSION#v} -- geogebra-studio install
       - name: Verify the public plugin in a fresh Codex session
         env:
           STUDIO_REPORT_FILE: output/verification/registry-plugin-session.json
@@ -109,7 +112,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: geogebra-studio-public-${{ github.event.release.tag_name }}
+          name: geogebra-studio-public-${{ github.event.release.tag_name || inputs.release_tag }}
           path: |
             output/verification/registry-publication.json
             output/verification/registry-plugin-session.json
