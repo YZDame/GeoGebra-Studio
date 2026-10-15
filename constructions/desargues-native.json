@@ -1,0 +1,50 @@
+{
+  "filename": "constructions/desargues-native.html",
+  "title": "Desargues’ theorem · 笛沙格定理",
+  "commands": [
+    "O=(0,5)",
+    "A=(-3,1)",
+    "B=(0,0)",
+    "C=(3,2)",
+    "A_1=Dilate(A,1.5,O)",
+    "B_1=Dilate(B,2,O)",
+    "C_1=Dilate(C,1.2,O)",
+    "a=Line(A,B)",
+    "b=Line(B,C)",
+    "c=Line(C,A)",
+    "d=Line(A_1,B_1)",
+    "e=Line(B_1,C_1)",
+    "f=Line(C_1,A_1)",
+    "s_1=Segment(A,B)",
+    "s_2=Segment(B,C)",
+    "s_3=Segment(C,A)",
+    "t_1=Segment(A_1,B_1)",
+    "t_2=Segment(B_1,C_1)",
+    "t_3=Segment(C_1,A_1)",
+    "r_1=Segment(O,A_1)",
+    "r_2=Segment(O,B_1)",
+    "r_3=Segment(O,C_1)",
+    "P=Intersect(a,d)",
+    "Q=Intersect(b,e)",
+    "R=Intersect(c,f)",
+    "g=Line(P,Q)"
+  ],
+  "showAxes": false,
+  "visibleLabels": [
+    "O",
+    "A",
+    "B",
+    "C",
+    "A_1",
+    "B_1",
+    "C_1",
+    "P",
+    "Q",
+    "R"
+  ],
+  "captionOverrides": {
+    "A_1": "A'",
+    "B_1": "B'",
+    "C_1": "C'"
+  }
+}

@@ -1,3 +1,7 @@
+import { executeViewerActionCommand } from '../src/export/viewer-action-commands';
+import { executeViewerCommand } from '../src/export/viewer-command-executor';
+import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/export/viewer-style-commands';
+
 (() => {
   (() => {
     const specification = JSON.parse(document.getElementById("construction-data").textContent);
@@ -25,6 +29,7 @@
       }
       themeMenu.append(button);
     }
+    const explicitColorObjects = new Set();
     let api, ready = false, resizeObserver, resizeFrame, resizeVersion = 0, sidebarOpen = false, objectThemeApplied = false;
     const themeObjectColors = new Set(Object.values(themes).flat().flatMap((p) => [p.ink, p.blue]).concat(["#000000", "#666666", "#4d4dff"]).map((c) => c.toLowerCase()));
     const validTheme = (value) => typeof value === "string" && /^[a-z-]+:[01]$/.test(value) && Object.hasOwn(themes, value.split(":")[0]);
@@ -51,7 +56,7 @@
         api.setGraphicsOptions(1, { bgColor: palette.paper });
         for (const object of api.getAllObjectNames()) {
           const type = api.getObjectType(object);
-          if (["point", "text", "line", "segment", "ray", "circle", "conic"].includes(type) && (!objectThemeApplied && !specification.ggbBase64 || themeObjectColors.has(api.getColor(object).toLowerCase()))) api.setColor(object, ...rgb(type === "point" && api.isMoveable(object) ? palette.blue : palette.ink));
+          if (!explicitColorObjects.has(object) && ["point", "text", "line", "segment", "ray", "circle", "conic"].includes(type) && (!objectThemeApplied && !specification.ggbBase64 || themeObjectColors.has(api.getColor(object).toLowerCase()))) api.setColor(object, ...rgb(type === "point" && api.isMoveable(object) ? palette.blue : palette.ink));
         }
         objectThemeApplied = true;
       }
@@ -230,7 +235,7 @@
           api.setLabelVisible(name, false);
           if (type === "point") api.setPointSize(name, 3);
           else if (["line", "segment", "ray", "vector", "circle", "conic", "polygon", "function", "curve"].includes(type)) api.setLineThickness(name, 3);
-          if (show) {
+          if (show && api.getVisible(name)) {
             let caption = captions[name] || name;
             caption = caption.replace(/^\$|\$$/g, "");
             const math = caption === "\u0393" ? "\\Gamma" : caption === "\u03C9" ? "\\omega" : /^[A-Za-z]+$/.test(caption) ? "\\mathit{" + caption + "}" : caption;
@@ -384,16 +389,39 @@
               api.setPerspective("G");
               api.setAxesVisible(specification.showAxes === true, specification.showAxes === true);
               api.setGridVisible(false);
+              const styleCommands = [];
+              let explicitViewport = false;
               for (const [index, command] of (specification.commands || []).entries()) {
                 setStatus("\u6B63\u5728\u6267\u884C\u6784\u9020 " + (index + 1) + " / " + specification.commands.length);
-                if (!api.evalCommand(command)) {
+                let success;
+                try {
+                  const styled = executeViewerStyleCommand({
+                    exists: name => api.exists(name),
+                    getValue: expression => api.getValue(expression),
+                    setColor: (name, ...rgb) => { api.setColor(name, ...rgb); explicitColorObjects.add(name); },
+                    setLineThickness: (name, value) => api.setLineThickness(name, value),
+                    setLineStyle: (name, value) => api.setLineStyle(name, value),
+                    setPointSize: (name, value) => api.setPointSize(name, value),
+                  }, command);
+                  if (styled) styleCommands.push(command);
+                  const viewport = styled ? null : executeViewerViewportCommand(api, command);
+                  if (viewport) explicitViewport = true;
+                  const action = styled || viewport ? null : executeViewerActionCommand(api, command);
+                  success = styled ?? viewport ?? action ?? await executeViewerCommand(api, command);
+                } catch (error) {
+                  runtime.failedCommand = { index: index + 1, command };
+                  throw new Error("第 " + (index + 1) + " 条命令失败：" + command + " — " + (error.message || error));
+                }
+                if (!success) {
                   runtime.failedCommand = { index: index + 1, command };
                   throw new Error("\u7B2C " + (index + 1) + " \u6761\u547D\u4EE4\u5931\u8D25\uFF1A" + command);
                 }
                 runtime.completedCommands++;
               }
-              if ((specification.commands || []).length) await fitView();
+              if (!explicitViewport && (specification.commands || []).length) await fitView();
               applyViewerDefaults();
+              // Defaults must not erase point sizes or line weights from the spec.
+              for (const command of styleCommands) executeViewerStyleCommand(api, command);
             }
             api.setPerspective("G");
             api.showAlgebraInput(false);

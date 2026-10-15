@@ -6,6 +6,21 @@ description: Generate editable GeoGebra HTML and open it in the Codex browser pa
 Understand mathematical definitions, free inputs and dependent objects. Prefer
 GeoGebra relations over frozen coordinates. Generate commands in dependency order.
 
+For literal styles, the viewer routes `SetColor`, `SetLineThickness`,
+`SetLineStyle` and `SetPointSize` through the native applet API. Prefer
+`SetColor(a, "#AAB2BC")` or normalized RGB `SetColor(a, 0, 0.5, 1)`;
+byte RGB triples are also accepted for compatibility. Named colors and
+numeric expressions use the applet numeric evaluator. Common named colors are supported. Styles apply in command order
+and are restored after viewer defaults, so explicit sizes and weights survive.
+`ZoomIn(xmin, ymin, xmax, ymax)` uses the native view API and disables
+automatic fitting. Bounds may be finite numeric expressions. `SetCoords`, `SetFixed`,
+`SetVisibleInView` (view 1), `SetValue` (numeric/boolean), `SetCaption`,
+`ShowLabel` and common display setters use native API actions too.
+GeoGebra's parser can return false for a successful scripting action because
+it creates no new objects; never use that return value as a universal action
+success check. Geometry commands use the parser, with async loading for unloaded-module errors.
+Invalid inputs and missing action targets still stop with an indexed error.
+
 ## Default workflow
 
 1. Write a construction JSON in the user's project with `commands`, `filename`
