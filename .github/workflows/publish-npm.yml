@@ -14,8 +14,8 @@ jobs:
     permissions:
       contents: read
     env:
-      GEOGEBRA_STUDIO_HOME: ${{ runner.temp }}/geogebra-studio
-      CODEX_HOME: ${{ runner.temp }}/codex-geogebra-studio
+      GEOGEBRA_STUDIO_HOME: /tmp/geogebra-studio
+      CODEX_HOME: /tmp/codex-geogebra-studio
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -65,8 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm
     env:
-      GEOGEBRA_STUDIO_HOME: ${{ runner.temp }}/geogebra-studio-public
-      CODEX_HOME: ${{ runner.temp }}/codex-geogebra-public
+      GEOGEBRA_STUDIO_HOME: /tmp/geogebra-studio-public
+      CODEX_HOME: /tmp/codex-geogebra-public
       STUDIO_RELEASE_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
     permissions:
       contents: read
