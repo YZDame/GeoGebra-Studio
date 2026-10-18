@@ -89,7 +89,7 @@ export function executeViewerActionCommand(api: ViewerActionApi, command: string
     case 'SetCoords': arity(2, 3); api.setCoords(name, ...args.map(number)); break;
     case 'SetVisibleInView': {
       arity(2); const view = number(args[0]!);
-      if (view !== 1) throw new Error('This viewer supports SetVisibleInView for graphics view 1 only');
+      if (view !== 1 && view !== -1) throw new Error('This viewer supports SetVisibleInView for view 1 (2D) or -1 (3D) only');
       api.setVisible(name, boolean(args[1]!)); break;
     }
     case 'SetFixed': arity(1, 2); api.setFixed(name, boolean(args[0]!), ...(args.length === 2 ? [boolean(args[1]!)] : [])); break;

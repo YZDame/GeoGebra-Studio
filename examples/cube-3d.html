@@ -1,0 +1,1527 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark"><title>GeoGebra</title>
+<style>
+:root{color-scheme:light;--paper:#fffcf0;--line:#e6e4d9;--ink:#100f0f;--muted:#6f6e69;--hover:#f2f0e5}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif}
+main{height:100dvh;width:100%;padding:12px 16px 16px;display:flex;flex-direction:column}
+header{position:relative;z-index:10;display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-shrink:0;min-height:42px;margin-bottom:8px}
+.menu-control{position:relative}.control-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;appearance:none;height:38px;min-width:72px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:inherit;cursor:pointer}
+.control-button:hover,.control-button[aria-expanded="true"]{background:var(--hover)}.control-button:focus-visible,.viewer-menu button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.icon-button{min-width:38px;width:38px;padding:0}.control-button svg{width:18px;height:18px;flex-shrink:0}.chevron{width:12px!important;height:12px!important}
+.viewer-menu{position:absolute;top:43px;right:0;z-index:20;display:none;min-width:170px;padding:5px;border:1px solid var(--line);border-radius:10px;background:var(--paper);box-shadow:0 12px 32px rgb(16 15 15 / 12%)}
+.viewer-menu.open{display:grid}.viewer-menu button{display:flex;align-items:center;gap:10px;min-height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--ink);text-align:left;font:inherit;cursor:pointer}
+.viewer-menu button:hover,.viewer-menu button[aria-checked="true"]{background:var(--hover)}.viewer-menu{max-height:min(70vh,400px);overflow:auto}.theme-name{flex:1}.swatch{width:12px;height:12px;border-radius:50%;border:1px solid rgb(128 128 128 / 35%)}.sidebar-toggle{position:absolute;top:10px;left:10px;z-index:3;box-shadow:0 2px 8px rgb(0 0 0 / 7%)}.viewer-menu button:disabled{opacity:.5;cursor:wait}
+.stage{position:relative;width:100%;flex:1;min-height:200px;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+#ggb-element{position:absolute;inset:0;width:100%!important;height:100%!important;overflow:hidden}
+#status{position:absolute;inset:0;z-index:2;display:grid;place-items:center;margin:0;padding:16px;color:var(--muted);background:var(--paper);text-align:center;pointer-events:none}
+#status[hidden]{display:none}#status.error{color:#af3029}
+@media(max-width:640px){main{padding:8px}.stage{border-radius:7px}header{margin-bottom:6px}}
+@media print{main{width:100%;padding:0}header,.sidebar-toggle{display:none}.stage{border:0;border-radius:0}}
+</style></head><body><main>
+<header><div class="menu-control"><button id="theme-toggle" class="control-button" type="button" aria-label="选择主题" aria-expanded="false" aria-haspopup="menu" aria-controls="theme-menu"><span id="theme-name">默认</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="theme-menu" class="viewer-menu" role="menu" aria-label="配色主题"></div></div>
+<button id="mode-toggle" class="control-button icon-button" type="button" aria-label="切换深浅色"></button>
+<div class="menu-control downloads"><button class="control-button download-toggle" id="download-toggle" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="download-menu" title="编辑后请下载当前 HTML 或 GGB 保存；刷新会恢复文件中的构造" disabled>下载</button>
+<div class="viewer-menu" id="download-menu" role="menu" aria-label="下载格式">
+<button type="button" role="menuitem" data-format="ggb">GeoGebra 文件</button>
+<button type="button" role="menuitem" data-format="png">PNG 图片</button>
+<button type="button" role="menuitem" data-format="svg">SVG 矢量图</button>
+<button type="button" role="menuitem" data-format="tikz">TikZ 源文件 (.tex)</button>
+<button type="button" role="menuitem" data-format="pdf">PDF 文档</button>
+<button type="button" role="menuitem" data-format="xml">XML 源文件</button>
+<button type="button" role="menuitem" data-format="html">交互 HTML</button></div></div></header>
+<section class="stage" aria-label="GeoGebra 图形"><button id="sidebar-toggle" class="control-button icon-button sidebar-toggle" type="button" aria-label="展开对象栏" title="展开对象栏" aria-expanded="false" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16m4-11 3 3-3 3"/></svg></button><p id="status" role="status" aria-live="polite">正在加载…</p><div id="ggb-element"></div></section></main>
+<script id="construction-data" type="application/json">{"mode":"3D","view3D":{"bounds":[-2.3,2.3,-2.3,2.3,-2.3,2.3],"direction":[1,-2,1]},"labelOffsets":{"A":[-0.15,-0.16,-0.06],"B":[0.12,-0.08,-0.12],"C":[0.18,0.08,-0.07],"D":[-0.19,0.05,-0.09],"A_1":[-0.2,-0.12,0.09],"B_1":[0.14,-0.07,0.08],"C_1":[0.18,0.1,0.08],"D_1":[-0.16,0.09,0.13]},"commands":["A=(-1,-1,-1)","B=A+(2,0,0)","C=A+(2,2,0)","D=A+(0,2,0)","A_1=A+(0,0,2)","B_1=B+(0,0,2)","C_1=C+(0,0,2)","D_1=D+(0,0,2)","e1=Segment(A,B)","e2=Segment(B,C)","e3=Segment(C,D)","e4=Segment(D,A)","e5=Segment(A_1,B_1)","e6=Segment(B_1,C_1)","e7=Segment(C_1,D_1)","e8=Segment(D_1,A_1)","e9=Segment(A,A_1)","e10=Segment(B,B_1)","e11=Segment(C,C_1)","e12=Segment(D,D_1)","base=Polygon(A,B,C,D)","SetColor(base, \"#94A3B8\")","SetFilling(base,0.035)","tri=Polygon(A,C,C_1)","SetColor(tri, \"#C6A66D\")","SetFilling(tri,0.055)","diagonal=Segment(A,C_1)","projection=Segment(A,C)","height=Segment(C,C_1)","alpha=Angle(C,A,C_1)","SetColor(diagonal,\"#B65C55\")","SetColor(projection,\"#507A9D\")","SetColor(height,\"#718096\")","SetColor(alpha,\"#A17A3D\")","SetLineThickness(diagonal,2)","SetLineThickness(projection,2)","SetLineStyle(height,1)","SetVisibleInView(a,-1,false)","SetVisibleInView(b,-1,false)","SetVisibleInView(c,-1,false)","SetVisibleInView(d,-1,false)","SetVisibleInView(a_1,-1,false)","SetVisibleInView(c_1,-1,false)","SetVisibleInView(c_2,-1,false)"],"showAxes":false,"visibleLabels":["A","B","C","D","A_1","B_1","C_1","D_1"],"captionOverrides":{}}</script>
+<script id="gikz-license" type="application/json">"                    GNU GENERAL PUBLIC LICENSE\n                       Version 2, June 1991\n\n Copyright (C) 1989, 1991 Free Software Foundation, Inc.,\n 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA\n Everyone is permitted to copy and distribute verbatim copies\n of this license document, but changing it is not allowed.\n\n                            Preamble\n\n  The licenses for most software are designed to take away your\nfreedom to share and change it.  By contrast, the GNU General Public\nLicense is intended to guarantee your freedom to share and change free\nsoftware--to make sure the software is free for all its users.  This\nGeneral Public License applies to most of the Free Software\nFoundation's software and to any other program whose authors commit to\nusing it.  (Some other Free Software Foundation software is covered by\nthe GNU Lesser General Public License instead.)  You can apply it to\nyour programs, too.\n\n  When we speak of free software, we are referring to freedom, not\nprice.  Our General Public Licenses are designed to make sure that you\nhave the freedom to distribute copies of free software (and charge for\nthis service if you wish), that you receive source code or can get it\nif you want it, that you can change the software or use pieces of it\nin new free programs; and that you know you can do these things.\n\n  To protect your rights, we need to make restrictions that forbid\nanyone to deny you these rights or to ask you to surrender the rights.\nThese restrictions translate to certain responsibilities for you if you\ndistribute copies of the software, or if you modify it.\n\n  For example, if you distribute copies of such a program, whether\ngratis or for a fee, you must give the recipients all the rights that\nyou have.  You must make sure that they, too, receive or can get the\nsource code.  And you must show them these terms so they know their\nrights.\n\n  We protect your rights with two steps: (1) copyright the software, and\n(2) offer you this license which gives you legal permission to copy,\ndistribute and/or modify the software.\n\n  Also, for each author's protection and ours, we want to make certain\nthat everyone understands that there is no warranty for this free\nsoftware.  If the software is modified by someone else and passed on, we\nwant its recipients to know that what they have is not the original, so\nthat any problems introduced by others will not reflect on the original\nauthors' reputations.\n\n  Finally, any free program is threatened constantly by software\npatents.  We wish to avoid the danger that redistributors of a free\nprogram will individually obtain patent licenses, in effect making the\nprogram proprietary.  To prevent this, we have made it clear that any\npatent must be licensed for everyone's free use or not licensed at all.\n\n  The precise terms and conditions for copying, distribution and\nmodification follow.\n\n                    GNU GENERAL PUBLIC LICENSE\n   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION\n\n  0. This License applies to any program or other work which contains\na notice placed by the copyright holder saying it may be distributed\nunder the terms of this General Public License.  The \"Program\", below,\nrefers to any such program or work, and a \"work based on the Program\"\nmeans either the Program or any derivative work under copyright law:\nthat is to say, a work containing the Program or a portion of it,\neither verbatim or with modifications and/or translated into another\nlanguage.  (Hereinafter, translation is included without limitation in\nthe term \"modification\".)  Each licensee is addressed as \"you\".\n\nActivities other than copying, distribution and modification are not\ncovered by this License; they are outside its scope.  The act of\nrunning the Program is not restricted, and the output from the Program\nis covered only if its contents constitute a work based on the\nProgram (independent of having been made by running the Program).\nWhether that is true depends on what the Program does.\n\n  1. You may copy and distribute verbatim copies of the Program's\nsource code as you receive it, in any medium, provided that you\nconspicuously and appropriately publish on each copy an appropriate\ncopyright notice and disclaimer of warranty; keep intact all the\nnotices that refer to this License and to the absence of any warranty;\nand give any other recipients of the Program a copy of this License\nalong with the Program.\n\nYou may charge a fee for the physical act of transferring a copy, and\nyou may at your option offer warranty protection in exchange for a fee.\n\n  2. You may modify your copy or copies of the Program or any portion\nof it, thus forming a work based on the Program, and copy and\ndistribute such modifications or work under the terms of Section 1\nabove, provided that you also meet all of these conditions:\n\n    a) You must cause the modified files to carry prominent notices\n    stating that you changed the files and the date of any change.\n\n    b) You must cause any work that you distribute or publish, that in\n    whole or in part contains or is derived from the Program or any\n    part thereof, to be licensed as a whole at no charge to all third\n    parties under the terms of this License.\n\n    c) If the modified program normally reads commands interactively\n    when run, you must cause it, when started running for such\n    interactive use in the most ordinary way, to print or display an\n    announcement including an appropriate copyright notice and a\n    notice that there is no warranty (or else, saying that you provide\n    a warranty) and that users may redistribute the program under\n    these conditions, and telling the user how to view a copy of this\n    License.  (Exception: if the Program itself is interactive but\n    does not normally print such an announcement, your work based on\n    the Program is not required to print an announcement.)\n\nThese requirements apply to the modified work as a whole.  If\nidentifiable sections of that work are not derived from the Program,\nand can be reasonably considered independent and separate works in\nthemselves, then this License, and its terms, do not apply to those\nsections when you distribute them as separate works.  But when you\ndistribute the same sections as part of a whole which is a work based\non the Program, the distribution of the whole must be on the terms of\nthis License, whose permissions for other licensees extend to the\nentire whole, and thus to each and every part regardless of who wrote it.\n\nThus, it is not the intent of this section to claim rights or contest\nyour rights to work written entirely by you; rather, the intent is to\nexercise the right to control the distribution of derivative or\ncollective works based on the Program.\n\nIn addition, mere aggregation of another work not based on the Program\nwith the Program (or with a work based on the Program) on a volume of\na storage or distribution medium does not bring the other work under\nthe scope of this License.\n\n  3. You may copy and distribute the Program (or a work based on it,\nunder Section 2) in object code or executable form under the terms of\nSections 1 and 2 above provided that you also do one of the following:\n\n    a) Accompany it with the complete corresponding machine-readable\n    source code, which must be distributed under the terms of Sections\n    1 and 2 above on a medium customarily used for software interchange; or,\n\n    b) Accompany it with a written offer, valid for at least three\n    years, to give any third party, for a charge no more than your\n    cost of physically performing source distribution, a complete\n    machine-readable copy of the corresponding source code, to be\n    distributed under the terms of Sections 1 and 2 above on a medium\n    customarily used for software interchange; or,\n\n    c) Accompany it with the information you received as to the offer\n    to distribute corresponding source code.  (This alternative is\n    allowed only for noncommercial distribution and only if you\n    received the program in object code or executable form with such\n    an offer, in accord with Subsection b above.)\n\nThe source code for a work means the preferred form of the work for\nmaking modifications to it.  For an executable work, complete source\ncode means all the source code for all modules it contains, plus any\nassociated interface definition files, plus the scripts used to\ncontrol compilation and installation of the executable.  However, as a\nspecial exception, the source code distributed need not include\nanything that is normally distributed (in either source or binary\nform) with the major components (compiler, kernel, and so on) of the\noperating system on which the executable runs, unless that component\nitself accompanies the executable.\n\nIf distribution of executable or object code is made by offering\naccess to copy from a designated place, then offering equivalent\naccess to copy the source code from the same place counts as\ndistribution of the source code, even though third parties are not\ncompelled to copy the source along with the object code.\n\n  4. You may not copy, modify, sublicense, or distribute the Program\nexcept as expressly provided under this License.  Any attempt\notherwise to copy, modify, sublicense or distribute the Program is\nvoid, and will automatically terminate your rights under this License.\nHowever, parties who have received copies, or rights, from you under\nthis License will not have their licenses terminated so long as such\nparties remain in full compliance.\n\n  5. You are not required to accept this License, since you have not\nsigned it.  However, nothing else grants you permission to modify or\ndistribute the Program or its derivative works.  These actions are\nprohibited by law if you do not accept this License.  Therefore, by\nmodifying or distributing the Program (or any work based on the\nProgram), you indicate your acceptance of this License to do so, and\nall its terms and conditions for copying, distributing or modifying\nthe Program or works based on it.\n\n  6. Each time you redistribute the Program (or any work based on the\nProgram), the recipient automatically receives a license from the\noriginal licensor to copy, distribute or modify the Program subject to\nthese terms and conditions.  You may not impose any further\nrestrictions on the recipients' exercise of the rights granted herein.\nYou are not responsible for enforcing compliance by third parties to\nthis License.\n\n  7. If, as a consequence of a court judgment or allegation of patent\ninfringement or for any other reason (not limited to patent issues),\nconditions are imposed on you (whether by court order, agreement or\notherwise) that contradict the conditions of this License, they do not\nexcuse you from the conditions of this License.  If you cannot\ndistribute so as to satisfy simultaneously your obligations under this\nLicense and any other pertinent obligations, then as a consequence you\nmay not distribute the Program at all.  For example, if a patent\nlicense would not permit royalty-free redistribution of the Program by\nall those who receive copies directly or indirectly through you, then\nthe only way you could satisfy both it and this License would be to\nrefrain entirely from distribution of the Program.\n\nIf any portion of this section is held invalid or unenforceable under\nany particular circumstance, the balance of the section is intended to\napply and the section as a whole is intended to apply in other\ncircumstances.\n\nIt is not the purpose of this section to induce you to infringe any\npatents or other property right claims or to contest validity of any\nsuch claims; this section has the sole purpose of protecting the\nintegrity of the free software distribution system, which is\nimplemented by public license practices.  Many people have made\ngenerous contributions to the wide range of software distributed\nthrough that system in reliance on consistent application of that\nsystem; it is up to the author/donor to decide if he or she is willing\nto distribute software through any other system and a licensee cannot\nimpose that choice.\n\nThis section is intended to make thoroughly clear what is believed to\nbe a consequence of the rest of this License.\n\n  8. If the distribution and/or use of the Program is restricted in\ncertain countries either by patents or by copyrighted interfaces, the\noriginal copyright holder who places the Program under this License\nmay add an explicit geographical distribution limitation excluding\nthose countries, so that distribution is permitted only in or among\ncountries not thus excluded.  In such case, this License incorporates\nthe limitation as if written in the body of this License.\n\n  9. The Free Software Foundation may publish revised and/or new versions\nof the General Public License from time to time.  Such new versions will\nbe similar in spirit to the present version, but may differ in detail to\naddress new problems or concerns.\n\nEach version is given a distinguishing version number.  If the Program\nspecifies a version number of this License which applies to it and \"any\nlater version\", you have the option of following the terms and conditions\neither of that version or of any later version published by the Free\nSoftware Foundation.  If the Program does not specify a version number of\nthis License, you may choose any version ever published by the Free Software\nFoundation.\n\n  10. If you wish to incorporate parts of the Program into other free\nprograms whose distribution conditions are different, write to the author\nto ask for permission.  For software which is copyrighted by the Free\nSoftware Foundation, write to the Free Software Foundation; we sometimes\nmake exceptions for this.  Our decision will be guided by the two goals\nof preserving the free status of all derivatives of our free software and\nof promoting the sharing and reuse of software generally.\n\n                            NO WARRANTY\n\n  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY\nFOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN\nOTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES\nPROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED\nOR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF\nMERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS\nTO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE\nPROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,\nREPAIR OR CORRECTION.\n\n  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING\nWILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR\nREDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,\nINCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING\nOUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED\nTO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY\nYOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER\nPROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE\nPOSSIBILITY OF SUCH DAMAGES.\n\n                     END OF TERMS AND CONDITIONS\n\n            How to Apply These Terms to Your New Programs\n\n  If you develop a new program, and you want it to be of the greatest\npossible use to the public, the best way to achieve this is to make it\nfree software which everyone can redistribute and change under these terms.\n\n  To do so, attach the following notices to the program.  It is safest\nto attach them to the start of each source file to most effectively\nconvey the exclusion of warranty; and each file should have at least\nthe \"copyright\" line and a pointer to where the full notice is found.\n\n    \u003cone line to give the program's name and a brief idea of what it does.>\n    Copyright (C) \u003cyear>  \u003cname of author>\n\n    This program is free software; you can redistribute it and/or modify\n    it under the terms of the GNU General Public License as published by\n    the Free Software Foundation; either version 2 of the License, or\n    (at your option) any later version.\n\n    This program is distributed in the hope that it will be useful,\n    but WITHOUT ANY WARRANTY; without even the implied warranty of\n    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n    GNU General Public License for more details.\n\n    You should have received a copy of the GNU General Public License along\n    with this program; if not, write to the Free Software Foundation, Inc.,\n    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n\nAlso add information on how to contact you by electronic and paper mail.\n\nIf the program is interactive, make it output a short notice like this\nwhen it starts in an interactive mode:\n\n    Gnomovision version 69, Copyright (C) year name of author\n    Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\n    This is free software, and you are welcome to redistribute it\n    under certain conditions; type `show c' for details.\n\nThe hypothetical commands `show w' and `show c' should show the appropriate\nparts of the General Public License.  Of course, the commands you use may\nbe called something other than `show w' and `show c'; they could even be\nmouse-clicks or menu items--whatever suits your program.\n\nYou should also get your employer (if you work as a programmer) or your\nschool, if any, to sign a \"copyright disclaimer\" for the program, if\nnecessary.  Here is a sample; alter the names:\n\n  Yoyodyne, Inc., hereby disclaims all copyright interest in the program\n  `Gnomovision' (which makes passes at compilers) written by James Hacker.\n\n  \u003csignature of Ty Coon>, 1 April 1989\n  Ty Coon, President of Vice\n\nThis General Public License does not permit incorporating your program into\nproprietary programs.  If your program is a subroutine library, you may\nconsider it more useful to permit linking proprietary applications with the\nlibrary.  If this is what you want to do, use the GNU Lesser General\nPublic License instead of this License.\n"</script>
+<script id="gikz-browser">"use strict";
+(() => {
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __commonJS = (cb, mod) => function __require() {
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
+  };
+
+  // gikz/core.cjs
+  var require_core = __commonJS({
+    "gikz/core.cjs"(exports, module) {
+      "use strict";
+      function roundToThreeDecimals(num) {
+        return Math.round(num * 1e3) / 1e3;
+      }
+      function formatCoordinate(coordStr, shouldRound) {
+        const match = coordStr.match(/\(([^,]+),([^)]+)\)/);
+        if (!match) return coordStr;
+        let x = parseFloat(match[1]);
+        let y = parseFloat(match[2]);
+        if (shouldRound) {
+          x = roundToThreeDecimals(x);
+          y = roundToThreeDecimals(y);
+        }
+        return `(${x},${y})`;
+      }
+      function getSmartLabelPosition(x, y, allPoints) {
+        const xCoords = allPoints.map((p) => p.x);
+        const yCoords = allPoints.map((p) => p.y);
+        const minX = Math.min(...xCoords);
+        const maxX = Math.max(...xCoords);
+        const minY = Math.min(...yCoords);
+        const maxY = Math.max(...yCoords);
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+        let position = "above";
+        if (Math.abs(x - minX) < 0.1) {
+          position = "left";
+        } else if (Math.abs(x - maxX) < 0.1) {
+          position = "right";
+        } else if (Math.abs(y - minY) < 0.1) {
+          position = "below";
+        } else if (Math.abs(y - maxY) < 0.1) {
+          position = "above";
+        } else {
+          if (x > centerX && y > centerY) position = "above right";
+          else if (x > centerX && y <= centerY) position = "below right";
+          else if (x <= centerX && y > centerY) position = "above left";
+          else position = "below left";
+        }
+        return position;
+      }
+      var convertLineStyle = (style) => {
+        if (!style) return "";
+        let lineStyle = style.replace(/line width=[^,\]]+,?/g, "");
+        lineStyle = lineStyle.replace(/,\s*$/g, "");
+        lineStyle = lineStyle.replace(/\[\s*,\s*/g, "[");
+        if (lineStyle.includes("dash pattern=on 1pt off 1pt on 1pt off 4pt")) return "dash dot";
+        if (lineStyle.includes("dash pattern=on 1pt off 1pt")) return "dashed";
+        if (lineStyle.includes("dotted")) return "dotted";
+        if (lineStyle.includes("dash")) return "dashed";
+        return "";
+      };
+      function extractQuadraticFunctions(code, shouldRound) {
+        try {
+          const quadraticRegex = /\\draw\s*\[([^\]]+)\]\s*plot\s*\(\\x,\{\(\\x\)\^2\/2\/([^}]+)\}\)/g;
+          const quadraticMatches = [...code.matchAll(quadraticRegex)];
+          const quadraticFunctions = [];
+          quadraticMatches.forEach((match) => {
+            const options = match[1];
+            let denominator = match[2];
+            const samplesMatch = options.match(/samples=(\d+)/);
+            const rotateMatch = options.match(/rotate around=\{([^:]+):\(([^,]+),([^)]+)\)\}/);
+            const xshiftMatch = options.match(/xshift=([^,]+)cm/);
+            const yshiftMatch = options.match(/yshift=([^,]+)cm/);
+            const domainMatch = options.match(/domain=([^:)]+):([^)]+)\)?/);
+            if (domainMatch) {
+              let angle = "0", centerX = "0", centerY = "0";
+              if (rotateMatch) {
+                angle = rotateMatch[1];
+                centerX = rotateMatch[2];
+                centerY = rotateMatch[3];
+              }
+              let xshift = "0", yshift = "0";
+              if (xshiftMatch) xshift = xshiftMatch[1];
+              if (yshiftMatch) yshift = yshiftMatch[1];
+              let domainStart = domainMatch[1];
+              let domainEnd = domainMatch[2];
+              if (domainEnd.includes(")")) domainEnd = domainEnd.replace(")", "");
+              if (shouldRound) {
+                if (centerX !== "0") centerX = roundToThreeDecimals(parseFloat(centerX));
+                if (centerY !== "0") centerY = roundToThreeDecimals(parseFloat(centerY));
+                if (xshift !== "0") xshift = roundToThreeDecimals(parseFloat(xshift));
+                if (yshift !== "0") yshift = roundToThreeDecimals(parseFloat(yshift));
+                denominator = roundToThreeDecimals(parseFloat(denominator));
+                domainStart = roundToThreeDecimals(parseFloat(domainStart));
+                domainEnd = roundToThreeDecimals(parseFloat(domainEnd));
+                xshift += "cm";
+                yshift += "cm";
+              }
+              let newOptions = "smooth,samples=500";
+              if (rotateMatch) newOptions += `,rotate around={${angle}:(${centerX},${centerY})}`;
+              if (xshiftMatch && xshift !== "0cm" || yshiftMatch && yshift !== "0cm")
+                newOptions += `,xshift=${xshift},yshift=${yshift}`;
+              newOptions += `,domain=${domainStart}:${domainEnd}`;
+              quadraticFunctions.push({ original: match[0], options: newOptions, expression: `(\\x)^2/2/${denominator}` });
+            }
+          });
+          return { hasQuadratic: quadraticFunctions.length > 0, quadraticFunctions };
+        } catch (error) {
+          return { hasQuadratic: false, quadraticFunctions: [] };
+        }
+      }
+      function extractFunctionPlots(code, shouldRound) {
+        try {
+          const clipRegex = /\\clip\(([^,]+),([^)]+)\)\s*rectangle\s*\(([^,]+),([^)]+)\);/;
+          const clipMatch = code.match(clipRegex);
+          if (!clipMatch) {
+            return { hasFunctions: false, scopeCode: "", clipArea: "", normalFunctionCount: 0, quadraticFunctionCount: 0 };
+          }
+          const clipX1 = shouldRound ? roundToThreeDecimals(parseFloat(clipMatch[1])) : parseFloat(clipMatch[1]);
+          const clipY1 = shouldRound ? roundToThreeDecimals(parseFloat(clipMatch[2])) : parseFloat(clipMatch[2]);
+          const clipX2 = shouldRound ? roundToThreeDecimals(parseFloat(clipMatch[3])) : parseFloat(clipMatch[3]);
+          const clipY2 = shouldRound ? roundToThreeDecimals(parseFloat(clipMatch[4])) : parseFloat(clipMatch[4]);
+          const functionPlotRegex = /\\draw\[([^\]]*)\]\s*plot\s*\(\\x,\{([^}]*)\}\)/g;
+          const functionMatches = [...code.matchAll(functionPlotRegex)];
+          const functions = [];
+          const containsLnRegex = /ln\s*\(/i;
+          functionMatches.forEach((match) => {
+            const options = match[1];
+            const functionExpression = match[2];
+            const domainRegex = /domain=([^:]+):([^,\]]+)/;
+            const domainMatch = options.match(domainRegex);
+            if (domainMatch) {
+              let domainStart = domainMatch[1], domainEnd = domainMatch[2];
+              if (containsLnRegex.test(functionExpression)) {
+                if (Math.abs(parseFloat(domainStart)) < 1e-3) domainStart = "0.001";
+              }
+              if (shouldRound) {
+                const s = parseFloat(domainStart), e = parseFloat(domainEnd);
+                if (!isNaN(s)) domainStart = roundToThreeDecimals(s).toString();
+                if (!isNaN(e)) domainEnd = roundToThreeDecimals(e).toString();
+              }
+              let lineStyle = "";
+              if (options.includes("dash pattern=on 1pt off 1pt on 1pt off 4pt")) lineStyle = "dash dot";
+              else if (options.includes("dash pattern=on 1pt off 1pt")) lineStyle = "dashed";
+              else if (options.includes("dotted")) lineStyle = "dotted";
+              let newOptions = "smooth,samples=500";
+              if (lineStyle) newOptions = lineStyle + "," + newOptions;
+              functions.push({ original: match[0], options: newOptions, domainStart, domainEnd, expression: functionExpression, lineStyle });
+            }
+          });
+          const quadraticResult = extractQuadraticFunctions(code, shouldRound);
+          let result = "  \\begin{scope}\n";
+          result += `    \\clip(${clipX1},${clipY1}) rectangle (${clipX2},${clipY2});
+`;
+          functions.forEach((func) => {
+            result += `    \\draw[${func.options},domain=${func.domainStart}:${func.domainEnd}] plot(\\x,{${func.expression}});
+`;
+          });
+          if (quadraticResult.hasQuadratic) {
+            quadraticResult.quadraticFunctions.forEach((quad) => {
+              result += `    \\draw[${quad.options}] plot(\\x,{${quad.expression}});
+`;
+            });
+          }
+          result += "  \\end{scope}\n";
+          return {
+            hasFunctions: functions.length > 0 || quadraticResult.hasQuadratic,
+            scopeCode: result,
+            clipArea: `(${clipX1},${clipY1}) rectangle (${clipX2},${clipY2})`,
+            normalFunctionCount: functions.length,
+            quadraticFunctionCount: quadraticResult.quadraticFunctions.length
+          };
+        } catch (error) {
+          return { hasFunctions: false, scopeCode: "", clipArea: "", normalFunctionCount: 0, quadraticFunctionCount: 0 };
+        }
+      }
+      function extractParametricPlots(code, shouldRound) {
+        try {
+          const parametricRegex = /\\draw\[([^\]]*)\]\s*plot\[parametric\]\s*function\{([^}]+)\};/g;
+          const matches = [...code.matchAll(parametricRegex)];
+          const plots = [];
+          matches.forEach((match) => {
+            const options = match[1];
+            const functionStr = match[2];
+            const commaMatch = functionStr.match(/([^,]+),([^,]+)/);
+            if (!commaMatch) return;
+            let xExpr = commaMatch[1].trim(), yExpr = commaMatch[2].trim();
+            if (shouldRound) {
+              xExpr = xExpr.replace(/(\d+\.\d{4,})/g, (m) => roundToThreeDecimals(parseFloat(m)).toString());
+              yExpr = yExpr.replace(/(\d+\.\d{4,})/g, (m) => roundToThreeDecimals(parseFloat(m)).toString());
+            }
+            xExpr = xExpr.replace(/t\*\*\((\d+)\)/g, "\\t^$1");
+            xExpr = xExpr.replace(/\(1-t\)\*\*\((\d+)\)/g, "(1-\\t)^$1");
+            yExpr = yExpr.replace(/t\*\*\((\d+)\)/g, "\\t^$1");
+            yExpr = yExpr.replace(/\(1-t\)\*\*\((\d+)\)/g, "(1-\\t)^$1");
+            xExpr = xExpr.replace(/([ (+\-*/,])t(?!\w)/g, "$1\\t");
+            yExpr = yExpr.replace(/([ (+\-*/,])t(?!\w)/g, "$1\\t");
+            xExpr = xExpr.replace(/^t(?!\w)/, "\\t");
+            yExpr = yExpr.replace(/^t(?!\w)/, "\\t");
+            const lineStyle = convertLineStyle(options);
+            plots.push({ original: match[0], options, xExpression: xExpr, yExpression: yExpr, lineStyle });
+          });
+          return { hasParametricPlots: plots.length > 0, plots };
+        } catch (error) {
+          return { hasParametricPlots: false, plots: [] };
+        }
+      }
+      function cleanTikZCode(code, opts = {}) {
+        code = code.replace(/\\draw\s+\[/g, "\\\\draw[");
+        const shouldRound = opts.round !== false;
+        const includePoints = opts.points !== false;
+        const includeLabels = opts.labels !== false;
+        const tikzMatch = code.match(/\\begin\{tikzpicture\}([\s\S]*?)\\end\{tikzpicture\}/);
+        if (!tikzMatch) throw new Error("\u672A\u627E\u5230 tikzpicture \u73AF\u5883");
+        const pointRegex = /\\draw\s*\[fill=[^\]]+\]\s*\(([^)]+)\)\s*circle\s*\(([^)]+)\);/g;
+        const nodeRegex = /\\draw\[color=[^\]]+\]\s*\([^)]+\)\s*node\s*\{\$(?!.*\\textrm\{\\degre\})([^$]+(?:\{[^}]*\})?[^$]*)\$\}/g;
+        const pointMap = /* @__PURE__ */ new Map();
+        const pointMatches = [...code.matchAll(pointRegex)];
+        const nodeMatches = [...code.matchAll(nodeRegex)];
+        const anchoredNodes = [...code.matchAll(/\\draw\s*(?:\[[^\]]*\])?\s*\(([^)]+)\)\s*node\s*\[([^\]]+)\]\s*\{([^\r\n]*)\};/g)];
+        const usedAnchoredNodes = /* @__PURE__ */ new Set();
+        const allPoints = [];
+        pointMatches.forEach((match) => {
+          const coords = match[1];
+          const formattedCoords = formatCoordinate(`(${coords})`, shouldRound);
+          allPoints.push({ original: coords, formatted: formattedCoords.slice(1, -1) });
+        });
+        allPoints.forEach((point, index) => {
+          const [x, y] = point.original.split(",").map(Number);
+          const candidates = anchoredNodes.map((node, i) => {
+            const label = node[3].match(/^\$\\mathit\{([A-Za-z][A-Za-z0-9_]*)\}\$$/)?.[1] || node[3].match(/^\$([A-Za-z][A-Za-z0-9_]*)\$$/)?.[1];
+            const [nx, ny] = node[1].split(",").map(Number);
+            return { i, label, distance: Math.hypot(nx - x, ny - y) };
+          }).filter((n) => n.label && !usedAnchoredNodes.has(n.i)).sort((a, b) => a.distance - b.distance);
+          if (candidates.length && candidates[0].distance < 1) {
+            pointMap.set(candidates[0].label, point.formatted);
+            usedAnchoredNodes.add(candidates[0].i);
+          } else if (index < nodeMatches.length) {
+            pointMap.set(nodeMatches[index][1], point.formatted);
+          } else {
+            pointMap.set(`gikzPoint${index}`, point.formatted);
+          }
+        });
+        const functionPlotsResult = extractFunctionPlots(code, shouldRound);
+        const parametricPlotResult = extractParametricPlots(code, shouldRound);
+        const textLabels = anchoredNodes.filter((_, i) => !usedAnchoredNodes.has(i)).map((match) => ({
+          coords: formatCoordinate(`(${match[1]})`, shouldRound),
+          options: match[2],
+          content: match[3]
+        }));
+        const angleLabelRegex = /\\draw\[color=([^\]]+)\]\s*\(([^)]+)\)\s*node\s*\{\$([^}]+)\\textrm\{\\degre\}\$\};/g;
+        const angleLabelMatches = [...code.matchAll(angleLabelRegex)];
+        const angleLabels = [];
+        angleLabelMatches.forEach((match) => {
+          angleLabels.push({
+            color: match[1],
+            coords: formatCoordinate(`(${match[2]})`, shouldRound),
+            content: match[3]
+          });
+        });
+        const lineRegex = /\\draw\s*(\[[^\]]+\])?\s*\(([^)]+)\)\s*--\s*\(([^)]+)\);/g;
+        const lineMatches = [...code.matchAll(lineRegex)];
+        const circleRegex = /\\draw\s*\[([^\]]*line[^\]]*)\]\s*\(([^)]+)\)\s*circle\s*\(([^)]+)\);/g;
+        const circleMatches = [...code.matchAll(circleRegex)];
+        const circles = [];
+        circleMatches.forEach((match) => {
+          const options = match[1];
+          const centerCoords = match[2];
+          const radius = match[3];
+          const formattedCenter = formatCoordinate(`(${centerCoords})`, shouldRound);
+          const lineStyle = convertLineStyle(options);
+          let centerLabel = null;
+          for (const [label, coords] of pointMap) {
+            const coordStr = coords.includes("(") ? coords : `(${coords})`;
+            if (coordStr.includes(centerCoords.trim()) || formattedCenter.includes(coords)) {
+              centerLabel = label;
+              break;
+            }
+          }
+          circles.push({
+            center: centerLabel ? `(${centerLabel})` : formattedCenter,
+            radius: shouldRound ? roundToThreeDecimals(parseFloat(radius)) + (radius.includes("cm") ? "cm" : "") : radius,
+            lineStyle
+          });
+        });
+        const arcRegex = /\\draw\s*(\[[^\]]*\])?\s*plot\[domain=([^:]+):([^,]+),variable=\\t\]\(\{1\*([^\*]+)\*cos\(\\t r\)\+0\*[^\*]+\*sin\(\\t r\)\},\{0\*[^\*]+\*cos\(\\t r\)\+1\*[^\*]+\*sin\(\\t r\)\}\);/g;
+        const arcMatches = [...code.matchAll(arcRegex)];
+        const arcs = [];
+        arcMatches.forEach((match) => {
+          const style = match[1] || "";
+          const rv = (val) => shouldRound ? roundToThreeDecimals(parseFloat(val)) : val;
+          let lineStyle = "";
+          if (style.includes("dash pattern=on 1pt off 1pt on 1pt off 4pt")) lineStyle = "dash dot";
+          else if (style.includes("dash pattern=on 1pt off 1pt")) lineStyle = "dashed";
+          else if (style.includes("dotted")) lineStyle = "dotted";
+          const shiftRegex = /shift=\{\(([^,]+),([^)]+)\)\}/;
+          const shiftMatch = style.match(shiftRegex);
+          let styleParts = [];
+          if (lineStyle) styleParts.push(lineStyle);
+          if (shiftMatch) styleParts.push(`shift={(${rv(shiftMatch[1])},${rv(shiftMatch[2])})}`);
+          styleParts.push("smooth");
+          let newStyle = styleParts.length > 0 ? "[" + styleParts.join(", ") + "]" : "";
+          arcs.push({ style: newStyle, startAngle: rv(match[2]), endAngle: rv(match[3]), radius: rv(match[4]) });
+        });
+        const sectorRegex = /\\draw\s*\[shift=\{\(([^,]+),([^)]+)\)\}[^\]]*\]\s*\(0,0\)\s*--\s*plot\[domain=([^:]+):([^,\]]+),variable=\\t\]\(\{1\*([^\*]+)\*cos\(\\t r\)\+0\*[^\*]+\*sin\(\\t r\)\},\{0\*[^\*]+\*cos\(\\t r\)\+1\*[^\*]+\*sin\(\\t r\)\}\)\s*--\s*cycle\s*;/g;
+        const sectorMatches = [...code.matchAll(sectorRegex)];
+        const sectors = [];
+        sectorMatches.forEach((match) => {
+          const rv = (val) => shouldRound ? roundToThreeDecimals(parseFloat(val)) : val;
+          const style = match[0].match(/\\draw\s*\[([^\]]+)\]/)[1];
+          sectors.push({
+            shiftX: rv(match[1].trim()),
+            shiftY: rv(match[2].trim()),
+            startAngle: rv(match[3].trim()),
+            endAngle: rv(match[4].trim()),
+            radius: rv(match[5].trim()),
+            lineStyle: convertLineStyle(style)
+          });
+        });
+        const ellipseRegex = /\\draw\s*\[([^\]]*)\]\s*\(([^)]+)\)\s*ellipse\s*\(([^)]+)\);/g;
+        const ellipseMatches = [...code.matchAll(ellipseRegex)];
+        const ellipses = [];
+        ellipseMatches.forEach((match) => {
+          const options = match[1], centerCoords = match[2], radii = match[3];
+          const radiusParts = radii.split(" and ");
+          let xR = radiusParts[0]?.trim() || "", yR = radiusParts[1]?.trim() || "";
+          const formattedCenter = formatCoordinate(`(${centerCoords})`, shouldRound);
+          let centerLabel = null;
+          for (const [label, coords] of pointMap) {
+            const cs = coords.includes("(") ? coords : `(${coords})`;
+            if (cs.includes(centerCoords.trim()) || formattedCenter.includes(coords)) {
+              centerLabel = label;
+              break;
+            }
+          }
+          let rotationAngle = 0, rotationCenter = null;
+          const rotateMatch = options.match(/rotate around=\{([^:]+):\(([^)]+)\)\}/);
+          if (rotateMatch) {
+            rotationAngle = parseFloat(rotateMatch[1]);
+            if (shouldRound) rotationAngle = roundToThreeDecimals(rotationAngle);
+            const rc = rotateMatch[2];
+            const frc = formatCoordinate(`(${rc})`, shouldRound);
+            for (const [label, coords] of pointMap) {
+              const cs = coords.includes("(") ? coords : `(${coords})`;
+              if (cs.includes(rc.trim()) || frc.includes(coords)) {
+                rotationCenter = label;
+                break;
+              }
+            }
+            if (!rotationCenter) rotationCenter = frc;
+          }
+          const lineStyle = convertLineStyle(options);
+          if (shouldRound && xR && yR) {
+            const xU = xR.replace(/[0-9.\-\s]/g, ""), yU = yR.replace(/[0-9.\-\s]/g, "");
+            xR = roundToThreeDecimals(parseFloat(xR)) + xU;
+            yR = roundToThreeDecimals(parseFloat(yR)) + yU;
+          }
+          const obj = { center: centerLabel ? `(${centerLabel})` : formattedCenter, xRadius: xR, yRadius: yR, lineStyle, hasRotation: !!rotateMatch };
+          if (rotateMatch) {
+            obj.rotationAngle = rotationAngle;
+            obj.rotationCenter = rotationCenter ? `(${rotationCenter})` : formattedCenter;
+          }
+          ellipses.push(obj);
+        });
+        const angleRegex = /\\draw\s*\[shift=\{\(([^,]+),([^)]+)\)\}[^\]]*\]\s*\(0,0\)\s*--\s*\(([^:]+):([^)]+)\)\s*arc\s*\(([^:]+):([^)]+):([^)]+)\)\s*--\s*cycle;/g;
+        const angleMatches = [...code.matchAll(angleRegex)];
+        const angles = [];
+        angleMatches.forEach((match) => {
+          const cX = match[1].trim(), cY = match[2].trim();
+          const formattedCenter = formatCoordinate(`(${cX},${cY})`, shouldRound);
+          let centerLabel = null;
+          for (const [label, coords] of pointMap) {
+            const cs = coords.includes("(") ? coords : `(${coords})`;
+            if (cs.includes(`${cX},${cY}`) || formattedCenter.includes(coords)) {
+              centerLabel = label;
+              break;
+            }
+          }
+          const rv = (v) => shouldRound ? roundToThreeDecimals(parseFloat(v)) : v;
+          angles.push({
+            center: centerLabel ? `(${centerLabel})` : formattedCenter,
+            startAngle: rv(match[3].trim()),
+            endAngle: rv(match[6].trim()),
+            radius: rv(match[4].trim())
+          });
+        });
+        let result = "\\begin{tikzpicture}[scale=1]\n";
+        if (pointMap.size > 0) {
+          result += "  % \u5750\u6807\u70B9\u5B9A\u4E49\n";
+          for (const [label, coords] of pointMap) {
+            result += `  \\coordinate (${label}) at ${coords.includes("(") ? coords : `(${coords})`};
+`;
+          }
+          result += "\n";
+        }
+        if (functionPlotsResult.hasFunctions) {
+          result += "  % \u51FD\u6570\u56FE\u50CF\n" + functionPlotsResult.scopeCode + "\n";
+        }
+        if (parametricPlotResult.hasParametricPlots) {
+          result += "  % \u8D1D\u585E\u5C14\u66F2\u7EBF\n";
+          parametricPlotResult.plots.forEach((plot) => {
+            const ls = plot.lineStyle ? `[${plot.lineStyle}, smooth, samples=100, domain=0:1, variable=\\t]` : "[smooth, samples=100, domain=0:1, variable=\\t]";
+            result += `  \\draw${ls} plot
+    ({${plot.xExpression}},
+     {${plot.yExpression}});
+
+`;
+          });
+        }
+        if (lineMatches.length > 0 || circles.length > 0 || arcs.length > 0 || ellipses.length > 0 || angles.length > 0 || angleLabels.length > 0 || sectors.length > 0) {
+          result += "  % \u51E0\u4F55\u5143\u7D20\n";
+          if (angles.length > 0) {
+            result += "  % \u89D2\u5EA6\n";
+            angles.forEach((a) => {
+              result += `  \\fill [shift=${a.center}, gray!30] (0,0) -- (${a.startAngle}:${a.radius}) arc (${a.startAngle}:${a.endAngle}:${a.radius}) -- cycle;
+`;
+            });
+            result += "\n";
+          }
+          if (sectors.length > 0) {
+            result += "  % \u6247\u5F62\u7ED8\u5236\n";
+            sectors.forEach((s) => {
+              const st = s.lineStyle ? `[${s.lineStyle}]` : "";
+              result += `  \\draw${st} [shift={(${s.shiftX},${s.shiftY})}] (0,0) -- plot[domain=${s.startAngle}:${s.endAngle}]({1*${s.radius}*cos(\\x r)+0*${s.radius}*sin(\\x r)},{0*${s.radius}*cos(\\x r)+1*${s.radius}*sin(\\x r)}) -- cycle;
+`;
+            });
+            if (lineMatches.length > 0) result += "\n";
+          }
+          if (circles.length > 0) {
+            circles.forEach((c) => {
+              result += c.lineStyle ? `  \\draw[${c.lineStyle}] ${c.center} circle (${c.radius});
+` : `  \\draw ${c.center} circle (${c.radius});
+`;
+            });
+            if (lineMatches.length > 0 || arcs.length > 0) result += "\n";
+          }
+          if (ellipses.length > 0) {
+            result += "  % \u692D\u5706\n";
+            ellipses.forEach((e) => {
+              const drawOpts = [];
+              if (e.lineStyle) drawOpts.push(e.lineStyle);
+              if (e.hasRotation) drawOpts.push(`rotate around={${e.rotationAngle}:${e.rotationCenter}}`);
+              result += drawOpts.length > 0 ? `  \\draw[${drawOpts.join(", ")}] ${e.center} ellipse (${e.xRadius} and ${e.yRadius});
+` : `  \\draw ${e.center} ellipse (${e.xRadius} and ${e.yRadius});
+`;
+            });
+            if (lineMatches.length > 0 || arcs.length > 0) result += "\n";
+          }
+          if (arcs.length > 0) {
+            result += "  % \u5706\u5F27\u7ED8\u5236\n";
+            arcs.forEach((arc) => {
+              const s = arc.style.trim() ? arc.style : "";
+              result += `  \\draw${s} plot[domain=${arc.startAngle}:${arc.endAngle}]({1*${arc.radius}*cos(\\x r)+0*${arc.radius}*sin(\\x r)},{0*${arc.radius}*cos(\\x r)+1*${arc.radius}*sin(\\x r)});
+`;
+            });
+            if (lineMatches.length > 0) result += "\n";
+          }
+          const processedLines = /* @__PURE__ */ new Set();
+          const parseCoords = (str) => {
+            const m = str.match(/\(([^,]+),([^)]+)\)/);
+            return m ? { x: parseFloat(m[1]), y: parseFloat(m[2]) } : null;
+          };
+          lineMatches.forEach((match) => {
+            const style = match[1] || "";
+            const coord1 = match[2], coord2 = match[3];
+            const convertedStyle = convertLineStyle(style);
+            let label1 = null, label2 = null;
+            const tc1 = formatCoordinate(`(${coord1})`, shouldRound);
+            const tc2 = formatCoordinate(`(${coord2})`, shouldRound);
+            const t1 = parseCoords(tc1), t2 = parseCoords(tc2);
+            for (const [label, coords] of pointMap) {
+              const pcs = coords.includes("(") ? coords : `(${coords})`;
+              const p = parseCoords(pcs);
+              if (p && t1 && Math.abs(p.x - t1.x) < 1e-3 && Math.abs(p.y - t1.y) < 1e-3) label1 = label;
+              if (p && t2 && Math.abs(p.x - t2.x) < 1e-3 && Math.abs(p.y - t2.y) < 1e-3) label2 = label;
+            }
+            if (label1 && label2) {
+              const key = `${label1}-${label2}`, rev = `${label2}-${label1}`;
+              if (!processedLines.has(key) && !processedLines.has(rev)) {
+                result += convertedStyle ? `  \\draw[${convertedStyle}] (${label1}) -- (${label2});
+` : `  \\draw (${label1}) -- (${label2});
+`;
+                processedLines.add(key);
+              }
+            } else {
+              const fc1 = formatCoordinate(`(${coord1})`, shouldRound);
+              const fc2 = formatCoordinate(`(${coord2})`, shouldRound);
+              result += convertedStyle ? `  \\draw[${convertedStyle}] ${fc1} -- ${fc2};
+` : `  \\draw ${fc1} -- ${fc2};
+`;
+            }
+          });
+        }
+        if (includePoints && pointMap.size > 0) {
+          result += "\n  % \u70B9\u6807\u8BB0\n";
+          for (const [label] of pointMap) {
+            result += `  \\draw[fill=black] (${label}) circle (1pt);
+`;
+          }
+        }
+        if (includeLabels && pointMap.size > 0) {
+          result += "\n  % \u70B9\u6807\u7B7E\n";
+          const allPointsData = [];
+          for (const [label, coords] of pointMap) {
+            const m = coords.match(/\(?([^,]+),([^)]+)\)?/);
+            if (m) allPointsData.push({ label, x: parseFloat(m[1]), y: parseFloat(m[2]) });
+          }
+          for (const point of allPointsData) {
+            if (/^gikzPoint\d+$/.test(point.label)) continue;
+            const pos = getSmartLabelPosition(point.x, point.y, allPointsData);
+            result += `  \\node [${pos}] at (${point.label}) {$${point.label}$};
+`;
+          }
+        }
+        if (angleLabels.length > 0) {
+          result += "\n  % \u89D2\u5EA6\u6807\u7B7E\n";
+          angleLabels.forEach((l) => {
+            result += `  \\draw ${l.coords} node {$${l.content}^{\\circ}$};
+`;
+          });
+        }
+        if (textLabels.length > 0) {
+          result += "\n  % \u6587\u672C\u6807\u7B7E\n";
+          textLabels.forEach((l) => {
+            result += `  \\draw ${l.coords} node[${l.options}] {${l.content}};
+`;
+          });
+        }
+        result += "\\end{tikzpicture}";
+        return result;
+      }
+      function convertGeoGebraXML(xmlStr, opts = {}) {
+        const shouldRound = opts.round !== false;
+        const includePoints = opts.points !== false;
+        const includeLabels = opts.labels !== false;
+        const rv = (v) => shouldRound ? roundToThreeDecimals(v) : v;
+        const de = (s) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+        const constrM = xmlStr.match(/<construction[^>]*>([\s\S]*?)<\/construction>/);
+        if (!constrM) throw new Error("XML \u4E2D\u672A\u627E\u5230 construction \u5757");
+        const constr = constrM[1];
+        const elements = /* @__PURE__ */ new Map();
+        const elRe = /<element\s+type="([^"]+)"\s+label="([^"]+)">([\s\S]*?)<\/element>/g;
+        let m;
+        while (m = elRe.exec(constr)) {
+          const label = de(m[2]), body = m[3];
+          const el = { type: m[1], label };
+          const showM = body.match(/<show\s+object="([^"]+)"\s+label="([^"]+)"/);
+          el.visible = showM ? showM[1] === "true" : false;
+          el.showLabel = showM ? showM[2] === "true" : false;
+          const coordsM = body.match(/<coords\s+x="([^"]+)"\s+y="([^"]+)"\s+z="([^"]+)"/);
+          if (coordsM) {
+            const z = parseFloat(coordsM[3]) || 1;
+            el.x = parseFloat(coordsM[1]) / z;
+            el.y = parseFloat(coordsM[2]) / z;
+          }
+          const valM = body.match(/<value\s+val="([^"]+)"/);
+          if (valM) el.value = parseFloat(valM[1]);
+          const arcM = body.match(/<arcSize\s+val="([^"]+)"/);
+          if (arcM) el.arcSize = parseInt(arcM[1]);
+          const colM = body.match(/<objColor[^>]+alpha="([^"]+)"/);
+          if (colM) el.alpha = parseFloat(colM[1]);
+          const lineM = body.match(/<lineStyle\s+thickness="([^"]+)"\s+type="([^"]+)"/);
+          if (lineM) {
+            el.lineThickness = parseInt(lineM[1]);
+            el.lineType = parseInt(lineM[2]);
+          }
+          if (el.x !== void 0 && (isNaN(el.x) || isNaN(el.y))) continue;
+          elements.set(label, el);
+        }
+        const commands = [];
+        const cmdRe = /<command\s+name="([^"]+)">([\s\S]*?)<\/command>/g;
+        while (m = cmdRe.exec(constr)) {
+          const cmd = { name: m[1], inputs: [], outputs: [] };
+          const inM = m[2].match(/<input\s+([^/]*)\/>/);
+          if (inM) {
+            const r = /a(\d+)="([^"]+)"/g;
+            let a;
+            while (a = r.exec(inM[1])) cmd.inputs[+a[1]] = de(a[2]);
+          }
+          const outM = m[2].match(/<output\s+([^/]*)\/>/);
+          if (outM) {
+            const r = /a(\d+)="([^"]+)"/g;
+            let a;
+            while (a = r.exec(outM[1])) cmd.outputs[+a[1]] = de(a[2]);
+          }
+          commands.push(cmd);
+        }
+        const cmdByOut = /* @__PURE__ */ new Map();
+        for (const cmd of commands)
+          for (const lbl of cmd.outputs) if (lbl) cmdByOut.set(lbl, cmd);
+        const polyEdges = /* @__PURE__ */ new Set();
+        for (const cmd of commands) {
+          if (cmd.name === "Polygon") {
+            for (let i = 1; i < cmd.outputs.length; i++) if (cmd.outputs[i]) polyEdges.add(cmd.outputs[i]);
+          }
+        }
+        const refPts = /* @__PURE__ */ new Set();
+        const lsName = (t) => {
+          switch (t) {
+            case 10:
+            case 15:
+              return "dashed";
+            case 20:
+              return "dotted";
+            case 30:
+              return "dash dot";
+            default:
+              return "";
+          }
+        };
+        const segs = [];
+        for (const [label, el] of elements) {
+          if (!el.visible || el.type !== "segment" || polyEdges.has(label)) continue;
+          const cmd = cmdByOut.get(label);
+          if (cmd && cmd.name === "Segment" && cmd.inputs[0] && cmd.inputs[1]) {
+            segs.push({ from: cmd.inputs[0], to: cmd.inputs[1], ls: lsName(el.lineType || 0) });
+            refPts.add(cmd.inputs[0]);
+            refPts.add(cmd.inputs[1]);
+          }
+        }
+        const circs = [];
+        for (const [label, el] of elements) {
+          if (!el.visible || el.type !== "conic") continue;
+          const cmd = cmdByOut.get(label);
+          if (cmd && cmd.name === "Circle") {
+            const cEl = elements.get(cmd.inputs[0]), tEl = elements.get(cmd.inputs[1]);
+            if (cEl && tEl && cEl.x !== void 0 && tEl.x !== void 0) {
+              const dx = tEl.x - cEl.x, dy = tEl.y - cEl.y;
+              circs.push({ center: cmd.inputs[0], radius: rv(Math.sqrt(dx * dx + dy * dy)) });
+              refPts.add(cmd.inputs[0]);
+            }
+          }
+        }
+        const polys = [];
+        for (const [label, el] of elements) {
+          if (!el.visible || el.type !== "polygon") continue;
+          const cmd = cmdByOut.get(label);
+          if (cmd && cmd.name === "Polygon") {
+            const verts = [];
+            for (let i = 0; cmd.inputs[i]; i++) {
+              verts.push(cmd.inputs[i]);
+              refPts.add(cmd.inputs[i]);
+            }
+            polys.push({ vertices: verts, alpha: el.alpha || 0 });
+          }
+        }
+        const angs = [];
+        for (const [label, el] of elements) {
+          if (!el.visible || el.type !== "angle") continue;
+          const cmd = cmdByOut.get(label);
+          if (cmd && cmd.name === "Angle") {
+            angs.push({ ptA: cmd.inputs[0], vertex: cmd.inputs[1], ptC: cmd.inputs[2], value: el.value });
+            refPts.add(cmd.inputs[0]);
+            refPts.add(cmd.inputs[1]);
+            refPts.add(cmd.inputs[2]);
+          }
+        }
+        for (const [label, el] of elements)
+          if (el.type === "point" && (el.visible || el.showLabel)) refPts.add(label);
+        const coords = [];
+        for (const label of refPts) {
+          const el = elements.get(label);
+          if (el && el.type === "point" && el.x !== void 0) coords.push({ label, x: rv(el.x), y: rv(el.y) });
+        }
+        coords.sort((a, b) => a.label.localeCompare(b.label));
+        let out = "\\begin{tikzpicture}[scale=1]\n";
+        if (coords.length > 0) {
+          out += "  % \u5750\u6807\u70B9\u5B9A\u4E49\n";
+          for (const c of coords) out += `  \\coordinate (${c.label}) at (${c.x},${c.y});
+`;
+          out += "\n";
+        }
+        out += "  % \u51E0\u4F55\u5143\u7D20\n";
+        if (angs.length > 0) {
+          for (const ang of angs) {
+            const vEl = elements.get(ang.vertex), aEl = elements.get(ang.ptA), cEl = elements.get(ang.ptC);
+            if (!vEl || !aEl || !cEl) continue;
+            let sa = rv(Math.atan2(aEl.y - vEl.y, aEl.x - vEl.x) * 180 / Math.PI);
+            let ea = rv(Math.atan2(cEl.y - vEl.y, cEl.x - vEl.x) * 180 / Math.PI);
+            if (ea <= sa) ea += 360;
+            out += `  \\fill[green!10] (${ang.vertex}) -- ++(${sa}:0.4) arc (${sa}:${ea}:0.4) -- cycle;
+`;
+          }
+          out += "\n";
+        }
+        if (polys.length > 0) {
+          for (const p of polys) {
+            if (p.alpha > 0) {
+              const pth = p.vertices.map((v) => `(${v})`).join(" -- ") + " -- cycle";
+              out += `  \\fill[gray!20, fill opacity=${rv(p.alpha)}] ${pth};
+`;
+            }
+          }
+          out += "\n";
+        }
+        if (circs.length > 0) {
+          for (const c of circs) out += `  \\draw (${c.center}) circle (${c.radius});
+`;
+          out += "\n";
+        }
+        if (segs.length > 0) {
+          const drawn = /* @__PURE__ */ new Set();
+          for (const s of segs) {
+            const k = [s.from, s.to].sort().join("|");
+            if (drawn.has(k)) continue;
+            drawn.add(k);
+            out += s.ls ? `  \\draw[${s.ls}] (${s.from}) -- (${s.to});
+` : `  \\draw (${s.from}) -- (${s.to});
+`;
+          }
+          out += "\n";
+        }
+        if (includePoints) {
+          const visPts = coords.filter((c) => {
+            const e = elements.get(c.label);
+            return e && e.visible;
+          });
+          if (visPts.length > 0) {
+            out += "  % \u70B9\u6807\u8BB0\n";
+            for (const p of visPts) out += `  \\draw[fill=black] (${p.label}) circle (1pt);
+`;
+            out += "\n";
+          }
+        }
+        if (includeLabels) {
+          const lblPts = coords.filter((c) => {
+            const e = elements.get(c.label);
+            return e && (e.visible || e.showLabel);
+          });
+          if (lblPts.length > 0) {
+            out += "  % \u70B9\u6807\u7B7E\n";
+            for (const p of lblPts) {
+              const pos = getSmartLabelPosition(p.x, p.y, coords);
+              out += `  \\node[${pos}] at (${p.label}) {$${p.label}$};
+`;
+            }
+          }
+        }
+        out += "\\end{tikzpicture}";
+        return out;
+      }
+      function wrapStandalone(tikzCode) {
+        return `\\documentclass[border=5pt]{standalone}
+\\usepackage{tikz}
+\\usepackage{pgfplots}
+\\pgfplotsset{compat=1.15}
+\\usetikzlibrary{arrows.meta}
+
+\\begin{document}
+${tikzCode}
+\\end{document}
+`;
+      }
+      module.exports = { cleanTikZCode, wrapStandalone, convertGeoGebraXML };
+    }
+  });
+
+  // gikz/browser.cjs
+  var require_browser = __commonJS({
+    "gikz/browser.cjs"() {
+      globalThis.Gikz = Object.freeze(require_core());
+    }
+  });
+  require_browser();
+})();
+</script>
+<script id="viewer-themes" type="application/json">{"default":[{"paper":"#ffffff","hover":"#fcfcfc","ink":"#111111","muted":"#5c5c5c","line":"#e0e0e0","blue":"#2166F6"},{"paper":"#1e1e1e","hover":"#212121","ink":"#dadada","muted":"#b3b3b3","line":"#363636","blue":"#8CAAEE"}],"ayu":[{"paper":"#fcfcfc","hover":"#f8f9fa","ink":"#5c6166","muted":"#8a9199","line":"#6b7d8f1f","blue":"#22a4e6"},{"paper":"#1f2430","hover":"#242936","ink":"#cccac2","muted":"#707a8c","line":"#282e3b","blue":"#73d0ff"}],"catppuccin":[{"paper":"#eff1f5","hover":"#e6e9ef","ink":"#4c4f69","muted":"#8c8fa1","line":"#dce0e8","blue":"#2166F6"},{"paper":"#242634","hover":"#303446","ink":"#c6d0f5","muted":"#A6ADCE","line":"#41455A","blue":"#8CAAEE"}],"everforest":[{"paper":"#fdf6e3","hover":"#f4f0d9","ink":"#5c6a72","muted":"#829181","line":"#e6e2cc","blue":"#3795C5"},{"paper":"#2d353b","hover":"#343f44","ink":"#d3c6aa","muted":"#9da9a0","line":"#475258","blue":"#7fbbb3"}],"gruvbox":[{"paper":"#fbf1c7","hover":"#f2e5bc","ink":"#3c3836","muted":"#7c7065","line":"#e0d09a","blue":"#458588"},{"paper":"#282828","hover":"#3c3836","ink":"#ebdbb2","muted":"#bdae93","line":"#504945","blue":"#83a598"}],"rose-pine":[{"paper":"#fffaf3","hover":"#faf4ed","ink":"#575279","muted":"#9893a5","line":"#f4ede8","blue":"#286983"},{"paper":"#191724","hover":"#1f1d2e","ink":"#e0def4","muted":"#6e6a86","line":"#21202e","blue":"#3e8fb0"}],"nord":[{"paper":"#eceff4","hover":"#e5e9f0","ink":"#2e3440","muted":"#8a9199","line":"#d8dee9","blue":"#81A1C1"},{"paper":"#3b4252","hover":"#434c5e","ink":"#d8dee9","muted":"#7b88a1","line":"#4c566a","blue":"#81A1C1"}],"solarized":[{"paper":"#fdf6e3","hover":"#eee8d5","ink":"#073642","muted":"#586e75","line":"#e9e1c8","blue":"#268bd2"},{"paper":"#002b36","hover":"#073642","ink":"#839496","muted":"#586e75","line":"#19414B","blue":"#268bd2"}],"flexoki":[{"paper":"#FFFCF0","hover":"#F2F0E5","ink":"#100F0F","muted":"#5c5c5c","line":"#E6E4D9","blue":"#205EA6"},{"paper":"#100F0F","hover":"#1C1B1A","ink":"#CECDC3","muted":"#878580","line":"#282726","blue":"#4385BE"}]}</script>
+<script>"use strict";
+(() => {
+  // src/export/viewer-action-commands.ts
+  function splitCommandArguments(input) {
+    const args = [];
+    let start = 0, quote = "", escaped = false;
+    const brackets = [];
+    for (let i = 0; i < input.length; i++) {
+      const c = input[i];
+      if (quote) {
+        if (escaped) escaped = false;
+        else if (c === "\\") escaped = true;
+        else if (c === quote) quote = "";
+      } else if (c === '"') quote = c;
+      else if ("([{".includes(c)) brackets.push(c);
+      else if (")]}".includes(c)) {
+        if (brackets.pop() !== "([{".charAt(")]}".indexOf(c))) throw new Error("Unbalanced command arguments");
+      } else if (c === "," && !brackets.length) {
+        args.push(input.slice(start, i).trim());
+        start = i + 1;
+      }
+    }
+    if (quote || brackets.length) throw new Error("Unbalanced command arguments");
+    args.push(input.slice(start).trim());
+    return args;
+  }
+  function evaluateViewerNumber(api, expression) {
+    const literal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(expression);
+    if (!literal && (!api.getValue || api.getValue(`IsDefined(${expression})`) !== 1)) {
+      throw new Error(`Expected a defined numeric expression: ${expression}`);
+    }
+    const value = literal ? Number(expression) : api.getValue(expression);
+    if (!Number.isFinite(value)) throw new Error(`Expected a finite numeric value: ${expression}`);
+    return value;
+  }
+  function executeViewerActionCommand(api, command) {
+    const match = /^\s*(SetCoords|SetVisibleInView|SetFixed|ShowLabel|SetLabelMode|SetCaption|SetFilling|SetLayer|SetPointStyle|SetValue|SetTextValue|SetTrace|SetAuxiliary|SetAnimating|SetAnimationSpeed)\s*(?:\(([\s\S]*)\)|\[([\s\S]*)\])\s*$/.exec(command);
+    if (!match) return null;
+    const operation = match[1];
+    const args = splitCommandArguments(match[2] ?? match[3]);
+    const target = args.shift();
+    if (!/^(?:[\p{L}_][\p{L}\p{N}_{}']*|"[^"\n]+")$/u.test(target)) return null;
+    const name = target.replace(/^"|"$/g, "");
+    if (!api.exists(name)) throw new Error(`Action target does not exist: ${name}`);
+    const arity = (min, max = min) => {
+      if (args.length < min || args.length > max) throw new Error(`${operation}: expected ${min === max ? min : `${min}..${max}`} arguments after the target`);
+    };
+    const number = (value) => {
+      const n = evaluateViewerNumber(api, value);
+      return n;
+    };
+    const boolean = (value) => {
+      if (value === "true") return true;
+      if (value === "false") return false;
+      const n = number(value);
+      if (n !== 0 && n !== 1) throw new Error(`${operation}: expected a boolean: ${value}`);
+      return Boolean(n);
+    };
+    const text = (value) => {
+      if (!/^"(?:[^"\\]|\\.)*"$/s.test(value)) throw new Error(`${operation}: expected quoted text`);
+      return JSON.parse(value);
+    };
+    switch (operation) {
+      case "SetCoords":
+        arity(2, 3);
+        api.setCoords(name, ...args.map(number));
+        break;
+      case "SetVisibleInView": {
+        arity(2);
+        const view = number(args[0]);
+        if (view !== 1 && view !== -1) throw new Error("This viewer supports SetVisibleInView for view 1 (2D) or -1 (3D) only");
+        api.setVisible(name, boolean(args[1]));
+        break;
+      }
+      case "SetFixed":
+        arity(1, 2);
+        api.setFixed(name, boolean(args[0]), ...args.length === 2 ? [boolean(args[1])] : []);
+        break;
+      case "ShowLabel":
+        arity(1);
+        api.setLabelVisible(name, boolean(args[0]));
+        break;
+      case "SetCaption":
+        arity(1);
+        api.setCaption(name, text(args[0]));
+        break;
+      case "SetTextValue":
+        arity(1);
+        api.setTextValue(name, text(args[0]));
+        break;
+      case "SetValue":
+        arity(1);
+        api.setValue(name, args[0] === "true" ? 1 : args[0] === "false" ? 0 : number(args[0]));
+        break;
+      case "SetTrace":
+        arity(1);
+        api.setTrace(name, boolean(args[0]));
+        break;
+      case "SetAuxiliary":
+        arity(1);
+        api.setAuxiliary(name, boolean(args[0]));
+        break;
+      case "SetAnimating":
+        arity(1);
+        api.setAnimating(name, boolean(args[0]));
+        break;
+      case "SetAnimationSpeed":
+        arity(1);
+        api.setAnimationSpeed(name, number(args[0]));
+        break;
+      default: {
+        arity(1);
+        const n = number(args[0]);
+        const maximum = operation === "SetFilling" ? 1 : operation === "SetLabelMode" ? 3 : 9;
+        if (n < 0 || n > maximum || operation !== "SetFilling" && !Number.isInteger(n)) throw new Error(`${operation}: value outside 0..${maximum}`);
+        if (operation === "SetFilling") api.setFilling(name, n);
+        else if (operation === "SetLayer") api.setLayer(name, n);
+        else if (operation === "SetLabelMode") api.setLabelStyle(name, n);
+        else api.setPointStyle(name, n);
+      }
+    }
+    return true;
+  }
+
+  // src/export/viewer-command-executor.ts
+  async function executeViewerCommand(api, command, timeoutMs = 3e4) {
+    try {
+      return api.evalCommand(command);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!/command.*not.*loaded|CommandNotLoadedError|asyncEvalCommand/i.test(message) || typeof api.asyncEvalCommandGetLabels !== "function") throw error;
+    }
+    let timer;
+    try {
+      const result = await Promise.race([
+        api.asyncEvalCommandGetLabels(command),
+        new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error("GeoGebra command module loading/execution timed out; check the network and reload")), timeoutMs);
+        })
+      ]);
+      return typeof result === "string";
+    } finally {
+      if (timer !== void 0) clearTimeout(timer);
+    }
+  }
+
+  // src/export/viewer-style-commands.ts
+  function executeViewerViewportCommand(api, command) {
+    const match = /^\s*ZoomIn\s*(?:\(([\s\S]*)\)|\[([\s\S]*)\])\s*$/.exec(command);
+    if (!match) return null;
+    const args = splitCommandArguments(match[1] ?? match[2]);
+    const numeric = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
+    if (args.length !== 4 || !args.every((arg) => numeric.test(arg) || api.getValue)) return null;
+    const [xmin, ymin, xmax, ymax] = args.map((arg) => evaluateViewerNumber(api, arg));
+    if (![xmin, ymin, xmax, ymax].every(Number.isFinite) || xmin >= xmax || ymin >= ymax) {
+      throw new Error("ZoomIn requires finite bounds with xmin < xmax and ymin < ymax");
+    }
+    api.setCoordSystem(xmin, xmax, ymin, ymax);
+    return true;
+  }
+  function executeViewerStyleCommand(api, command) {
+    const match = /^\s*(SetColor|SetLineThickness|SetLineStyle|SetPointSize)\s*[([]\s*([\p{L}_][\p{L}\p{N}_]*|'[^']+'|"[^"]+")\s*,\s*(.*?)\s*[)\]]\s*$/u.exec(command);
+    if (!match) return null;
+    const name = match[2].replace(/^['"]|['"]$/g, "");
+    const operation = match[1];
+    const argumentsText = match[3];
+    const numeric = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
+    const args = splitCommandArguments(argumentsText);
+    let color;
+    let value;
+    if (operation === "SetColor") {
+      const named = { black: "000000", white: "ffffff", red: "ff0000", green: "008000", blue: "0000ff", yellow: "ffff00", orange: "ffa500", purple: "800080", gray: "808080", grey: "808080", pink: "ffc0cb", cyan: "00ffff", magenta: "ff00ff", brown: "a52a2a" };
+      const colorName = /^"([a-z]+)"$/i.exec(argumentsText);
+      const hex = /^"#([\da-f]{6})"$/i.exec(argumentsText) ?? (colorName && named[colorName[1].toLowerCase()] ? ["", named[colorName[1].toLowerCase()]] : null);
+      if (hex) {
+        color = [0, 2, 4].map((offset) => parseInt(hex[1].slice(offset, offset + 2), 16));
+      } else if (args.length === 3 && args.every((arg) => numeric.test(arg) || api.getValue)) {
+        color = args.map((arg) => evaluateViewerNumber(api, arg));
+        const maximum = color.some((component) => component > 1) ? 255 : 1;
+        if (color.some((component) => !Number.isFinite(component) || component < 0 || component > maximum)) {
+          throw new Error("SetColor RGB must be within 0..1 or 0..255");
+        }
+        color = color.map((component) => Math.round(component * 255 / maximum));
+      } else return null;
+    } else {
+      if (args.length !== 1 || !numeric.test(args[0]) && !api.getValue) return null;
+      value = evaluateViewerNumber(api, args[0]);
+      const maximum = operation === "SetLineStyle" ? 4 : operation === "SetPointSize" ? 9 : 13;
+      if (!Number.isInteger(value) || value < 0 || value > maximum || operation === "SetPointSize" && value < 1) {
+        throw new Error(`${operation} requires an integer ${operation === "SetPointSize" ? 1 : 0}..${maximum}`);
+      }
+    }
+    if (!api.exists(name)) throw new Error(`Style target does not exist: ${name}`);
+    switch (operation) {
+      case "SetColor":
+        api.setColor(name, color[0], color[1], color[2]);
+        break;
+      case "SetLineThickness":
+        api.setLineThickness(name, value);
+        break;
+      case "SetLineStyle":
+        api.setLineStyle(name, value);
+        break;
+      case "SetPointSize":
+        api.setPointSize(name, value);
+        break;
+    }
+    return true;
+  }
+
+  // viewer/main.js
+  (() => {
+    (() => {
+      const specification = JSON.parse(document.getElementById("construction-data").textContent);
+      const is3D = specification.mode === "3D";
+      const graphicsPerspective = is3D ? "T" : "G";
+      const host = document.getElementById("ggb-element"), status = document.getElementById("status");
+      const toggle = document.getElementById("download-toggle"), menu = document.getElementById("download-menu");
+      const themes = JSON.parse(document.getElementById("viewer-themes").textContent);
+      const themeMenu = document.getElementById("theme-menu"), themeToggle = document.getElementById("theme-toggle"), modeToggle = document.getElementById("mode-toggle"), sidebarToggle = document.getElementById("sidebar-toggle");
+      const themeNames = { default: "\u9ED8\u8BA4", ayu: "Ayu", catppuccin: "Catppuccin", everforest: "Everforest", gruvbox: "Gruvbox", "rose-pine": "Ros\xE9 Pine", nord: "Nord", solarized: "Solarized", flexoki: "Flexoki" };
+      themeMenu.replaceChildren();
+      for (const name of Object.keys(themes)) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.theme = name;
+        button.setAttribute("role", "menuitemradio");
+        const label = document.createElement("span");
+        label.className = "theme-name";
+        label.textContent = themeNames[name];
+        button.append(label);
+        for (const palette of themes[name]) {
+          const swatch = document.createElement("span");
+          swatch.className = "swatch";
+          swatch.style.background = palette.paper;
+          swatch.setAttribute("aria-hidden", "true");
+          button.append(swatch);
+        }
+        themeMenu.append(button);
+      }
+      const explicitColorObjects = /* @__PURE__ */ new Set();
+      let api, ready = false, resizeObserver, resizeFrame, resizeVersion = 0, sidebarOpen = false, objectThemeApplied = false;
+      const themeObjectColors = new Set(Object.values(themes).flat().flatMap((p) => [p.ink, p.blue]).concat(["#000000", "#666666", "#4d4dff"]).map((c) => c.toLowerCase()));
+      const validTheme = (value) => typeof value === "string" && /^[a-z-]+:[01]$/.test(value) && Object.hasOwn(themes, value.split(":")[0]);
+      let chosenTheme = validTheme(specification.theme) ? specification.theme : "default:0";
+      try {
+        const saved = localStorage.getItem("geogebra-viewer-theme");
+        if (validTheme(saved)) chosenTheme = saved;
+      } catch (_) {
+      }
+      function applyTheme() {
+        const [name, mode] = chosenTheme.split(":");
+        const palette = themes[name][Number(mode)];
+        for (const [key, value] of Object.entries(palette)) document.documentElement.style.setProperty("--" + key, value);
+        document.documentElement.style.colorScheme = Number(mode) ? "dark" : "light";
+        document.getElementById("theme-name").textContent = themeNames[name];
+        for (const button of themeMenu.querySelectorAll("[data-theme]")) button.setAttribute("aria-checked", String(button.dataset.theme === name));
+        const action = Number(mode) ? "\u5207\u6362\u4E3A\u6D45\u8272" : "\u5207\u6362\u4E3A\u6DF1\u8272";
+        modeToggle.setAttribute("aria-label", action);
+        modeToggle.title = action;
+        modeToggle.setAttribute("aria-pressed", String(Boolean(Number(mode))));
+        modeToggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (Number(mode) ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/>' : '<path d="M20.8 13A9 9 0 0 1 11 3.2 9 9 0 1 0 20.8 13Z"/>') + "</svg>";
+        if (api) {
+          const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+          api.setGraphicsOptions(is3D ? 3 : 1, { bgColor: palette.paper, axesColor: palette.muted, gridColor: palette.line });
+          for (const object of api.getAllObjectNames()) {
+            const type = api.getObjectType(object);
+            if (!explicitColorObjects.has(object) && ["point", "text", "line", "segment", "ray", "circle", "conic"].includes(type) && (!objectThemeApplied && !specification.ggbBase64 || themeObjectColors.has(api.getColor(object).toLowerCase()))) api.setColor(object, ...rgb(type === "point" && api.isMoveable(object) ? palette.blue : palette.ink));
+          }
+          objectThemeApplied = true;
+        }
+      }
+      function saveTheme() {
+        try {
+          localStorage.setItem("geogebra-viewer-theme", chosenTheme);
+        } catch (_) {
+        }
+        applyTheme();
+      }
+      themeMenu.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-theme]");
+        if (!button) return;
+        chosenTheme = button.dataset.theme + ":" + chosenTheme.split(":")[1];
+        saveTheme();
+        closeMenus();
+        themeToggle.focus();
+      });
+      modeToggle.addEventListener("click", () => {
+        chosenTheme = chosenTheme.split(":")[0] + ":" + (chosenTheme.endsWith(":1") ? "0" : "1");
+        saveTheme();
+      });
+      applyTheme();
+      window.ggbReady = false;
+      window.ggbError = null;
+      const runtime = window.geogebraStudio = {
+        status: "loading",
+        completedCommands: 0,
+        failedCommand: null,
+        warnings: [],
+        checks: null
+      };
+      toggle.disabled = true;
+      window.failGeoGebra = (message) => {
+        ready = false;
+        window.ggbReady = false;
+        window.ggbError = String(message);
+        runtime.status = "error";
+        toggle.disabled = true;
+        sidebarToggle.disabled = true;
+        setStatus(window.ggbError, true);
+      };
+      function checkConstruction() {
+        const names = api.getAllObjectNames();
+        const view = is3D ? read3DView() : JSON.parse(api.getViewProperties(1));
+        return {
+          objectCount: names.length,
+          undefinedVisibleObjects: names.filter((name) => api.getVisible(name) && !api.isDefined(name)),
+          equalAxes: is3D ? view.equalAxes : Math.abs(view.invXscale / view.invYscale - 1) < 1e-6,
+          viewWidth: view.width,
+          viewHeight: view.height
+        };
+      }
+      runtime.snapshot = async () => {
+        if (!ready) throw new Error("GeoGebra \u5C1A\u672A\u5C31\u7EEA");
+        return { ggbBase64: await callbackExport("ggb"), constructionXml: api.getXML(), checks: checkConstruction() };
+      };
+      function setStatus(text, error = false) {
+        status.textContent = text;
+        status.classList.toggle("error", error);
+        status.hidden = !text;
+      }
+      function read3DView() {
+        const xml = new DOMParser().parseFromString(api.getXML(), "application/xml");
+        const coords = xml.querySelector("euclidianView3D > coordSystem");
+        const scale = Number(coords?.getAttribute("scale"));
+        const scales = ["xscale", "yscale", "zscale"].map((key) => coords?.hasAttribute(key) ? Number(coords.getAttribute(key)) : scale);
+        const canvas = [...host.querySelectorAll("canvas")].map((c) => c.getBoundingClientRect()).find((r) => r.width > 0 && r.height > 0);
+        return {
+          width: canvas?.width || 0,
+          height: canvas?.height || 0,
+          left: canvas?.left || 0,
+          top: canvas?.top || 0,
+          equalAxes: scales.every((n) => Number.isFinite(n) && n > 0 && Math.abs(n / scales[0] - 1) < 1e-6)
+        };
+      }
+      function equalAxes() {
+        if (is3D) return;
+        const v = JSON.parse(api.getViewProperties(1)), unit = Math.max(v.invXscale, v.invYscale), cx = v.xMin + v.width * v.invXscale / 2, cy = v.yMin + v.height * v.invYscale / 2;
+        api.setCoordSystem(cx - v.width * unit / 2, cx + v.width * unit / 2, cy - v.height * unit / 2, cy + v.height * unit / 2);
+      }
+      function readCamera() {
+        if (is3D) return null;
+        const v = JSON.parse(api.getViewProperties(1));
+        return { cx: v.xMin + v.width * v.invXscale / 2, cy: v.yMin + v.height * v.invYscale / 2, span: Math.min(v.width * v.invXscale, v.height * v.invYscale) };
+      }
+      function setSize(camera) {
+        if (!api) return;
+        camera = camera || readCamera();
+        const version = ++resizeVersion;
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(async () => {
+          const width = Math.round(host.clientWidth), height = Math.round(host.clientHeight);
+          if (width < 1 || height < 1) return;
+          api.setSize(width, height);
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          if (version !== resizeVersion) return;
+          const view = is3D ? read3DView() : JSON.parse(api.getViewProperties(1));
+          if (!is3D) {
+            const { cx, cy, span } = camera, unit = span / Math.min(view.width, view.height);
+            api.setCoordSystem(cx - view.width * unit / 2, cx + view.width * unit / 2, cy - view.height * unit / 2, cy + view.height * unit / 2);
+            equalAxes();
+          }
+          sidebarToggle.style.top = Math.max(10, view.top - host.getBoundingClientRect().top + 10) + "px";
+          sidebarToggle.style.left = sidebarOpen ? Math.max(10, view.left - host.getBoundingClientRect().left + 10) + "px" : "10px";
+        });
+      }
+      function toBytes(data) {
+        return Uint8Array.from(atob(data.replace(/^data:[^,]+,/, "")), (c) => c.charCodeAt(0));
+      }
+      function download(data, mime, extension, base64 = false) {
+        const blob = new Blob([base64 ? toBytes(data) : data], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "construction." + extension;
+        link.hidden = true;
+        document.body.append(link);
+        link.click();
+        setTimeout(() => {
+          link.remove();
+          URL.revokeObjectURL(url);
+        }, 6e4);
+      }
+      function callbackExport(format) {
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error("\u5BFC\u51FA\u8D85\u65F6")), 2e4);
+          const done = (value) => {
+            clearTimeout(timer);
+            value ? resolve(value) : reject(new Error("GeoGebra \u672A\u8FD4\u56DE\u6587\u4EF6"));
+          };
+          try {
+            if (format === "ggb") api.getBase64(done);
+            else if (format === "pdf") api.exportPDF(1, done);
+            else if (format === "tikz") api.exportPGF(done);
+            else api.exportSVG(done);
+          } catch (error) {
+            clearTimeout(timer);
+            reject(error);
+          }
+        });
+      }
+      async function fitView() {
+        if (is3D) {
+          const points = api.getAllObjectNames().filter((n) => api.getVisible(n) && api.isDefined(n) && api.getObjectType(n) === "point").map((n) => [api.getXcoord(n), api.getYcoord(n), api.getZcoord(n)]).filter((p) => p.every(Number.isFinite));
+          if (specification.view3D?.bounds) api.setCoordSystem(...specification.view3D.bounds, false);
+          else if (points.length) {
+            const mins = [0, 1, 2].map((i) => Math.min(...points.map((p) => p[i]))), maxs = [0, 1, 2].map((i) => Math.max(...points.map((p) => p[i])));
+            const radius = Math.max(Math.hypot(...maxs.map((v, i) => v - mins[i])) * 0.65, 1);
+            const center = mins.map((v, i) => (v + maxs[i]) / 2);
+            api.setCoordSystem(...center.flatMap((v) => [v - radius, v + radius]), false);
+          } else api.showAllObjects();
+          if (specification.view3D?.direction) api.evalCommand("SetViewDirection((" + specification.view3D.direction.join(",") + "),false)");
+          return;
+        }
+        api.showAllObjects();
+        await new Promise((resolve) => setTimeout(resolve, 650));
+        const view = JSON.parse(api.getViewProperties(1));
+        let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity, hasCircle = false, unsupported = false;
+        for (const name of api.getAllObjectNames()) {
+          if (!api.getVisible(name)) continue;
+          const type = api.getObjectType(name);
+          if (type === "point") {
+            const x = api.getXcoord(name), y = api.getYcoord(name);
+            if (Number.isFinite(x) && Number.isFinite(y)) {
+              xmin = Math.min(xmin, x);
+              xmax = Math.max(xmax, x);
+              ymin = Math.min(ymin, y);
+              ymax = Math.max(ymax, y);
+            }
+          } else if (type === "circle" || type === "conic") {
+            const xml = new DOMParser().parseFromString("<root>" + api.getXML(name) + "</root>", "application/xml"), matrix = xml.querySelector("matrix");
+            if (!matrix) {
+              unsupported = true;
+              continue;
+            }
+            const a = [0, 1, 2, 3, 4, 5].map((i) => Number(matrix.getAttribute("A" + i)));
+            if (Math.abs(a[0] - a[1]) > 1e-8 || Math.abs(a[3]) > 1e-8 || !a[0]) {
+              unsupported = true;
+              continue;
+            }
+            const x = -a[4] / a[0], y = -a[5] / a[0], r = Math.sqrt(x * x + y * y - a[2] / a[0]);
+            if (Number.isFinite(r)) {
+              hasCircle = true;
+              xmin = Math.min(xmin, x - r);
+              xmax = Math.max(xmax, x + r);
+              ymin = Math.min(ymin, y - r);
+              ymax = Math.max(ymax, y + r);
+            }
+          } else if (!["line", "ray", "segment", "text", "numeric", "boolean"].includes(type)) unsupported = true;
+        }
+        if (!hasCircle || unsupported) {
+          xmin = view.xMin;
+          xmax = xmin + view.width * view.invXscale;
+          ymin = view.yMin;
+          ymax = ymin + view.height * view.invYscale;
+        }
+        const unit = Math.max((xmax - xmin) * 1.16 / view.width, (ymax - ymin) * 1.16 / view.height, 2 / Math.min(view.width, view.height)), cx = (xmin + xmax) / 2, cy = (ymin + ymax) / 2;
+        api.setCoordSystem(cx - view.width * unit / 2, cx + view.width * unit / 2, cy - view.height * unit / 2, cy + view.height * unit / 2);
+      }
+      function applyViewerDefaults() {
+        const names = api.getAllObjectNames();
+        const visible = new Set(specification.visibleLabels || []), captions = specification.captionOverrides || {};
+        const view = is3D ? null : JSON.parse(api.getViewProperties(1)), dx = view ? 10 * view.invXscale : 0, dy = view ? 10 * view.invYscale : 0;
+        const points = is3D ? names.filter((n) => api.getObjectType(n) === "point" && api.isDefined(n)) : [];
+        const coordinates = points.map((n) => [api.getXcoord(n), api.getYcoord(n), api.getZcoord(n)]);
+        const center = [0, 1, 2].map((i) => coordinates.length ? coordinates.reduce((sum, p) => sum + p[i], 0) / coordinates.length : 0);
+        const extent = Math.max(1, ...coordinates.map((p) => Math.hypot(...p.map((v, i) => v - center[i]))));
+        for (const name of names) {
+          try {
+            const type = api.getObjectType(name), show = visible.size ? visible.has(name) : type === "point";
+            api.setLabelVisible(name, false);
+            if (type === "point") api.setPointSize(name, is3D ? 1 : 3);
+            else if (["line", "segment", "ray", "vector", "circle", "conic", "polygon", "function", "curve"].includes(type) || is3D && type === "angle") api.setLineThickness(name, is3D ? 1 : 3);
+            if (show && api.getVisible(name) && (!is3D || type === "point" || ["segment", "line", "ray", "circle", "conic", "curve"].includes(type))) {
+              let caption = captions[name] || name;
+              caption = caption.replace(/^\$|\$$/g, "");
+              const math = caption === "\u0393" ? "\\Gamma" : caption === "\u03C9" ? "\\omega" : /^[A-Za-z]+$/.test(caption) ? "\\mathit{" + caption + "}" : caption;
+              const anchor = type === "point" ? name : "Point(" + name + ",0.38)";
+              let label = "mcpLabel" + name;
+              while (api.exists(label)) label += "x";
+              const offset = is3D ? specification.labelOffsets?.[name] || [api.getXcoord(name), api.getYcoord(name), api.getZcoord(name)].map((v, i) => {
+                const delta = v - center[i];
+                return Math.abs(delta) > 1e-8 ? Math.sign(delta) * extent * 0.07 : extent * 0.035;
+              }) : [dx, dy];
+              if (!api.evalCommand(label + " = Text(" + JSON.stringify(math).replaceAll(String.fromCharCode(92, 92), String.fromCharCode(92)) + ", " + anchor + " + (" + offset.join(",") + "), true, true)")) throw new Error("\u65E0\u6CD5\u521B\u5EFA LaTeX \u6807\u7B7E " + name);
+              if (is3D) api.evalCommand("SetFontSize(" + label + ",18)");
+              api.setLabelVisible(label, false);
+              api.setFixed(label, true, false);
+              api.setAuxiliary(label, true);
+            }
+          } catch (error) {
+            runtime.warnings.push("\u6837\u5F0F\u8BBE\u7F6E\u5931\u8D25 " + name + ": " + String(error.message || error));
+          }
+        }
+      }
+      const scriptJson = (value) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+      async function exportAs(format) {
+        if (!ready || toggle.disabled) return;
+        toggle.disabled = true;
+        try {
+          if (format === "tikz") {
+            if (typeof api.exportPGF !== "function") throw new Error("\u5F53\u524D GeoGebra \u5F15\u64CE\u4E0D\u652F\u6301 TikZ \u5BFC\u51FA");
+            setStatus("\u6B63\u5728\u901A\u8FC7 Gikz \u6E05\u6D17\u2026");
+            const source = await callbackExport("tikz");
+            if (!globalThis.Gikz) throw new Error("Gikz \u672A\u52A0\u8F7D\uFF0C\u5DF2\u505C\u6B62 TikZ \u5BFC\u51FA");
+            const cleaned = Gikz.wrapStandalone(Gikz.cleanTikZCode(source));
+            if (!cleaned.includes("\\begin{tikzpicture}")) throw new Error("Gikz \u672A\u751F\u6210\u6709\u6548 TikZ");
+            download(cleaned, "application/x-tex", "tex");
+          } else if (format === "xml") download(api.getXML(), "application/xml", "xml");
+          else if (format === "png") download(api.getPNGBase64(2, false, 144), "image/png", "png", true);
+          else if (format === "html") {
+            const base64 = await callbackExport("ggb");
+            const payload = scriptJson({
+              commands: [],
+              ggbBase64: base64,
+              theme: chosenTheme,
+              mode: is3D ? "3D" : "2D",
+              view3D: specification.view3D,
+              labelOffsets: specification.labelOffsets,
+              showAxes: specification.showAxes === true,
+              visibleLabels: specification.visibleLabels || [],
+              captionOverrides: specification.captionOverrides || {}
+            });
+            const html = window.constructionTemplate.replace(
+              /(<script id="construction-data" type="application\/json">)[\s\S]*?(<\/script>)/,
+              (_, opening, closing) => opening + payload + closing
+            );
+            download(html, "text/html", "html");
+          } else {
+            const value = await callbackExport(format);
+            download(value, format === "pdf" ? "application/pdf" : format === "ggb" ? "application/vnd.geogebra.file" : "image/svg+xml", format, format === "pdf" || format === "ggb");
+          }
+          setStatus("");
+        } catch (error) {
+          setStatus(error.message || "\u5BFC\u51FA\u5931\u8D25", true);
+        } finally {
+          toggle.disabled = false;
+        }
+      }
+      const popupMenus = [[toggle, menu], [themeToggle, themeMenu]];
+      function closeMenus() {
+        for (const [button, popup] of popupMenus) {
+          popup.classList.remove("open");
+          button.setAttribute("aria-expanded", "false");
+        }
+      }
+      for (const [button, popup] of popupMenus) {
+        button.addEventListener("click", () => {
+          const open = !popup.classList.contains("open");
+          closeMenus();
+          if (open) {
+            popup.classList.add("open");
+            button.setAttribute("aria-expanded", "true");
+          }
+        });
+        button.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            closeMenus();
+            popup.classList.add("open");
+            button.setAttribute("aria-expanded", "true");
+            popup.querySelector("button").focus();
+          }
+        });
+        popup.addEventListener("keydown", (event) => {
+          const items = [...popup.querySelectorAll("button")], index = items.indexOf(document.activeElement);
+          if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+            event.preventDefault();
+            items[event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : (index + (event.key === "ArrowDown" ? 1 : items.length - 1)) % items.length].focus();
+          }
+          if (event.key === "Escape") {
+            closeMenus();
+            button.focus();
+          }
+        });
+      }
+      menu.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-format]");
+        if (!button) return;
+        closeMenus();
+        await exportAs(button.dataset.format);
+      });
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".menu-control")) closeMenus();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeMenus();
+      });
+      sidebarToggle.addEventListener("click", () => {
+        if (!ready) return;
+        const camera = readCamera();
+        sidebarOpen = !sidebarOpen;
+        api.setPerspective((sidebarOpen ? "A" : "") + graphicsPerspective);
+        api.showAlgebraInput(sidebarOpen);
+        api.showToolBar(sidebarOpen);
+        api.showMenuBar(sidebarOpen);
+        sidebarToggle.setAttribute("aria-expanded", String(sidebarOpen));
+        sidebarToggle.setAttribute("aria-label", sidebarOpen ? "\u6536\u8D77\u5BF9\u8C61\u680F" : "\u5C55\u5F00\u5BF9\u8C61\u680F");
+        sidebarToggle.title = sidebarOpen ? "\u6536\u8D77\u5BF9\u8C61\u680F" : "\u5C55\u5F00\u5BF9\u8C61\u680F";
+        sidebarToggle.querySelector("svg path").setAttribute("d", sidebarOpen ? "M9 4v16m7-11-3 3 3 3" : "M9 4v16m4-11 3 3-3 3");
+        setSize(camera);
+      });
+      window.startGeoGebra = () => {
+        window.constructionTemplate = "<!doctype html>\n" + document.documentElement.outerHTML;
+        const width = Math.max(200, Math.round(host.clientWidth));
+        const height = Math.max(200, Math.round(host.clientHeight));
+        const applet = new GGBApplet({
+          appName: "classic",
+          width,
+          height,
+          disableAutoScale: true,
+          showZoomButtons: false,
+          borderColor: "transparent",
+          language: "zh-CN",
+          showToolBar: true,
+          showMenuBar: true,
+          showAlgebraInput: true,
+          allowStyleBar: true,
+          enableRightClick: true,
+          showResetIcon: false,
+          useBrowserForJS: false,
+          preventFocus: true,
+          enableLabelDrags: true,
+          enableShiftDragZoom: true,
+          ...specification.ggbBase64 ? { ggbBase64: specification.ggbBase64 } : {},
+          appletOnLoad: async (loaded) => {
+            api = loaded;
+            window.ggbApplet = api;
+            try {
+              runtime.status = "executing";
+              api.setErrorDialogsActive(false);
+              if (!specification.ggbBase64 || (specification.commands || []).length) {
+                api.setPerspective(graphicsPerspective);
+                if (is3D) api.setAxesVisible(3, specification.showAxes === true, specification.showAxes === true, specification.showAxes === true);
+                else api.setAxesVisible(specification.showAxes === true, specification.showAxes === true);
+                api.setGridVisible(is3D ? 3 : 1, false);
+                if (is3D) api.setVisible("xOyPlane", false);
+                const styleCommands = [];
+                let explicitViewport = false;
+                for (const [index, command] of (specification.commands || []).entries()) {
+                  setStatus("\u6B63\u5728\u6267\u884C\u6784\u9020 " + (index + 1) + " / " + specification.commands.length);
+                  let success;
+                  try {
+                    const styled = executeViewerStyleCommand({
+                      exists: (name) => api.exists(name),
+                      getValue: (expression) => api.getValue(expression),
+                      setColor: (name, ...rgb) => {
+                        api.setColor(name, ...rgb);
+                        explicitColorObjects.add(name);
+                      },
+                      setLineThickness: (name, value) => api.setLineThickness(name, value),
+                      setLineStyle: (name, value) => api.setLineStyle(name, value),
+                      setPointSize: (name, value) => api.setPointSize(name, value)
+                    }, command);
+                    if (styled) styleCommands.push(command);
+                    const viewport = styled || is3D ? null : executeViewerViewportCommand(api, command);
+                    if (viewport) explicitViewport = true;
+                    const action = styled || viewport ? null : executeViewerActionCommand(api, command);
+                    success = styled ?? viewport ?? action ?? await executeViewerCommand(api, command);
+                  } catch (error) {
+                    runtime.failedCommand = { index: index + 1, command };
+                    throw new Error("\u7B2C " + (index + 1) + " \u6761\u547D\u4EE4\u5931\u8D25\uFF1A" + command + " \u2014 " + (error.message || error));
+                  }
+                  if (!success) {
+                    runtime.failedCommand = { index: index + 1, command };
+                    throw new Error("\u7B2C " + (index + 1) + " \u6761\u547D\u4EE4\u5931\u8D25\uFF1A" + command);
+                  }
+                  runtime.completedCommands++;
+                }
+                if (!explicitViewport && (specification.commands || []).length) await fitView();
+                applyViewerDefaults();
+                for (const command of styleCommands) executeViewerStyleCommand(api, command);
+              }
+              api.setPerspective(graphicsPerspective);
+              api.showAlgebraInput(false);
+              api.showToolBar(false);
+              api.showMenuBar(false);
+              if (is3D) api.setAxesVisible(3, specification.showAxes === true, specification.showAxes === true, specification.showAxes === true);
+              else api.setAxesVisible(specification.showAxes === true, specification.showAxes === true);
+              equalAxes();
+              applyTheme();
+              runtime.checks = checkConstruction();
+              if (runtime.checks.undefinedVisibleObjects.length) throw new Error("\u5B58\u5728\u672A\u5B9A\u4E49\u7684\u53EF\u89C1\u5BF9\u8C61\uFF1A" + runtime.checks.undefinedVisibleObjects.join(", "));
+              if (!runtime.checks.equalAxes || runtime.checks.viewWidth <= 0 || runtime.checks.viewHeight <= 0) throw new Error("\u89C6\u56FE\u6BD4\u4F8B\u6216\u5C3A\u5BF8\u68C0\u67E5\u5931\u8D25");
+              runtime.status = "ready";
+              ready = true;
+              sidebarToggle.disabled = false;
+              toggle.disabled = false;
+              window.ggbError = null;
+              window.ggbReady = true;
+              setStatus("");
+              resizeObserver = new ResizeObserver(() => setSize());
+              resizeObserver.observe(document.querySelector(".stage"));
+              setSize();
+            } catch (error) {
+              window.failGeoGebra(error.message || String(error));
+            } finally {
+              api.setErrorDialogsActive(true);
+            }
+          }
+        }, true);
+        applet.inject("ggb-element");
+      };
+      setTimeout(() => {
+        if (!ready && !window.ggbError) window.failGeoGebra("GeoGebra \u52A0\u8F7D\u8D85\u65F6\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u5237\u65B0");
+      }, 6e4);
+    })();
+  })();
+})();
+</script><script src="https://www.geogebra.org/apps/deployggb.js" onload="startGeoGebra()" onerror="failGeoGebra('GeoGebra 加载失败，请检查网络后刷新')"></script>
+</body></html>

@@ -5,6 +5,8 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
 (() => {
   (() => {
     const specification = JSON.parse(document.getElementById("construction-data").textContent);
+    const is3D = specification.mode === "3D";
+    const graphicsPerspective = is3D ? "T" : "G";
     const host = document.getElementById("ggb-element"), status = document.getElementById("status");
     const toggle = document.getElementById("download-toggle"), menu = document.getElementById("download-menu");
     const themes = JSON.parse(document.getElementById("viewer-themes").textContent);
@@ -53,7 +55,7 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
       modeToggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (Number(mode) ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/>' : '<path d="M20.8 13A9 9 0 0 1 11 3.2 9 9 0 1 0 20.8 13Z"/>') + "</svg>";
       if (api) {
         const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-        api.setGraphicsOptions(1, { bgColor: palette.paper });
+        api.setGraphicsOptions(is3D ? 3 : 1, { bgColor: palette.paper, axesColor: palette.muted, gridColor: palette.line });
         for (const object of api.getAllObjectNames()) {
           const type = api.getObjectType(object);
           if (!explicitColorObjects.has(object) && ["point", "text", "line", "segment", "ray", "circle", "conic"].includes(type) && (!objectThemeApplied && !specification.ggbBase64 || themeObjectColors.has(api.getColor(object).toLowerCase()))) api.setColor(object, ...rgb(type === "point" && api.isMoveable(object) ? palette.blue : palette.ink));
@@ -102,11 +104,11 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
     };
     function checkConstruction() {
       const names = api.getAllObjectNames();
-      const view = JSON.parse(api.getViewProperties(1));
+      const view = is3D ? read3DView() : JSON.parse(api.getViewProperties(1));
       return {
         objectCount: names.length,
         undefinedVisibleObjects: names.filter((name) => api.getVisible(name) && !api.isDefined(name)),
-        equalAxes: Math.abs(view.invXscale / view.invYscale - 1) < 1e-6,
+        equalAxes: is3D ? view.equalAxes : Math.abs(view.invXscale / view.invYscale - 1) < 1e-6,
         viewWidth: view.width,
         viewHeight: view.height
       };
@@ -120,11 +122,24 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
       status.classList.toggle("error", error);
       status.hidden = !text;
     }
+    // getViewProperties only describes 2D views, even when passed 3.
+    function read3DView() {
+      const xml = new DOMParser().parseFromString(api.getXML(), "application/xml");
+      const coords = xml.querySelector("euclidianView3D > coordSystem");
+      const scale = Number(coords?.getAttribute("scale"));
+      const scales = ["xscale", "yscale", "zscale"].map(key => coords?.hasAttribute(key) ? Number(coords.getAttribute(key)) : scale);
+      const canvas = [...host.querySelectorAll("canvas")].map(c => c.getBoundingClientRect()).find(r => r.width > 0 && r.height > 0);
+      return { width: canvas?.width || 0, height: canvas?.height || 0,
+        left: canvas?.left || 0, top: canvas?.top || 0,
+        equalAxes: scales.every(n => Number.isFinite(n) && n > 0 && Math.abs(n / scales[0] - 1) < 1e-6) };
+    }
     function equalAxes() {
+      if (is3D) return;
       const v = JSON.parse(api.getViewProperties(1)), unit = Math.max(v.invXscale, v.invYscale), cx = v.xMin + v.width * v.invXscale / 2, cy = v.yMin + v.height * v.invYscale / 2;
       api.setCoordSystem(cx - v.width * unit / 2, cx + v.width * unit / 2, cy - v.height * unit / 2, cy + v.height * unit / 2);
     }
     function readCamera() {
+      if (is3D) return null; // Native setSize retains the 3D rotation and zoom.
       const v = JSON.parse(api.getViewProperties(1));
       return { cx: v.xMin + v.width * v.invXscale / 2, cy: v.yMin + v.height * v.invYscale / 2, span: Math.min(v.width * v.invXscale, v.height * v.invYscale) };
     }
@@ -136,13 +151,15 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
       resizeFrame = requestAnimationFrame(async () => {
         const width = Math.round(host.clientWidth), height = Math.round(host.clientHeight);
         if (width < 1 || height < 1) return;
-        const { cx, cy, span } = camera;
         api.setSize(width, height);
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         if (version !== resizeVersion) return;
-        const view = JSON.parse(api.getViewProperties(1)), unit = span / Math.min(view.width, view.height);
-        api.setCoordSystem(cx - view.width * unit / 2, cx + view.width * unit / 2, cy - view.height * unit / 2, cy + view.height * unit / 2);
-        equalAxes();
+        const view = is3D ? read3DView() : JSON.parse(api.getViewProperties(1));
+        if (!is3D) {
+          const { cx, cy, span } = camera, unit = span / Math.min(view.width, view.height);
+          api.setCoordSystem(cx - view.width * unit / 2, cx + view.width * unit / 2, cy - view.height * unit / 2, cy + view.height * unit / 2);
+          equalAxes();
+        }
         sidebarToggle.style.top = Math.max(10, view.top - host.getBoundingClientRect().top + 10) + "px";
         sidebarToggle.style.left = sidebarOpen ? Math.max(10, view.left - host.getBoundingClientRect().left + 10) + "px" : "10px";
       });
@@ -180,6 +197,19 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
       });
     }
     async function fitView() {
+      if (is3D) {
+        const points = api.getAllObjectNames().filter(n => api.getVisible(n) && api.isDefined(n) && api.getObjectType(n) === "point")
+          .map(n => [api.getXcoord(n), api.getYcoord(n), api.getZcoord(n)]).filter(p => p.every(Number.isFinite));
+        if (specification.view3D?.bounds) api.setCoordSystem(...specification.view3D.bounds, false);
+        else if (points.length) {
+          const mins = [0,1,2].map(i => Math.min(...points.map(p => p[i]))), maxs = [0,1,2].map(i => Math.max(...points.map(p => p[i])));
+          const radius = Math.max(Math.hypot(...maxs.map((v,i) => v - mins[i])) * 0.65, 1);
+          const center = mins.map((v,i) => (v + maxs[i]) / 2);
+          api.setCoordSystem(...center.flatMap(v => [v - radius, v + radius]), false);
+        } else api.showAllObjects();
+        if (specification.view3D?.direction) api.evalCommand("SetViewDirection((" + specification.view3D.direction.join(",") + "),false)");
+        return;
+      }
       api.showAllObjects();
       await new Promise((resolve) => setTimeout(resolve, 650));
       const view = JSON.parse(api.getViewProperties(1));
@@ -228,21 +258,30 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
     function applyViewerDefaults() {
       const names = api.getAllObjectNames();
       const visible = new Set(specification.visibleLabels || []), captions = specification.captionOverrides || {};
-      const view = JSON.parse(api.getViewProperties(1)), dx = 10 * view.invXscale, dy = 10 * view.invYscale;
+      const view = is3D ? null : JSON.parse(api.getViewProperties(1)), dx = view ? 10 * view.invXscale : 0, dy = view ? 10 * view.invYscale : 0;
+      const points = is3D ? names.filter(n => api.getObjectType(n) === "point" && api.isDefined(n)) : [];
+      const coordinates = points.map(n => [api.getXcoord(n), api.getYcoord(n), api.getZcoord(n)]);
+      const center = [0,1,2].map(i => coordinates.length ? coordinates.reduce((sum,p) => sum + p[i],0) / coordinates.length : 0);
+      const extent = Math.max(1,...coordinates.map(p => Math.hypot(...p.map((v,i) => v - center[i]))));
       for (const name of names) {
         try {
           const type = api.getObjectType(name), show = visible.size ? visible.has(name) : type === "point";
           api.setLabelVisible(name, false);
-          if (type === "point") api.setPointSize(name, 3);
-          else if (["line", "segment", "ray", "vector", "circle", "conic", "polygon", "function", "curve"].includes(type)) api.setLineThickness(name, 3);
-          if (show && api.getVisible(name)) {
+          if (type === "point") api.setPointSize(name, is3D ? 1 : 3);
+          else if (["line", "segment", "ray", "vector", "circle", "conic", "polygon", "function", "curve"].includes(type) || is3D && type === "angle") api.setLineThickness(name, is3D ? 1 : 3);
+          if (show && api.getVisible(name) && (!is3D || type === "point" || ["segment", "line", "ray", "circle", "conic", "curve"].includes(type))) {
             let caption = captions[name] || name;
             caption = caption.replace(/^\$|\$$/g, "");
             const math = caption === "\u0393" ? "\\Gamma" : caption === "\u03C9" ? "\\omega" : /^[A-Za-z]+$/.test(caption) ? "\\mathit{" + caption + "}" : caption;
             const anchor = type === "point" ? name : "Point(" + name + ",0.38)";
             let label = "mcpLabel" + name;
             while (api.exists(label)) label += "x";
-            if (!api.evalCommand(label + " = Text(" + JSON.stringify(math).replaceAll(String.fromCharCode(92, 92), String.fromCharCode(92)) + ", " + anchor + " + (" + dx + "," + dy + "), true, true)")) throw new Error("\u65E0\u6CD5\u521B\u5EFA\u6807\u7B7E " + name);
+            const offset = is3D ? (specification.labelOffsets?.[name] || [api.getXcoord(name), api.getYcoord(name), api.getZcoord(name)].map((v,i) => {
+              const delta = v - center[i];
+              return Math.abs(delta) > 1e-8 ? Math.sign(delta) * extent * 0.07 : extent * 0.035;
+            })) : [dx,dy];
+            if (!api.evalCommand(label + " = Text(" + JSON.stringify(math).replaceAll(String.fromCharCode(92, 92), String.fromCharCode(92)) + ", " + anchor + " + (" + offset.join(",") + "), true, true)")) throw new Error("无法创建 LaTeX 标签 " + name);
+            if (is3D) api.evalCommand("SetFontSize(" + label + ",18)");
             api.setLabelVisible(label, false);
             api.setFixed(label, true, false);
             api.setAuxiliary(label, true);
@@ -273,6 +312,9 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
             commands: [],
             ggbBase64: base64,
             theme: chosenTheme,
+            mode: is3D ? "3D" : "2D",
+            view3D: specification.view3D,
+            labelOffsets: specification.labelOffsets,
             showAxes: specification.showAxes === true,
             visibleLabels: specification.visibleLabels || [],
             captionOverrides: specification.captionOverrides || {}
@@ -346,7 +388,7 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
       if (!ready) return;
       const camera = readCamera();
       sidebarOpen = !sidebarOpen;
-      api.setPerspective(sidebarOpen ? "AG" : "G");
+      api.setPerspective((sidebarOpen ? "A" : "") + graphicsPerspective);
       api.showAlgebraInput(sidebarOpen);
       api.showToolBar(sidebarOpen);
       api.showMenuBar(sidebarOpen);
@@ -386,9 +428,11 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
             runtime.status = "executing";
             api.setErrorDialogsActive(false);
             if (!specification.ggbBase64 || (specification.commands || []).length) {
-              api.setPerspective("G");
-              api.setAxesVisible(specification.showAxes === true, specification.showAxes === true);
-              api.setGridVisible(false);
+              api.setPerspective(graphicsPerspective);
+              if (is3D) api.setAxesVisible(3, specification.showAxes === true, specification.showAxes === true, specification.showAxes === true);
+              else api.setAxesVisible(specification.showAxes === true, specification.showAxes === true);
+              api.setGridVisible(is3D ? 3 : 1, false);
+              if (is3D) api.setVisible("xOyPlane", false);
               const styleCommands = [];
               let explicitViewport = false;
               for (const [index, command] of (specification.commands || []).entries()) {
@@ -404,7 +448,7 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
                     setPointSize: (name, value) => api.setPointSize(name, value),
                   }, command);
                   if (styled) styleCommands.push(command);
-                  const viewport = styled ? null : executeViewerViewportCommand(api, command);
+                  const viewport = styled || is3D ? null : executeViewerViewportCommand(api, command);
                   if (viewport) explicitViewport = true;
                   const action = styled || viewport ? null : executeViewerActionCommand(api, command);
                   success = styled ?? viewport ?? action ?? await executeViewerCommand(api, command);
@@ -423,11 +467,12 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
               // Defaults must not erase point sizes or line weights from the spec.
               for (const command of styleCommands) executeViewerStyleCommand(api, command);
             }
-            api.setPerspective("G");
+            api.setPerspective(graphicsPerspective);
             api.showAlgebraInput(false);
             api.showToolBar(false);
             api.showMenuBar(false);
-            api.setAxesVisible(specification.showAxes === true, specification.showAxes === true);
+            if (is3D) api.setAxesVisible(3, specification.showAxes === true, specification.showAxes === true, specification.showAxes === true);
+            else api.setAxesVisible(specification.showAxes === true, specification.showAxes === true);
             equalAxes();
             applyTheme();
             runtime.checks = checkConstruction();

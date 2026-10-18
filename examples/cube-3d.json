@@ -1,0 +1,118 @@
+{
+  "filename": "outputs/cube-3d/cube-angle-source.html",
+  "title": "Cube · Line–plane angle / 正方体中的线面角",
+  "commands": [
+    "A=(-1,-1,-1)",
+    "B=A+(2,0,0)",
+    "C=A+(2,2,0)",
+    "D=A+(0,2,0)",
+    "A_1=A+(0,0,2)",
+    "B_1=B+(0,0,2)",
+    "C_1=C+(0,0,2)",
+    "D_1=D+(0,0,2)",
+    "e1=Segment(A,B)",
+    "e2=Segment(B,C)",
+    "e3=Segment(C,D)",
+    "e4=Segment(D,A)",
+    "e5=Segment(A_1,B_1)",
+    "e6=Segment(B_1,C_1)",
+    "e7=Segment(C_1,D_1)",
+    "e8=Segment(D_1,A_1)",
+    "e9=Segment(A,A_1)",
+    "e10=Segment(B,B_1)",
+    "e11=Segment(C,C_1)",
+    "e12=Segment(D,D_1)",
+    "base=Polygon(A,B,C,D)",
+    "SetColor(base, \"#94A3B8\")",
+    "SetFilling(base,0.035)",
+    "tri=Polygon(A,C,C_1)",
+    "SetColor(tri, \"#C6A66D\")",
+    "SetFilling(tri,0.055)",
+    "diagonal=Segment(A,C_1)",
+    "projection=Segment(A,C)",
+    "height=Segment(C,C_1)",
+    "alpha=Angle(C,A,C_1)",
+    "SetColor(diagonal,\"#B65C55\")",
+    "SetColor(projection,\"#507A9D\")",
+    "SetColor(height,\"#718096\")",
+    "SetColor(alpha,\"#A17A3D\")",
+    "SetLineThickness(diagonal,2)",
+    "SetLineThickness(projection,2)",
+    "SetLineStyle(height,1)",
+    "SetVisibleInView(a,-1,false)",
+    "SetVisibleInView(b,-1,false)",
+    "SetVisibleInView(c,-1,false)",
+    "SetVisibleInView(d,-1,false)",
+    "SetVisibleInView(a_1,-1,false)",
+    "SetVisibleInView(c_1,-1,false)",
+    "SetVisibleInView(c_2,-1,false)"
+  ],
+  "visibleLabels": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "A_1",
+    "B_1",
+    "C_1",
+    "D_1"
+  ],
+  "mode": "3D",
+  "view3D": {
+    "bounds": [
+      -2.3,
+      2.3,
+      -2.3,
+      2.3,
+      -2.3,
+      2.3
+    ],
+    "direction": [
+      1,
+      -2,
+      1
+    ]
+  },
+  "labelOffsets": {
+    "A": [
+      -0.15,
+      -0.16,
+      -0.06
+    ],
+    "B": [
+      0.12,
+      -0.08,
+      -0.12
+    ],
+    "C": [
+      0.18,
+      0.08,
+      -0.07
+    ],
+    "D": [
+      -0.19,
+      0.05,
+      -0.09
+    ],
+    "A_1": [
+      -0.2,
+      -0.12,
+      0.09
+    ],
+    "B_1": [
+      0.14,
+      -0.07,
+      0.08
+    ],
+    "C_1": [
+      0.18,
+      0.1,
+      0.08
+    ],
+    "D_1": [
+      -0.16,
+      0.09,
+      0.13
+    ]
+  }
+}

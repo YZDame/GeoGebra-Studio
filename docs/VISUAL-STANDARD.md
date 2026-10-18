@@ -25,6 +25,22 @@ and preview screenshots are optional; inspect the visible diagram for visual qua
 - Time-bounded loading with specific errors. Official assets require internet;
   current runtime exposes exportPGF but availability is checked before using it.
 
+## 3D solid geometry
+
+- Set `mode: "3D"`; preserve 2D as the backward-compatible default. Use the native
+  3D perspective for loading, sidebar editing, resizing and current-HTML reopening.
+- Point size 1, ordinary line weight 1, highlighted line weight 2. Preserve explicit
+  user styling. Prefer faint fills and restrained highlight colors.
+- Use native LaTeX Text labels attached to 3D points, with proper subscripts.
+  `labelOffsets` provides world-coordinate adjustments for crowded labels.
+- No explanation overlays, legends, formula cards or titles unless requested.
+- Hide the native coordinate plane and grid in geometric figures. Axes are visible
+  when `showAxes` is true. `view3D` optionally supplies bounds and viewing direction.
+- Apply the selected palette's paper color to graphics settings **view 3**, including
+  every light/dark change. HTML and the native 3D canvas must have matching backgrounds.
+- Measure the rendered 3D canvas and native 3D scale for verification. The Apps API's
+  `getViewProperties` describes 2D only and cannot verify a hidden 3D view.
+
 HTML exports are visual and editable native artifacts. Static source exports have
 format-specific limitations. Never infer complete semantic preservation from a
 screenshot, cleaned source, successful load, or successful compilation.

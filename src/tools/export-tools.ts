@@ -38,11 +38,20 @@ async function nativeCleanedTikz(p: Record<string, unknown>) {
     ...(saved ? {filename:saved} : {}),renderVerified:false});
 }
 const filename = {type:'string',description:'Optional new file within workspace; existing files are not overwritten.'};
+const viewerMode = {
+  mode:{type:'string',enum:['2D','3D'],description:'Viewer dimension; defaults to 2D. Use 3D for solid geometry.'},
+  view3D:{type:'object',properties:{
+    bounds:{type:'array',items:{type:'number'},minItems:6,maxItems:6,description:'xmin, xmax, ymin, ymax, zmin, zmax.'},
+    direction:{type:'array',items:{type:'number'},minItems:3,maxItems:3,description:'Nonzero viewing direction vector.'},
+  },additionalProperties:false},
+  labelOffsets:{type:'object',additionalProperties:{type:'array',items:{type:'number'},minItems:3,maxItems:3},description:'3D world-coordinate offsets for native LaTeX labels, keyed by object name.'},
+};
 export const exportTools: ToolDefinition[] = [
   {
     tool:{name:'geogebra_build_artifact',description:'Standard problem-to-diagram flow: execute ordered commands through the official GeoGebra applet, create editable local HTML with a packed GGB and return an interactive preview plus constructionXml for source export. Requires Chrome and GeoGebra network access; writes new workspace files only.',
       _meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},
       inputSchema:{type:'object',properties:{
+        ...viewerMode,
         commands:{type:'array',items:{type:'string',maxLength:10000},maxItems:2000},ggbBase64:{type:'string'},
         title:{type:'string',maxLength:500},filename:{type:'string',description:'New .html file within the workspace; a sibling .preview.png is also created.'},
         width:{type:'integer',minimum:200,maximum:4000},height:{type:'integer',minimum:200,maximum:4000},
@@ -56,6 +65,7 @@ export const exportTools: ToolDefinition[] = [
       annotations:{readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:false},
       _meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},
       inputSchema:{type:'object',properties:{
+        ...viewerMode,
         title:{type:'string',maxLength:500},commands:{type:'array',items:{type:'string',maxLength:10000},maxItems:2000},
         ggbBase64:{type:'string',description:'Optional packed GGB; commands run after loading it.'},
         width:{type:'integer',minimum:200,maximum:4000},height:{type:'integer',minimum:200,maximum:4000},
@@ -72,10 +82,10 @@ export const exportTools: ToolDefinition[] = [
     }),
   },
   {
-    tool:{name:'geogebra_export_html',description:'Advanced compatibility route: package the shared server-side construction in an interactive HTML. For normal problem-to-diagram work use geogebra_build_artifact. Set showAxes=true for coordinate-based diagrams.',_meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},inputSchema:{type:'object',properties:{title:{type:'string'},showAxes:{type:'boolean',description:'Show Cartesian axes in the exported viewer; use true for coordinate-based diagrams.'},filename},additionalProperties:false}},
+    tool:{name:'geogebra_export_html',description:'Advanced compatibility route: package the shared server-side construction in an interactive HTML. For normal problem-to-diagram work use geogebra_build_artifact. Set showAxes=true for coordinate-based diagrams.',_meta:{ui:{resourceUri:'ui://geogebra/preview.html'}},inputSchema:{type:'object',properties:{...viewerMode,title:{type:'string'},showAxes:{type:'boolean',description:'Show Cartesian axes in the exported viewer; use true for coordinate-based diagrams.'},filename},additionalProperties:false}},
     handler:safe(async p=>{
       const ggbBase64=await (await instancePool.getDefaultInstance()).exportGGB();
-      const html=constructionHtml({title:typeof p['title']==='string'?p['title']:'GeoGebra construction',ggbBase64,showAxes:p['showAxes']===true});
+      const html=constructionHtml({...p as HtmlOptions,title:typeof p['title']==='string'?p['title']:'GeoGebra construction',ggbBase64,showAxes:p['showAxes']===true});
       const saved=await saveText(p['filename'],html);
       return textResult({success:true,format:'html',html,...(saved?{filename:saved}:{}),requiresNetwork:true});
     }),

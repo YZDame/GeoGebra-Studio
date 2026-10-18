@@ -27,6 +27,10 @@ describe('native scripting actions', () => {
     expect(api.setVisible).toHaveBeenCalledWith('A',false);
     expect(api.setFixed).toHaveBeenCalledWith('A',true,false);
   });
+  test('hides construction helpers in the native 3D view', () => {
+    expect(executeViewerActionCommand(api,'SetVisibleInView(A,-1,false)')).toBe(true);
+    expect(api.setVisible).toHaveBeenCalledWith('A',false);
+  });
   test.each(['SetCoords(A,1)','SetCoords(A,1,1e999)','SetCoords(A,unknown,1)','SetFixed(A,3)','SetVisibleInView(A,2,true)','SetFilling(A,2)','SetLayer(A,1.5)','SetCaption(A,missing)'])('rejects invalid actions: %s', command => {
     expect(() => executeViewerActionCommand(api,command)).toThrow();
     expect(api.setCoords).not.toHaveBeenCalled();

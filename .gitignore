@@ -86,6 +86,7 @@ public
 tmp/
 temp/
 output/
+outputs/
 
 # Editor directories and files
 .vscode/

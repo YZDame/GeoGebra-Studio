@@ -95,7 +95,7 @@ describe('Official MCP SDK contract', () => {
     expect(html).toContain('themeObjectColors.has(api.getColor(object).toLowerCase())');
     expect(html).not.toContain('<select');
     expect(html).toContain('true, true)');
-    expect(html).toMatch(/setGraphicsOptions\(1,\s*\{\s*bgColor:\s*palette.paper\s*\}\)/);
+    expect(html).toContain('bgColor: palette.paper');
     expect(html).toContain('catppuccin');
     expect(html).not.toContain('#ggb-element>div');
     expect(html).toMatch(/format\s*===\s*['"]pdf['"]\s*\|\|\s*format\s*===\s*['"]ggb['"]/);

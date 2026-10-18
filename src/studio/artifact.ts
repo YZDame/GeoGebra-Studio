@@ -28,9 +28,9 @@ export async function buildArtifact(options:HtmlOptions & {filename:string}) {
     // the delivered file, including its packed GGB payload.
     await engine.renderHtml(await readFile(filename,'utf8'));
     const layout=await engine.debugEvaluate<{ready:boolean;error:string|null;equalAxes:boolean;viewWidth:number;viewHeight:number}>(()=>{
-      const api=(window as any).ggbApplet,view=JSON.parse(api.getViewProperties(1));
+      const checks=(window as any).geogebraStudio.checks;
       return {ready:(window as any).ggbReady===true,error:(window as any).ggbError||null,
-        equalAxes:Math.abs(view.invXscale/view.invYscale-1)<1e-6,viewWidth:view.width,viewHeight:view.height};
+        equalAxes:checks.equalAxes,viewWidth:checks.viewWidth,viewHeight:checks.viewHeight};
     });
     if(!layout.ready||layout.error||!layout.equalAxes||layout.viewWidth<=0||layout.viewHeight<=0)
       throw new Error('Final HTML viewer verification failed: '+JSON.stringify(layout));

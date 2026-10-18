@@ -8,8 +8,23 @@ export interface ViewerSpec extends HtmlOptions { filename: string }
 export function validateViewerSpec(value: unknown): ViewerSpec {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Expected a construction JSON object');
   const p = value as Record<string, unknown>;
-  const allowed = new Set(['filename', 'commands', 'ggbBase64', 'title', 'width', 'height', 'showAxes', 'visibleLabels', 'captionOverrides']);
+  const allowed = new Set(['filename', 'commands', 'ggbBase64', 'title', 'width', 'height', 'showAxes', 'visibleLabels', 'captionOverrides', 'mode', 'view3D', 'labelOffsets']);
   for (const key of Object.keys(p)) if (!allowed.has(key)) throw new Error(`Unknown construction option: ${key}`);
+  if (p['mode'] !== undefined && p['mode'] !== '2D' && p['mode'] !== '3D') throw new Error('mode must be 2D or 3D');
+  const tuple = (value: unknown, size: number): value is number[] => Array.isArray(value) && value.length === size && value.every(n => typeof n === 'number' && Number.isFinite(n));
+  if (p['view3D'] !== undefined) {
+    const view = p['view3D'];
+    if (!view || typeof view !== 'object' || Array.isArray(view)) throw new Error('view3D must be an object');
+    const v = view as Record<string, unknown>;
+    if (Object.keys(v).some(k => !['bounds', 'direction'].includes(k))) throw new Error('Unknown view3D option');
+    const bounds = v['bounds'];
+    if (bounds !== undefined && (!tuple(bounds, 6) || [0, 2, 4].some(i => bounds[i]! >= bounds[i + 1]!))) throw new Error('view3D.bounds must contain xmin < xmax, ymin < ymax, zmin < zmax');
+    if (v['direction'] !== undefined && (!tuple(v['direction'], 3) || v['direction'].every(n => n === 0))) throw new Error('view3D.direction must be a nonzero finite 3D vector');
+  }
+  if (p['labelOffsets'] !== undefined) {
+    const offsets = p['labelOffsets'];
+    if (!offsets || typeof offsets !== 'object' || Array.isArray(offsets) || Object.values(offsets).some(v => !tuple(v, 3))) throw new Error('labelOffsets must map object names to finite 3D vectors');
+  }
   if (typeof p['filename'] !== 'string' || !p['filename'].trim() || !/\.html$/i.test(p['filename'])) throw new Error('filename must end in .html');
   const commands = p['commands'];
   if (commands !== undefined && (!Array.isArray(commands) || commands.length > 2000 || commands.some(c => typeof c !== 'string' || !c.trim() || c.length > 10000))) throw new Error('commands must contain at most 2000 nonempty strings of at most 10000 characters');

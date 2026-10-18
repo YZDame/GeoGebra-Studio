@@ -4,6 +4,12 @@ import { gikzBrowserScripts } from './gikz';
 import { viewerThemes } from './viewer-themes';
 
 export interface HtmlOptions {
+  /** Defaults to 2D for existing constructions. */
+  mode?: '2D' | '3D';
+  /** Native 3D camera bounds and direction; omitted bounds fit visible points. */
+  view3D?: { bounds?: [number, number, number, number, number, number]; direction?: [number, number, number] };
+  /** World-coordinate offsets for native LaTeX labels in 3D. */
+  labelOffsets?: Record<string, [number, number, number]>;
   /** Kept for API compatibility; the viewer itself intentionally has no title. */
   title?: string;
   commands?: string[];
@@ -26,6 +32,9 @@ const scriptJson = (value: unknown) => JSON.stringify(value)
 export function constructionHtml(options: HtmlOptions = {}): string {
   const cleaner = gikzBrowserScripts();
   const payload = scriptJson({
+    mode: options.mode ?? '2D',
+    ...(options.view3D ? { view3D: options.view3D } : {}),
+    ...(options.labelOffsets ? { labelOffsets: options.labelOffsets } : {}),
     commands: options.commands ?? [],
     ...(options.ggbBase64 ? { ggbBase64: options.ggbBase64 } : {}),
     showAxes: options.showAxes === true,
