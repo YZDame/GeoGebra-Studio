@@ -1,0 +1,17 @@
+{
+  "filename": "right-triangle.html",
+  "title": "Right triangle and circumcircle / 直角三角形与外接圆",
+  "commands": [
+    "b=4",
+    "h=3",
+    "A=(0,0)",
+    "B=A+(b,0)",
+    "C=A+(0,h)",
+    "triangle=Polygon(A,B,C)",
+    "M=Midpoint(B,C)",
+    "circumcircle=Circle(M,B)",
+    "rightAngle=Angle(B,A,C)"
+  ],
+  "visibleLabels": ["A", "B", "C", "M"],
+  "showAxes": false
+}

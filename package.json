@@ -14,6 +14,7 @@
     "runtime/package.json",
     "package.json",
     "README.md",
+    "CONTRIBUTING.md",
     "LICENSE",
     "assets/**/*",
     "plugin.json",
@@ -35,7 +36,8 @@
     "tsconfig.json",
     "scripts/build-plugin.cjs",
     "viewer/**/*",
-    "mcp.optional.json"
+    "mcp.optional.json",
+    "examples/right-triangle.json"
   ],
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -58,7 +60,8 @@
     "test:unit": "jest --runInBand --testPathIgnorePatterns tests/e2e tests/performance tests/real-geogebra tests/geogebra-integration",
     "release:artifacts": "npm run verify && npm run test:unit && node scripts/package-release.cjs",
     "verify:manifests": "node scripts/verify-manifests.cjs",
-    "verify:mcp": "node scripts/verify-protocol.cjs && node scripts/verify-exports.cjs"
+    "verify:mcp": "node scripts/verify-protocol.cjs && node scripts/verify-exports.cjs",
+    "verify:math": "node scripts/verify-math.cjs"
   },
   "keywords": [
     "mcp",

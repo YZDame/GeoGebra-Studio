@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible generation, viewer or export problem
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Plugin version or commit, OS, Node version, agent/browser, and installation method.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal construction JSON and exact commands or UI steps. Remove private data.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and observed behavior
+      description: Include the failed command/status, screenshot, or the mathematical property that fails. Say whether the HTML was opened in GeoGebra.
+    validations:
+      required: true

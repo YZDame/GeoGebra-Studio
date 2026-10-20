@@ -1,0 +1,32 @@
+name: Pull request checks
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      math:
+        description: Run optional real-GeoGebra mathematical regression checks
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.10.0
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run verify
+      - run: npm run test:unit
+      - if: github.event_name == 'workflow_dispatch' && inputs.math
+        run: node dist/cli.js browser install
+      - if: github.event_name == 'workflow_dispatch' && inputs.math
+        run: npm run verify:math
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.math
+        with:
+          name: mathematical-regression-evidence
+          path: output/verification/math/
