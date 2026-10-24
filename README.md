@@ -10,9 +10,9 @@ page runs the official GeoGebra applet and requires internet for its engine asse
 
 ## Install and use
 
-For a published version: `npx @lydt/geogebra-studio@<VERSION> install`.
-This checkout's new workflow must be released before using it from npm. For local
-authoring run `npm ci`, `npm run build`, then `node dist/cli.js install --local`.
+Requires Node.js >=22.12. Install the published skills-first release with
+`npx @lydt/geogebra-studio@0.4.0 install`. For local authoring run `npm ci`,
+`npm run build`, then `node dist/cli.js install --local`.
 Installation registers skills without preparing Chrome or starting MCP. Start a
 new Codex chat to load installed skills.
 
@@ -38,6 +38,23 @@ in the browser panel; if file URLs are unsupported, serve the user project on
 loopback and open its HTTP URL. The viewer executes commands and reports failed
 steps, undefined visible objects and equal-axis checks. Inspect the actual figure
 before claiming mathematical or visual correctness.
+
+## Use another agent or browser
+
+The JSON-to-HTML generator does not depend on Codex. From a built checkout, run
+the same `generate` command above, then open the returned HTML in a modern browser.
+An agent needs file-writing and shell access; native plugin/skill installation in
+other agents is not verified. For optional MCP configuration, see
+[mcp.optional.json](mcp.optional.json). Node >=22.12 remains required.
+
+## Classroom example
+
+Follow the [teacher walkthrough](docs/TEACHER-QUICKSTART.md)
+([中文](docs/TEACHER-QUICKSTART.zh-CN.md)) to turn
+[a right-triangle JSON](examples/right-triangle.json) into an editable diagram,
+change its dimensions, check its properties and save the current construction.
+
+![Right triangle and circumcircle rendered by GeoGebra](docs/images/right-triangle.png)
 
 ## Edit and save
 
@@ -67,5 +84,10 @@ Run `npm run verify` and `npm run test:unit` for default checks, and
 `npm run verify:mcp` for optional MCP compatibility. `doctor` checks the generator
 and Gikz without launching a browser.
 
-Independent community project, unaffiliated with GeoGebra. See LICENSE and
-THIRD_PARTY_NOTICES.md for licensing.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local checks, mathematical regression
+tests and contribution guidelines.
+
+Independent community project, unaffiliated with GeoGebra. The combined package
+is GPL-2.0-or-later; original MIT notices are retained. See [LICENSE](LICENSE),
+[LICENSE-MIT](LICENSE-MIT) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The generated viewer requires network access; an offline engine is not bundled.

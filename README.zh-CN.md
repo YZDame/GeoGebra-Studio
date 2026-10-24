@@ -6,8 +6,8 @@
 
 ## 使用流程
 
-安装已发布版本：`npx @lydt/geogebra-studio@<版本号> install`。
-本仓库的新流程尚需发布；本地开发使用 `npm ci`、`npm run build`，再运行
+需要 Node.js >=22.12。安装已发布的技能优先版本：
+`npx @lydt/geogebra-studio@0.4.0 install`。本地开发使用 `npm ci`、`npm run build`，再运行
 `node dist/cli.js install --local`。安装不会探测或下载浏览器。重新打开 Codex 聊天以加载技能。
 
 让 Codex 根据问题编写构造 JSON，例如：
@@ -30,6 +30,21 @@ node dist/cli.js generate --input /绝对路径/diagram.json --workspace /绝对
 如果内置浏览器不允许本地文件 URL，可在项目目录启动仅监听 `127.0.0.1` 的静态服务器，再打开对应 HTTP URL。
 页面加载后执行命令，显示具体失败命令，并检查可见对象是否有定义及坐标轴比例。
 生成成功不等于几何正确，仍需检查实际图形。
+
+## 其他代理与普通浏览器
+
+JSON → HTML 生成器不依赖 Codex。其他具有文件写入和终端能力的代理可以在
+构建后的仓库中运行同一条 `generate` 命令，再用现代浏览器打开返回的 HTML。
+尚未验证其他代理的原生插件或技能安装兼容性。可选 MCP 配置见
+[mcp.optional.json](mcp.optional.json)。仍需 Node >=22.12。
+
+## 面向教师的完整示例
+
+参照[从零开始教程](docs/TEACHER-QUICKSTART.zh-CN.md)，将
+[直角三角形 JSON](examples/right-triangle.json) 生成可编辑图形，修改边长、
+检查勾股关系与外接圆性质，并保存当前构造。
+
+![GeoGebra 实际渲染的直角三角形与外接圆](docs/images/right-triangle.png)
 
 ## 编辑和保存
 
@@ -55,4 +70,8 @@ TikZ 使用原生 PGF，经内置 Gikz 清洗。
 开发检查：`npm run verify`、`npm run test:unit`。
 可选 MCP 检查：`npm run verify:mcp`。`doctor` 只检查生成器与 Gikz，不启动 Chrome。
 
-项目独立于 GeoGebra 官方。许可证与第三方声明见 LICENSE 和 THIRD_PARTY_NOTICES.md。
+贡献流程和数学回归检查见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+项目独立于 GeoGebra 官方。组合发行包采用 GPL-2.0-or-later，保留原 MCP 的 MIT 声明；
+详见 [LICENSE](LICENSE)、[LICENSE-MIT](LICENSE-MIT) 和
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。当前未打包离线引擎，课堂使用前请检查联网加载。

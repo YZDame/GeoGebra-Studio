@@ -1,0 +1,22 @@
+name: Teaching example or improvement
+description: Propose a classroom construction, tutorial or focused feature
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Teaching objective or user need
+      description: What should a teacher or student be able to do?
+    validations:
+      required: true
+  - type: textarea
+    id: construction
+    attributes:
+      label: Construction and expected properties
+      description: Describe free inputs, dependencies, properties to verify and any degenerate cases. Include a minimal JSON if available.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Proposed scope
+      description: Suggested change, alternatives and any questions before implementation.
