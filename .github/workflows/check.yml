@@ -21,6 +21,8 @@ jobs:
       - run: npm ci
       - run: npm run verify
       - run: npm run test:unit
+      - run: node scripts/package-release.cjs
+      - run: node scripts/verify-package.cjs
       - if: github.event_name == 'workflow_dispatch' && inputs.math
         run: node dist/cli.js browser install
       - if: github.event_name == 'workflow_dispatch' && inputs.math
@@ -59,3 +61,44 @@ jobs:
             git commit -m "build: sync portable Skill runtime [skip ci]"
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
           fi
+
+  real-browser-regression:
+    needs: acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.10.0
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run build
+      - run: node dist/cli.js browser install
+      - run: node scripts/verify-artifact.cjs
+      - run: STUDIO_HTML_FIXTURE=output/verification/studio/tangent-construction.html node scripts/verify-viewer.cjs
+      - run: node scripts/verify-viewer-3d.cjs
+      - run: npm run verify:math
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-regression-evidence
+          path: output/verification/
+
+  codex-plugin-smoke:
+    needs: acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CODEX_HOME: ${{ runner.temp }}/codex-geogebra-studio
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.10.0
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run build
+      - run: npm install --global @openai/codex@0.162.1
+      - run: node dist/cli.js install --local
+      - run: node scripts/verify-plugin-session.cjs
