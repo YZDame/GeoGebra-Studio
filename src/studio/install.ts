@@ -21,7 +21,7 @@ export async function installPlugin(local=false):Promise<void>{
     await rm(target,{recursive:true,force:true});
     await mkdir(target,{recursive:true});
     const packageRoot=path.join(__dirname,'../..');
-    for(const entry of ['dist','runtime','gikz','skills','docs','examples','assets','plugin.json','mcp.json','mcp.optional.json','.codex-plugin','.mcp.json','package.json','LICENSE','LICENSE-MIT','THIRD_PARTY_NOTICES.md'])await cp(path.join(packageRoot,entry),path.join(target,entry),{recursive:true});
+    for(const entry of ['dist','gikz','skills','docs','examples','assets','plugin.json','.codex-plugin','package.json','LICENSE','LICENSE-MIT','THIRD_PARTY_NOTICES.md'])await cp(path.join(packageRoot,entry),path.join(target,entry),{recursive:true});
     const localPackagePath=path.join(target,'package.json');
     const localPackage=JSON.parse(await readFile(localPackagePath,'utf8'));
     delete localPackage.devDependencies;
