@@ -65,7 +65,7 @@ async function main(){
     }else{
       const {sceneFromXML,exportSource}=await import('./export/semantic');
       const result=exportSource(sceneFromXML(source),format as 'tsqx'|'asymptote',true,true);
-      const {code:resultCode,...rest}=result as {code:string}&Record<string,unknown>;
+      const {code:resultCode,...rest}=result;
       code=resultCode;meta=rest;
     }
     const {inWorkspace}=await import('./export/workspace');
