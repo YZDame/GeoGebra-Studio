@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
-      CODEX_HOME: ${{ runner.temp }}/codex-geogebra-studio
+      CODEX_HOME: /tmp/codex-geogebra-studio
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v7
