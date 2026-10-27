@@ -19,7 +19,7 @@ Gamma, differ from A, and the distance from I to both tangent lines is 1.6.
 - A raw PGF download bypassing the Gikz pipeline.
 - Gikz dropping native lines because of whitespace after draw, dropping nested
   mathit labels, or dropping unlabelled point markers.
-- SDK-only success described as proof of installed plugin tool availability.
+- File generation alone described as proof of the actual visible geometry.
 - npx treating an unpacked npm plugin as a locally installed executable without dependencies.
 - Files saved into the plugin cache instead of the user workspace. Pass workspace
   explicitly and check returned paths against the project directory.
@@ -29,6 +29,6 @@ Gamma, differ from A, and the distance from I to both tangent lines is 1.6.
 Reopen the final packed HTML and GGB. Check multiple viewport sizes and 24 A positions.
 Edit Gamma to x²+y²=36 through the actual native sidebar; verify A and dependent
 objects update, and the newly exported cleaned TikZ contains the radius-6 circle.
-Compare browser cleanup against MCP/CLI output on the SAME native PGF. Compile
+Compare browser cleanup against the standalone Gikz CLI on the SAME native PGF. Compile
 cleaned .tex and inspect it. Test all seven downloads and another HTML round trip.
 Keep test artifacts under output/verification; tests must not overwrite user examples.
