@@ -57,7 +57,7 @@ async function main(){
     if(!o['--input']||!o['--format']||!o['--workspace']||!o['--output'])throw Error('export requires --input, --format, --workspace and --output');
     const format=o['--format'];if(!['tsqx','asymptote','tikz'].includes(format))throw Error('Unsupported format '+format);
     const source=await readFile(o['--input'],'utf8');
-    let code:string,warnings:string[]|undefined;
+    let code:string,meta:Record<string,unknown>={};
     if(format==='tikz'){
       if(/<geogebra[\s>]/.test(source))throw Error('For accurate TikZ use the viewer native PGF download; XML is for semantic TSQX/Asymptote export.');
       const {cleanWithGikz}=await import('./export/gikz');
@@ -65,12 +65,13 @@ async function main(){
     }else{
       const {sceneFromXML,exportSource}=await import('./export/semantic');
       const result=exportSource(sceneFromXML(source),format as 'tsqx'|'asymptote',true,true);
-      code=result.code;warnings=result.warnings;
+      const {code:resultCode,...rest}=result as {code:string}&Record<string,unknown>;
+      code=resultCode;meta=rest;
     }
     const {inWorkspace}=await import('./export/workspace');
     const {saveText}=await import('./export/files');
     const filename=await inWorkspace(o['--workspace'],()=>saveText(o['--output'],code));
-    console.log(JSON.stringify({success:true,format,filename,bytes:Buffer.byteLength(code),...(warnings?{warnings}:{})}));
+    console.log(JSON.stringify({success:true,format,filename,bytes:Buffer.byteLength(code),...meta}));
     return;
   }
   if(command==='doctor'||command==='browser'){
