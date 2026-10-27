@@ -52,7 +52,7 @@ async function main(){
     const source=await readFile(o['--input'],'utf8');
     let code:string;
     if(format==='tikz'){
-      if(/<geogebra[\\s>]/.test(source))throw Error('For accurate TikZ use the viewer native PGF download; XML is for semantic TSQX/Asymptote export.');
+      if(/<geogebra[\s>]/.test(source))throw Error('For accurate TikZ use the viewer native PGF download; XML is for semantic TSQX/Asymptote export.');
       const {cleanWithGikz}=await import('./export/gikz');
       code=await cleanWithGikz(source,{standalone:true});
     }else{
@@ -70,7 +70,7 @@ async function main(){
     if(command==='doctor'&&args.length)throw Error('doctor takes no arguments');
     if(command==='browser'&&(args.length!==1||args[0]!=='install'))throw Error('Usage: browser install');
     const {cleanWithGikz}=await import('./export/gikz');
-    await cleanWithGikz(String.raw`\\begin{tikzpicture}\\end{tikzpicture}`);
+    await cleanWithGikz(String.raw`\begin{tikzpicture}\end{tikzpicture}`);
     const {constructionHtml}=await import('./export/html');
     constructionHtml({commands:['A=(0,0)']});
     if(command==='browser'){

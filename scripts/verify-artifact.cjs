@@ -9,7 +9,7 @@ const {execFileSync}=require('node:child_process');
  const data=JSON.parse(execFileSync(process.execPath,['dist/cli.js','generate','--input',spec,'--workspace',process.cwd(),'--verify'],{encoding:'utf8',timeout:180000}));
  assert(data.engineVerified&&data.packedGgbVerified&&data.renderVerified);
  const html=await fs.readFile(data.filename,'utf8');
- const payload=JSON.parse(html.match(/<script id="construction-data" type="application\\/json">([\\s\\S]*?)<\\/script>/)[1]);
+ const payload=JSON.parse(html.match(/<script id="construction-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
  assert.deepEqual(payload.commands,[]);
  assert.equal(Buffer.from(payload.ggbBase64,'base64').subarray(0,2).toString(),'PK');
  console.log(JSON.stringify({filename:data.filename,renderVerified:true,mcp:false}));
