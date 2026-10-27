@@ -32,6 +32,8 @@ const {execFileSync,spawnSync}=require('node:child_process');
   await fs.writeFile(pgf,'\\begin{tikzpicture}\\draw (0,0) circle (1cm);\\end{tikzpicture}');
   const tikz=run(['export','--input',pgf,'--format','tikz','--workspace',workspace,'--output','figure.tex']);
   assert((await fs.readFile(tikz.filename,'utf8')).includes('tikzpicture'));
+  const xmlTikz=spawnSync(process.execPath,[cli,'export','--input',xml,'--format','tikz','--workspace',workspace,'--output','xml.tex'],{cwd:workspace,env,encoding:'utf8'});
+  assert.equal(xmlTikz.status,1,'XML must not be converted to TikZ');assert.match(xmlTikz.stderr,/native PGF/);
   const fail=(args,extraEnv={})=>spawnSync(process.execPath,[cli,...args],{cwd:workspace,env:{...env,...extraEnv},encoding:'utf8'});
   for(const args of [['browser','install'],['generate','--input',spec,'--workspace',workspace,'--output','verified.html','--verify']]){
    const r=fail(args);assert.equal(r.status,1,args.join(' ')+' must fail without Puppeteer');assert.match(r.stderr,/copied Skill does not bundle/);
