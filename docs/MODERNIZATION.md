@@ -1,15 +1,15 @@
-# GeoGebra Studio architecture
+# GeoGebra Studio — portable Skill architecture
 
-GeoGebra Studio is a local Codex plugin with an official MCP SDK server, three agent skills, a native GeoGebra HTML viewer, and the fused Gikz source/core. Portable plugin identity and MCP transport live in the root `plugin.json` and `mcp.json`; `.codex-plugin/plugin.json` and `.mcp.json` are generated compatibility files. `scripts/build-plugin.cjs` regenerates all manifests from `package.json`.
+The primary product is `skills/geogebra-studio/`, a single Agent Skill that includes documentation, a Node.js launcher and generated standalone runtime assets. `plugin.json` is a transport-free Agent Plugin distribution manifest; `.codex-plugin/plugin.json` provides optional Codex integration. No MCP Server, MCP Apps UI or transport is required or distributed.
 
-## Artifact flow
+## Construction and local artifact
 
-The default path is intentionally narrow: `geogebra_build_artifact` sends ordered commands to an isolated official GeoGebra applet, rejects undefined visible objects, packs the editable GGB into the local HTML, reopens the delivered file, checks object count and equal scales, and returns an interactive preview plus `constructionXml`. `geogebra_export_source` takes that XML for TikZ, Asymptote, or TSQX, so each export starts from the exact same construction data. The `geogebra_create_html` and `geogebra_export_html` tools remain advanced compatibility routes outside the default core profile.
+Agent → construction JSON → skill-local `generate` CLI → self-contained viewer HTML (with external official GeoGebra engine assets) → browser inspection → current-state downloads. HTML generation itself does not execute mathematical commands; the official applet executes them after loading. Use `generate --verify` in a built checkout with optional Chrome dependencies for independent browser-side verification.
 
-The editable GGB/XML is the canonical construction. The HTML loads GeoGebra's official `deployggb.js` and needs network access. Its theme and download controls are plugin presentation around the official applet. SVG, PDF, PNG and TikZ are static views. All TikZ exits run native GeoGebra PGF through the shared Gikz core; failures stop export. Gikz provenance and license are recorded in `gikz/PROVENANCE.md`.
+## Source exports
 
-## Supported exports
+Viewer offers current-state GGB, HTML, PNG, SVG, PDF, XML, TikZ. Native GeoGebra PGF is cleaned by the bundled Gikz implementation. GeoGebra XML contains construction semantics; `src/export/semantic.ts` converts a validated subset to Asymptote or mixed TSQX/Asymptote through the local CLI, rejecting unsupported relations. No part of this flow needs MCP.
 
-The viewer exports current-state GGB, PNG, SVG, TikZ, PDF, XML and HTML. TikZ is a cleaned static drawing; dependency semantics stay in GGB/XML. Asymptote and mixed TSQX/Asymptote use the documented semantic subset. The actual supported MCP protocol range follows the installed official SDK rather than a hard-coded latest-date claim.
+## Packaging and quality
 
-See [VISUAL-STANDARD.md](VISUAL-STANDARD.md), [TANGENT-REGRESSION.md](TANGENT-REGRESSION.md), and [VALIDATION.md](VALIDATION.md).
+The code in `src/`, `viewer/` and `gikz/` is the maintenance source of truth. The build copies a generated runtime into the standalone Skill. CI verifies dependency-free copied-Skill execution and semantic export, and optional actual GeoGebra/Chrome tests check geometry, re-open, 3D, responsive layout and downloads. GitHub Skills installation requires the bundled runtime files to be present in the repository tree. See `docs/VALIDATION.md` and `docs/VISUAL-STANDARD.md`.

@@ -1,77 +1,89 @@
 # GeoGebra Studio
 
-描述数学问题，让 Codex 生成可编辑的 GeoGebra HTML，并直接在 Codex 侧栏浏览器中查看和操作。
+**一个可移植的 Agent Skill，用于生成、编辑和导出交互式数学图形。** 输入二维或三维数学构造要求，Agent 生成本地 GeoGebra HTML，在浏览器中检查、拖动、编辑并导出。
 
-默认流程无需启动 MCP，也无需安装独立 Chrome。页面运行官方 GeoGebra 引擎，需要联网。
+[English](README.md) · [繁體中文](README.zh-TW.md)
 
-## 使用流程
+![GeoGebra 官方引擎渲染的直角三角形](docs/images/right-triangle.png)
 
-需要 Node.js >=22.12。安装已发布的技能优先版本：
-`npx @lydt/geogebra-studio@0.4.0 install`。本地开发使用 `npm ci`、`npm run build`，再运行
-`node dist/cli.js install --local`。安装不会探测或下载浏览器。重新打开 Codex 聊天以加载技能。
+## 核心功能
 
-让 Codex 根据问题编写构造 JSON，例如：
+- 使用 GeoGebra 原生引擎，支持自由点、依赖关系、对象栏编辑以及 2D/3D 构造。
+- 自适应交互画布、九组主题与明暗模式；工具栏位于画布外侧。
+- 页面内提供七种下载：**GGB、HTML、PNG、SVG、PDF、XML、TikZ**。
+- 从当前 GeoGebra XML 转换为 **Asymptote** 或 **混合 TSQX/Asymptote** 源码。
+- TikZ 路径使用 GeoGebra 原生 PGF 和内置 Gikz 清理。
+- 日常生成不需要 MCP Server、独立后端、数据库或 Chrome 自动化。
+
+**环境要求：** Node.js >=22.12；打开 HTML 时需联网加载 GeoGebra 官方引擎。独立 Skill 已附带生成脚本，无需单独安装 npm 运行包。
+
+## 通用 Agent Skills 安装（推荐）
+
+在支持 Agent Skills 的环境中，从 GitHub 选择安装 `geogebra-studio`：
+
+```sh
+npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
+```
+
+也可以将整个 `skills/geogebra-studio/` 目录复制到客户端的 Skills 目录。必须同时包含 `SKILL.md`、`scripts/`、`references/` 和 `runtime/`；**不能只复制 SKILL.md**。本地生成器已随 Skill 打包，不需要在 Skill 目录运行 `npm install`。
+
+Agent 需具有文件写入与命令执行权限。优先使用客户端内置浏览器，没有时使用普通浏览器。并非所有 Agent 客户端都提供侧边浏览器，也不代表它们的原生插件安装方式完全相同。
+
+## 可选 Codex Plugin
+
+保留 Codex 的便捷安装渠道（需对应 npm 版本正式发布）：
+
+```sh
+npx @lydt/geogebra-studio@0.5.0 install
+```
+
+安装后重开 Codex 会话。源码开发用 `npm ci && npm run build`，再执行 `node dist/cli.js install --local`。**0.5.0 仅为拟议版本，本 PR 不发布。** 发布前应使用构建后的仓库或独立 Skill 目录。
+
+## 快速开始
+
+在工作目录新建 `diagram.json`：
 
 ```json
 {
+  "filename": "circle.html",
   "commands": ["A=(0,0)", "B=(4,0)", "c=Circle(A,B)"],
-  "visibleLabels": ["A", "B"],
-  "filename": "circle.html"
+  "visibleLabels": ["A", "B"]
 }
 ```
 
-从插件目录运行：
+让 Agent 按已安装的 Skill 执行，或直接运行：
 
 ```sh
-node dist/cli.js generate --input /绝对路径/diagram.json --workspace /绝对路径/项目
+node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-生成器只创建新文件，不覆盖已有 HTML，也不执行几何构造。Codex 将返回的文件在右侧浏览器打开；
-如果内置浏览器不允许本地文件 URL，可在项目目录启动仅监听 `127.0.0.1` 的静态服务器，再打开对应 HTTP URL。
-页面加载后执行命令，显示具体失败命令，并检查可见对象是否有定义及坐标轴比例。
-生成成功不等于几何正确，仍需检查实际图形。
+在浏览器中打开得到的 HTML。如果内置浏览器不支持 `file://`，使用仅监听 `127.0.0.1` 的临时静态服务，例如 `python3 -m http.server 8765 --bind 127.0.0.1 --directory /absolute/project`。
 
-## 其他代理与普通浏览器
+生成器**只写入新文件**，不会覆盖已有文件，也不代表已实际验证数学图形。需要在真实 GeoGebra 画布中检查标签、交点、切线、比例和拖动效果。
 
-JSON → HTML 生成器不依赖 Codex。其他具有文件写入和终端能力的代理可以在
-构建后的仓库中运行同一条 `generate` 命令，再用现代浏览器打开返回的 HTML。
-尚未验证其他代理的原生插件或技能安装兼容性。可选 MCP 配置见
-[mcp.optional.json](mcp.optional.json)。仍需 Node >=22.12。
+## 编辑与保存
 
-## 面向教师的完整示例
+画布外工具栏左侧展开对象栏，右侧选择主题、明暗模式和下载格式。拖动或编辑只改变当前页面，不会自动写回原 JSON/HTML。**关闭或刷新前下载当前 HTML 或 GGB。** 当前 HTML 内嵌打包 GGB，重新打开可保留编辑结果。
 
-参照[从零开始教程](docs/TEACHER-QUICKSTART.zh-CN.md)，将
-[直角三角形 JSON](examples/right-triangle.json) 生成可编辑图形，修改边长、
-检查勾股关系与外接圆性质，并保存当前构造。
+## TSQX / Asymptote 导出
 
-![GeoGebra 实际渲染的直角三角形与外接圆](docs/images/right-triangle.png)
+先从 Viewer 下载当前 XML，或在页面中读取 `await window.geogebraStudio.snapshot()`，再运行：
 
-## 编辑和保存
+```sh
+node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format tsqx --workspace /absolute/project --output figure.tsqx
+node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format asymptote --workspace /absolute/project --output figure.asy
+```
 
-拖动自由点，点击画布左上角按钮展开 GeoGebra 对象栏，编辑定义或样式。
-右上角可以切换主题和下载 GGB、HTML、PNG、SVG、PDF、XML、TikZ。
-TikZ 使用原生 PGF，经内置 Gikz 清洗。
+语义转换只支持明确列出的构造关系，遇到不支持的依赖会报错，不会暗中固定坐标。TSQX 结果是**混合 TSQX/Asymptote**，不是纯 TSQX。TikZ 是 GeoGebra PGF 经 Gikz 清理后的静态图形。
 
-**编辑不会自动写回原始 HTML 或 JSON。关闭或刷新前，下载当前 HTML/GGB 保存。**
-下载的 HTML 内嵌当前 GGB，重新打开后保留编辑状态。
+## 架构和验证
 
-页面提供 `window.geogebraStudio.status`（loading/executing/ready/error）、失败命令和检查结果。
-`await window.geogebraStudio.snapshot()` 可读取当前 GGB、XML 和检查结果，不需要后台 MCP。
+`Agent → SKILL.md → 构造 JSON → Skill 自带 CLI/HTML Viewer → GeoGebra 官方引擎 → 当前文件导出`
 
-## 可选后台自动化
+Skill 中的 `references/` 按需加载构造、导出、设计和排障规则。通用 Skill 与 Codex Plugin 共用源码，不提供 MCP 服务。
 
-`generate ... --verify` 显式启用 Chrome，执行构造、打包 GGB、重新打开文件验证，并生成预览 PNG。
-仅在批量处理或后台验证时使用；需要时运行 `node dist/cli.js browser install` 准备浏览器。
+相关资料：[教师教程](docs/TEACHER-QUICKSTART.zh-CN.md)、[示例](examples/)、[架构](docs/MODERNIZATION.md)、[贡献说明](CONTRIBUTING.md)。
 
-旧 MCP 工具保持兼容，使用 `node dist/cli.js mcp` 启动。
-默认插件清单不注册任何 MCP 服务；`mcp.optional.json` 是可选接入配置。
-解压后的无依赖插件运行生成器无需 npm install；可选后台功能需要安装运行时依赖。
+开发运行 `npm ci`、`npm run verify`、`npm run test:unit`。可选的真实引擎/浏览器测试需要 Chrome 和网络；日常使用不需要它们。
 
-开发检查：`npm run verify`、`npm run test:unit`。
-可选 MCP 检查：`npm run verify:mcp`。`doctor` 只检查生成器与 Gikz，不启动 Chrome。
-
-贡献流程和数学回归检查见 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-项目独立于 GeoGebra 官方。组合发行包采用 GPL-2.0-or-later，保留原 MCP 的 MIT 声明；
-详见 [LICENSE](LICENSE)、[LICENSE-MIT](LICENSE-MIT) 和
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。当前未打包离线引擎，课堂使用前请检查联网加载。
+本项目与 GeoGebra 官方无隶属关系。整体采用 GPL-2.0-or-later；保留原 MIT 与第三方声明，详见 [LICENSE](LICENSE)、[LICENSE-MIT](LICENSE-MIT)、[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
