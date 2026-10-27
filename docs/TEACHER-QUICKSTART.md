@@ -24,7 +24,7 @@ The output JSON contains `success: true`, the absolute `filename` ending in
 `requiresNetwork: true`, `engineVerified: false` and `renderVerified: false`.
 Those last two flags mean geometry has not yet executed.
 
-Open that HTML in the Codex browser panel or an ordinary browser. If local file
+Open that HTML in the client browser panel or an ordinary browser. If local file
 navigation is unavailable, keep this loopback server running in another terminal:
 
 ```sh

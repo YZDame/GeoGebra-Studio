@@ -6,7 +6,6 @@
   "private": false,
   "bin": {
     "geogebra-studio": "dist/cli.js",
-    "geogebra-mcp": "dist/cli.js",
     "gikz": "gikz/cli.cjs"
   },
   "files": [
@@ -20,7 +19,6 @@
     ".codex-plugin/plugin.json",
     "skills/**/*",
     "docs/**/*",
-    "scripts/build-widget.cjs",
     "gikz/**/*",
     "LICENSE-MIT",
     "THIRD_PARTY_NOTICES.md",
@@ -33,14 +31,14 @@
     "scripts/build-plugin.cjs",
     "viewer/**/*",
     "examples/right-triangle.json",
-    "skills/geogebra-studio/**/*"
+    "README.zh-TW.md"
   ],
   "scripts": {
-    "build": "npm run clean && tsc && node scripts/build-widget.cjs && node scripts/build-plugin.cjs",
+    "build": "npm run clean && tsc && node scripts/build-plugin.cjs",
     "clean": "node -e \"require('node:fs').rmSync('dist', {recursive:true, force:true})\"",
     "verify": "npm run build && npm run verify:manifests && node scripts/verify-generator.cjs && node scripts/verify-skill.cjs && node scripts/verify-exports.cjs",
     "verify:manifests": "node scripts/verify-manifests.cjs",
-    "test:unit": "jest --runInBand --runTestsByPath tests/unit/semantic-export.test.ts tests/unit/studio-artifact.test.ts tests/unit/viewer-3d.test.ts tests/unit/viewer-action-commands.test.ts tests/unit/viewer-command-executor.test.ts tests/unit/viewer-style-commands.test.ts",
+    "test:unit": "jest --runInBand --runTestsByPath tests/unit/semantic-export.test.ts tests/unit/studio-artifact.test.ts tests/unit/viewer-3d.test.ts tests/unit/viewer-action-commands.test.ts tests/unit/viewer-command-executor.test.ts tests/unit/viewer-style-commands.test.ts tests/unit/geogebra-instance.test.ts",
     "verify:math": "node scripts/verify-math.cjs",
     "verify:3d": "node scripts/verify-viewer-3d.cjs",
     "release:artifacts": "npm run verify && npm run test:unit && node scripts/package-release.cjs",

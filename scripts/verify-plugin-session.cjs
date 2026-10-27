@@ -14,7 +14,6 @@ const path=require('node:path');
  lines.on('line',line=>{
   try{
    const value=JSON.parse(line);
-   if(value.method==='mcpServerStatus/updated')console.log('MCP update:',JSON.stringify({name:value.params?.name,status:value.params?.status,error:value.params?.error,failureReason:value.params?.failureReason}));
    if(pending.has(value.id)){
     const p=pending.get(value.id);pending.delete(value.id);clearTimeout(p.timer);
     value.error?p.reject(Error(JSON.stringify(value.error))):p.resolve(value.result);
@@ -37,11 +36,6 @@ const path=require('node:path');
   for(const name of ['geogebra-studio'])assert(listedSkills.some(s=>s.name===name||s.name.endsWith(':'+name)),'Missing installed plugin skill '+name);
   const installed=JSON.parse(execFileSync('codex',['plugin','list','--json'],{encoding:'utf8',env:process.env}));
   assert(installed.installed.some(p=>p.name==='geogebra-studio'&&p.enabled),'Plugin is not installed and enabled in Codex');
-  const session=await call('thread/start',{cwd:process.cwd(),ephemeral:true,approvalPolicy:'never',sandbox:'read-only'});
-  const threadId=session.thread.id;
-  const inventory=await call('mcpServerStatus/list',{threadId});
-  assert(!inventory.data.some(s=>Object.values(s.tools||{}).some(t=>t.name==='geogebra_build_artifact')),
-    'Default plugin unexpectedly registered GeoGebra MCP');
   const skill=listedSkills.find(s=>s.name==='geogebra-studio'||s.name.endsWith(':geogebra-studio'));
   assert(skill.path,'Installed skill path is required to locate the bundled generator');
   const pluginRoot=path.resolve(path.dirname(skill.path),'../..');

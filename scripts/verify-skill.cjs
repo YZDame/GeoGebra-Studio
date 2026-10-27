@@ -29,7 +29,7 @@ const {execFileSync,spawnSync}=require('node:child_process');
    assert(result.success);assert((await fs.readFile(result.filename,'utf8')).includes('midpoint'));
   }
   const pgf=path.join(workspace,'figure.pgf');
-  await fs.writeFile(pgf,'\\\\begin{tikzpicture}\\\\draw (0,0) circle (1cm);\\\\end{tikzpicture}');
+  await fs.writeFile(pgf,'\\begin{tikzpicture}\\draw (0,0) circle (1cm);\\end{tikzpicture}');
   const tikz=run(['export','--input',pgf,'--format','tikz','--workspace',workspace,'--output','figure.tex']);
   assert((await fs.readFile(tikz.filename,'utf8')).includes('tikzpicture'));
   console.log(JSON.stringify({portableSkill:true,noNodeModules:true,formats:['html','tsqx','asymptote','tikz'],mcp:false}));

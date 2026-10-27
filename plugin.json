@@ -1,35 +1,35 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "geogebra-studio",
-  "version": "0.4.0",
-  "description": "GeoGebra Studio: editable HTML geometry in the Codex browser, agent skills and built-in Gikz; optional MCP automation",
+  "version": "0.5.0",
+  "description": "Portable Agent Skill for editable GeoGebra HTML constructions and geometry source exports",
   "author": {
     "name": "YZDame"
   },
   "repository": "https://github.com/YZDame/GeoGebra-Studio",
   "license": "GPL-2.0-or-later",
   "keywords": [
-    "mcp",
-    "model-context-protocol",
     "geogebra",
     "mathematics",
     "visualization",
     "ai-tools",
     "educational-technology",
-    "mathematical-modeling"
+    "mathematical-modeling",
+    "agent-skills",
+    "agent-plugins"
   ],
   "extensions": {
     "com.openai": {
-      "onboardingSkill": "./skills/geogebra-setup/SKILL.md",
+      "onboardingSkill": "./skills/geogebra-studio/SKILL.md",
       "interface": {
         "displayName": "GeoGebra Studio",
-        "shortDescription": "Editable geometry in the Codex browser panel",
+        "shortDescription": "Portable editable geometry skill",
         "developerName": "YZDame",
         "category": "Education",
         "composerIcon": "./assets/geogebra-icon.png",
         "logo": "./assets/geogebra-icon.png",
         "defaultPrompt": [
-          "Construct an editable GeoGebra HTML and open it in the Codex browser panel."
+          "Create an editable GeoGebra HTML construction and open it in my browser."
         ]
       }
     }
