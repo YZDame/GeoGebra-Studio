@@ -1,6 +1,6 @@
 # GeoGebra Studio viewer standard (v1)
 
-The official Classic applet renders all geometry. Default HTML carries ordered commands, executed in the Codex browser panel.
+The official Classic applet renders all geometry. Default HTML carries ordered commands, opened in the agent/client browser.
 Downloaded current-state HTML carries packed GGB. Background Chrome verification
 and preview screenshots are optional; inspect the visible diagram for visual quality.
 
@@ -14,8 +14,7 @@ and preview screenshots are optional; inspect the visible diagram for visual qua
 - Native LaTeX Text labels, fixed auxiliary helpers, normal native labels hidden.
   GeoGebra Text needs its fourth boolean. Its string escaping differs from JS.
 - Shared buttons: 38px height, 9px radius; matching custom popovers, no native select.
-  Upper right: theme, separate light/dark icon, download. Upper left of the graphics
-  panel: native Algebra View toggle. Keep manual object definition/style editing.
+  Header: native Algebra View toggle left; theme, separate light/dark icon and downloads right, all outside the canvas. Keep manual object definition/style editing.
 - Nine light/dark pairs: Default, Ayu, Catppuccin, Everforest, Gruvbox, Rosé Pine,
   Nord, Solarized, Flexoki. Default light, remember selection. Theme ordinary geometry
   while preserving user custom colors. Clipper-derived tokens retain MIT notices.

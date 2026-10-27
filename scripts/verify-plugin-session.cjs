@@ -34,7 +34,7 @@ const path=require('node:path');
   const skills=await call('skills/list',{cwds:[process.cwd()],forceReload:true});
   const listedSkills=skills.data.flatMap(entry=>entry.skills).filter(s=>s.pluginId==='geogebra-studio@geogebra-studio'&&s.enabled!==false);
   console.log('Skills:',JSON.stringify(listedSkills.map(s=>({name:s.name,pluginId:s.pluginId,enabled:s.enabled}))));
-  for(const name of ['geogebra-construct','geogebra-setup','geometry-export'])assert(listedSkills.some(s=>s.name===name||s.name.endsWith(':'+name)),'Missing installed plugin skill '+name);
+  for(const name of ['geogebra-studio'])assert(listedSkills.some(s=>s.name===name||s.name.endsWith(':'+name)),'Missing installed plugin skill '+name);
   const installed=JSON.parse(execFileSync('codex',['plugin','list','--json'],{encoding:'utf8',env:process.env}));
   assert(installed.installed.some(p=>p.name==='geogebra-studio'&&p.enabled),'Plugin is not installed and enabled in Codex');
   const session=await call('thread/start',{cwd:process.cwd(),ephemeral:true,approvalPolicy:'never',sandbox:'read-only'});
@@ -42,7 +42,7 @@ const path=require('node:path');
   const inventory=await call('mcpServerStatus/list',{threadId});
   assert(!inventory.data.some(s=>Object.values(s.tools||{}).some(t=>t.name==='geogebra_build_artifact')),
     'Default plugin unexpectedly registered GeoGebra MCP');
-  const skill=listedSkills.find(s=>s.name==='geogebra-construct'||s.name.endsWith(':geogebra-construct'));
+  const skill=listedSkills.find(s=>s.name==='geogebra-studio'||s.name.endsWith(':geogebra-studio'));
   assert(skill.path,'Installed skill path is required to locate the bundled generator');
   const pluginRoot=path.resolve(path.dirname(skill.path),'../..');
   const metadata=JSON.parse(await fs.readFile(path.join(pluginRoot,'package.json'),'utf8'));
@@ -51,9 +51,9 @@ const path=require('node:path');
   const filename='output/verification/plugin-generated.html';
   await fs.mkdir(path.dirname(spec),{recursive:true});await fs.rm(filename,{force:true});
   await fs.writeFile(spec,JSON.stringify({commands:['A=(0,0)','B=(4,0)','c=Circle(A,B)'],filename}));
-  const generated=JSON.parse(execFileSync(process.execPath,[path.join(pluginRoot,'dist/cli.js'),'generate','--input',spec,'--workspace',process.cwd()],{encoding:'utf8'}));
+  const generated=JSON.parse(execFileSync(process.execPath,[path.join(path.dirname(skill.path),'scripts/geogebra-studio.cjs'),'generate','--input',spec,'--workspace',process.cwd()],{encoding:'utf8'}));
   assert.equal(generated.engineVerified,false);await fs.access(generated.filename);
-  const report={realPluginSession:true,installedSkills:3,defaultMcpServers:0,version:metadata.version,
+  const report={realPluginSession:true,installedSkills:1,mcp:false,version:metadata.version,
     generator:generated.filename,modelTurn:false,renderVerified:false};
   await fs.mkdir('output/verification',{recursive:true});
   await fs.writeFile(process.env.STUDIO_REPORT_FILE||'output/verification/plugin-session.json',JSON.stringify(report,null,2)+String.fromCharCode(10));

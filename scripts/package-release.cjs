@@ -16,14 +16,14 @@ const {execFileSync}=require('node:child_process');
   const staging=path.join(temp,'geogebra-studio');await fs.rename(path.join(temp,'package'),staging);
   if(version!==p.version){
    const replace=value=>typeof value==='string'?(value===p.version?version:value.replace(p.name+'@'+p.version,p.name+'@'+version)):Array.isArray(value)?value.map(replace):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,item])=>[key,replace(item)])):value;
-   for(const file of ['package.json','plugin.json','mcp.json','mcp.optional.json','.mcp.json','.codex-plugin/plugin.json','.agents/plugins/marketplace.json']){
+   for(const file of ['package.json','plugin.json','.codex-plugin/plugin.json','.agents/plugins/marketplace.json','skills/geogebra-studio/runtime/package.json']){
     const data=JSON.parse(await fs.readFile(path.join(staging,file),'utf8'));
     await fs.writeFile(path.join(staging,file),JSON.stringify(replace(data),null,2)+'\n');
    }
    packed=JSON.parse(execFileSync('npm',['pack','--ignore-scripts','--json','--pack-destination',out],{cwd:staging,encoding:'utf8',env:{...process.env,npm_config_cache:path.join(os.tmpdir(),'geogebra-studio-release-npm-cache')}}))[0];
   }
-  for(const file of ['dist/cli.js','dist/gikz-browser.js','dist/viewer.js','dist/studio/generate.js','runtime/package.json','gikz/core.cjs','gikz/cli.cjs','gikz/LICENSE','LICENSE','LICENSE-MIT','skills/geogebra-construct/SKILL.md','mcp.json','mcp.optional.json'])await fs.access(path.join(staging,file));
-  const configs=await Promise.all(['plugin.json','mcp.json','.mcp.json','.codex-plugin/plugin.json'].map(f=>fs.readFile(path.join(staging,f),'utf8')));
+  for(const file of ['dist/cli.js','dist/gikz-browser.js','dist/viewer.js','dist/studio/generate.js','gikz/core.cjs','gikz/cli.cjs','gikz/LICENSE','LICENSE','LICENSE-MIT','skills/geogebra-studio/SKILL.md','skills/geogebra-studio/runtime/dist/cli.js'])await fs.access(path.join(staging,file));
+  const configs=await Promise.all(['plugin.json','.codex-plugin/plugin.json'].map(f=>fs.readFile(path.join(staging,f),'utf8')));
   if(configs.some(s=>/\/Users\/|_npx\/|GIKZ_CLI/.test(s)))throw Error('Nonportable release manifest');
   const zip=path.join(out,`geogebra-studio-${version}.zip`);await fs.rm(zip,{force:true});
   execFileSync('zip',['-q','-r',zip,'geogebra-studio'],{cwd:temp});

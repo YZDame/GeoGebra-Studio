@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /** Portable local CLI. No MCP transport or persistent service. */
 import { readFile } from 'fs/promises';
-import path from 'path';
 
 const metadata = require('../package.json') as { name:string; version:string };
 function help() {
