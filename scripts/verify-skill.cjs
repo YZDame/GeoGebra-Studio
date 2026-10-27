@@ -32,6 +32,15 @@ const {execFileSync,spawnSync}=require('node:child_process');
   await fs.writeFile(pgf,'\\begin{tikzpicture}\\draw (0,0) circle (1cm);\\end{tikzpicture}');
   const tikz=run(['export','--input',pgf,'--format','tikz','--workspace',workspace,'--output','figure.tex']);
   assert((await fs.readFile(tikz.filename,'utf8')).includes('tikzpicture'));
+  const fail=(args,extraEnv={})=>spawnSync(process.execPath,[cli,...args],{cwd:workspace,env:{...env,...extraEnv},encoding:'utf8'});
+  for(const args of [['browser','install'],['generate','--input',spec,'--workspace',workspace,'--output','verified.html','--verify']]){
+   const r=fail(args);assert.equal(r.status,1,args.join(' ')+' must fail without Puppeteer');assert.match(r.stderr,/copied Skill does not bundle/);
+  }
+  const codexHome=path.join(dir,'codex'),existing=path.join(codexHome,'geogebra-studio','marketplace','plugin');
+  await fs.mkdir(existing,{recursive:true});await fs.writeFile(path.join(existing,'marker.txt'),'keep');
+  const local=fail(['install','--local'],{CODEX_HOME:codexHome});
+  assert.equal(local.status,1);assert.match(local.stderr,/existing plugin was not modified/);
+  assert.equal(await fs.readFile(path.join(existing,'marker.txt'),'utf8'),'keep','install --local must not delete an existing plugin');
   console.log(JSON.stringify({portableSkill:true,noNodeModules:true,formats:['html','tsqx','asymptote','tikz'],mcp:false}));
  }finally{await fs.rm(dir,{recursive:true,force:true})}
 })().catch(e=>{console.error(e);process.exitCode=1});

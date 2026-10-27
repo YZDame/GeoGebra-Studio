@@ -26,15 +26,31 @@ async function installPlugin(local = false) {
     if (local) {
         // The default generator uses bundled files and Node built-ins, with no runtime install.
         const target = path_1.default.join(root, 'plugin');
-        await (0, promises_1.rm)(target, { recursive: true, force: true });
-        await (0, promises_1.mkdir)(target, { recursive: true });
         const packageRoot = path_1.default.join(__dirname, '../..');
-        for (const entry of ['dist', 'gikz', 'skills', 'docs', 'examples', 'assets', 'plugin.json', '.codex-plugin', 'package.json', 'LICENSE', 'LICENSE-MIT', 'THIRD_PARTY_NOTICES.md'])
-            await (0, promises_1.cp)(path_1.default.join(packageRoot, entry), path_1.default.join(target, entry), { recursive: true });
-        const localPackagePath = path_1.default.join(target, 'package.json');
-        const localPackage = JSON.parse(await (0, promises_1.readFile)(localPackagePath, 'utf8'));
-        delete localPackage.devDependencies;
-        await (0, promises_1.writeFile)(localPackagePath, JSON.stringify(localPackage, null, 2) + '\n');
+        const entries = ['dist', 'gikz', 'skills', 'docs', 'examples', 'assets', 'plugin.json', '.codex-plugin', 'package.json', 'LICENSE', 'LICENSE-MIT', 'THIRD_PARTY_NOTICES.md'];
+        const missing = [];
+        for (const entry of entries)
+            await (0, promises_1.access)(path_1.default.join(packageRoot, entry)).catch(() => missing.push(entry));
+        if (missing.length)
+            throw new Error(`install --local needs a built checkout or the npm package; ${packageRoot} is missing ${missing.join(', ')}. From a copied Skill, run install without --local (npm source) instead. The existing plugin was not modified.`);
+        // Stage the full replacement first so a failed copy never removes a working plugin.
+        const staging = `${target}.staging-${process.pid}`;
+        await (0, promises_1.rm)(staging, { recursive: true, force: true });
+        try {
+            await (0, promises_1.mkdir)(staging, { recursive: true });
+            for (const entry of entries)
+                await (0, promises_1.cp)(path_1.default.join(packageRoot, entry), path_1.default.join(staging, entry), { recursive: true });
+            const localPackagePath = path_1.default.join(staging, 'package.json');
+            const localPackage = JSON.parse(await (0, promises_1.readFile)(localPackagePath, 'utf8'));
+            delete localPackage.devDependencies;
+            await (0, promises_1.writeFile)(localPackagePath, JSON.stringify(localPackage, null, 2) + '\n');
+            await (0, promises_1.rm)(target, { recursive: true, force: true });
+            await (0, promises_1.rename)(staging, target);
+        }
+        catch (error) {
+            await (0, promises_1.rm)(staging, { recursive: true, force: true });
+            throw error;
+        }
         source = { source: 'local', path: './plugin' };
     }
     await (0, promises_1.writeFile)(path_1.default.join(root, '.agents/plugins/marketplace.json'), JSON.stringify({ name: 'geogebra-studio', interface: { displayName: 'GeoGebra Studio' }, plugins: [{ name: 'geogebra-studio', source, policy: { installation: 'AVAILABLE', authentication: 'ON_INSTALL' }, category: 'Education' }] }, null, 2) + '\n');

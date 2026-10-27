@@ -12,7 +12,13 @@ Usage:
   geogebra-studio doctor
   geogebra-studio browser install                 Optional browser-based verification
   geogebra-studio install [--local]              Optional Codex plugin installation
+--verify and browser install need the npm package or a built checkout (Puppeteer);
+install --local needs a built checkout. A copied Skill supports generate, export and doctor.
 The generated HTML uses official GeoGebra assets and requires internet access.`);
+}
+function requireBrowserStack(){
+  const missing=['puppeteer-core','@puppeteer/browsers'].filter(name=>{try{require.resolve(name);return false;}catch{return true;}});
+  if(missing.length)throw Error('Browser verification needs '+missing.join(', ')+', which a copied Skill does not bundle. Run it from the npm package (npx @lydt/geogebra-studio browser install) or a built checkout after npm install; generate without --verify works without them.');
 }
 function flags(args:string[],allowed:string[]) {
   const options: Record<string,string>={};
@@ -36,6 +42,7 @@ async function main(){
     if(options['--output'])spec.filename=options['--output'];
     validateViewerSpec(spec);
     if(verify){
+      requireBrowserStack();
       const {inWorkspace}=await import('./export/workspace');
       const {buildArtifact}=await import('./studio/artifact');
       const result=await inWorkspace(options['--workspace'],()=>buildArtifact(spec));
@@ -69,6 +76,7 @@ async function main(){
   if(command==='doctor'||command==='browser'){
     if(command==='doctor'&&args.length)throw Error('doctor takes no arguments');
     if(command==='browser'&&(args.length!==1||args[0]!=='install'))throw Error('Usage: browser install');
+    if(command==='browser')requireBrowserStack();
     const {cleanWithGikz}=await import('./export/gikz');
     await cleanWithGikz(String.raw`\begin{tikzpicture}\end{tikzpicture}`);
     const {constructionHtml}=await import('./export/html');
