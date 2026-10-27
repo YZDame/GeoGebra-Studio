@@ -11,7 +11,7 @@ on:
         type: boolean
         default: false
       release_tag:
-        description: Existing GitHub release tag (for example v0.4.0)
+        description: Existing GitHub release tag (for example v0.5.0)
         type: string
         required: false
   release:
@@ -40,15 +40,17 @@ jobs:
       - run: npm run test:unit
       - run: npm run verify:manifests
       - run: node scripts/verify-generator.cjs
-      - run: node scripts/verify-protocol.cjs
+      - run: node scripts/verify-skill.cjs
       - run: node scripts/verify-exports.cjs
-      - run: node scripts/verify-gikz-mcp.cjs
       - if: github.event_name == 'workflow_dispatch' && inputs.native
         run: sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra
       - if: github.event_name == 'workflow_dispatch' && inputs.native
         run: node scripts/verify-gikz-latex.cjs
-      - if: github.event_name == 'workflow_dispatch' && inputs.native
-        run: node dist/cli.js browser install
+      - name: Prepare optional Chrome runtime
+        if: github.event_name == 'workflow_dispatch' && inputs.native
+        run: |
+          node dist/cli.js browser install > browser.json
+          echo "PUPPETEER_EXECUTABLE_PATH=$(node -p 'JSON.parse(require("fs").readFileSync("browser.json","utf8")).executablePath')" >> "$GITHUB_ENV"
       - if: github.event_name == 'workflow_dispatch' && inputs.native
         run: node scripts/verify-artifact.cjs
       - if: github.event_name == 'workflow_dispatch' && inputs.native
@@ -68,7 +70,6 @@ jobs:
             output/verification/studio/*
             output/verification/viewer/*
             output/verification/gikz-compile/*
-            output/verification/geogebra_export_tikz-cleaned.tex
             output/verification/plugin-session.json
   publish:
     needs: acceptance

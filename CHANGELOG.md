@@ -1,3 +1,14 @@
+# Changelog
+
+## 0.5.0 (planned, not published)
+
+- Consolidate three skills into a single independently distributable GeoGebra Studio Agent Skill.
+- Remove MCP transport, tool registration, MCP Apps and associated dependencies while retaining semantic source exports and Gikz.
+- Align the algebra-sidebar button to the left of the external viewer toolbar; theme and downloads remain right aligned.
+- Add cross-agent installation instructions and English, simplified Chinese and traditional Chinese READMEs.
+- Preserve local standalone HTML/GGB, seven viewer downloads, 2D/3D, optional real-engine checks and strict TSQX/Asymptote conversion.
+- Breaking change: legacy MCP clients/tools are no longer supported. Stay on 0.4.0 if MCP transport is required.
+
 # Unreleased
 
 - Default to a dependency-free HTML generator and execution in the Codex browser panel.

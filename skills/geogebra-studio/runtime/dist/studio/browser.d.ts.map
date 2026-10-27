@@ -1,0 +1,1 @@
+{"version":3,"file":"browser.d.ts","sourceRoot":"","sources":["../../src/studio/browser.ts"],"names":[],"mappings":"AAOA,eAAO,MAAM,YAAY,cAAwH,CAAC;AAClJ,eAAO,MAAM,kBAAkB,cAAmH,CAAC;AACnJ,wBAAgB,iBAAiB,IAAI,MAAM,EAAE,CAS5C;AACD,6FAA6F;AAC7F,wBAAgB,cAAc,IAAI,MAAM,CAKvC;AAED,wBAAsB,cAAc,CAAC,QAAQ,UAAM,GAAG,OAAO,CAAC,MAAM,CAAC,CAUpE"}

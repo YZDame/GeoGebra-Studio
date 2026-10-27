@@ -1,244 +1,97 @@
 #!/usr/bin/env node
+/** Portable local CLI. No MCP transport or persistent service. */
+import { readFile } from 'fs/promises';
 
-/**
- * CLI entry point for GeoGebra Studio
- * Enables npx usage: npx @lydt/geogebra-studio
- */
-
-/**
- * Display help information
- */
-function showHelp() {
-  const packageJson = require('../package.json');
-  const homepage = packageJson.homepage || 'https://github.com/YZDame/geogebra-mcp-server';
-
-  console.log(`
-GeoGebra Studio - Editable geometry in the Codex browser panel
-
+const metadata = require('../package.json') as { name:string; version:string };
+function help() {
+  console.log(`GeoGebra Studio ${metadata.version} — local geometry Skill
 Usage:
-  npx @lydt/geogebra-studio [options]
-
-Options:
-  generate --input SPEC.json --workspace DIR [--output FILE.html] [--verify]
-                   Generate HTML without Chrome; --verify opts into Chrome checks
-  install          Install the skills and HTML generator (no MCP or Chrome setup)
-  doctor           Check the HTML generator and built-in Gikz
-  browser install  Prepare Chrome or managed Chromium
-  mcp              Start the optional legacy MCP server
-
-  -h, --help        Show this help message
-  -v, --version     Show version information
-  --log-level LEVEL Set log level (error, warn, info, debug) [default: info]
-  --port PORT       Serve Streamable HTTP at http://127.0.0.1:PORT/mcp
-
-Examples:
-  npx @lydt/geogebra-studio generate --input diagram.json --workspace /absolute/project
-  npx @lydt/geogebra-studio mcp                # Optional compatibility server
-  npx @lydt/geogebra-studio --help             # Show this help
-
-For more information, visit: ${homepage}
-`);
+  geogebra-studio generate --input SPEC.json --workspace ABS_DIR [--output FILE.html] [--verify]
+  geogebra-studio export --input CONSTRUCTION.xml --format tsqx|asymptote --workspace ABS_DIR --output FILE
+  geogebra-studio export --input NATIVE.pgf --format tikz --workspace ABS_DIR --output FILE.tex
+  geogebra-studio doctor
+  geogebra-studio browser install                 Optional browser-based verification
+  geogebra-studio install [--local]              Optional Codex plugin installation
+--verify and browser install need the npm package or a built checkout (Puppeteer);
+install --local needs a built checkout. A copied Skill supports generate, export and doctor.
+The generated HTML uses official GeoGebra assets and requires internet access.`);
 }
-
-/**
- * Display version information
- */
-function showVersion() {
-  const packageJson = require('../package.json');
-  console.log(`GeoGebra Studio v${packageJson.version}`);
+function requireBrowserStack(){
+  const missing=['puppeteer-core','@puppeteer/browsers'].filter(name=>{try{require.resolve(name);return false;}catch{return true;}});
+  if(missing.length)throw Error('Browser verification needs '+missing.join(', ')+', which a copied Skill does not bundle. Run it from the npm package (npx @lydt/geogebra-studio browser install) or a built checkout after npm install; generate without --verify works without them.');
 }
-
-/**
- * Parse command line arguments
- */
-function parseArgs(args: string[]) {
-  const options = {
-    help: false,
-    version: false,
-    logLevel: process.env['LOG_LEVEL'] || 'info',
-    port: process.env['PORT'] || undefined
-  };
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    
-    // Type guard to ensure arg is defined
-    if (!arg) continue;
-    
-    switch (arg) {
-      case '-h':
-      case '--help':
-        options.help = true;
-        break;
-      
-      case '-v':
-      case '--version':
-        options.version = true;
-        break;
-      
-      case '--log-level':
-        if (i + 1 < args.length && args[i + 1]) {
-          const level = args[i + 1]!; // Non-null assertion since we checked above
-          if (['error', 'warn', 'info', 'debug'].includes(level)) {
-            options.logLevel = level;
-            i++; // Skip next argument
-          } else {
-            console.error(`Invalid log level: ${level}`);
-            process.exit(1);
-          }
-        } else {
-          console.error('--log-level requires a value');
-          process.exit(1);
-        }
-        break;
-      
-      case '--port':
-        if (i + 1 < args.length && args[i + 1]) {
-          options.port = args[i + 1]!; // Non-null assertion since we checked above
-          i++; // Skip next argument
-        } else {
-          console.error('--port requires a value');
-          process.exit(1);
-        }
-        break;
-      
-      default:
-        if (arg.startsWith('-')) {
-          console.error(`Unknown option: ${arg}`);
-          console.error('Use --help for usage information');
-          process.exit(1);
-        }
-        break;
-    }
+function flags(args:string[],allowed:string[]) {
+  const options: Record<string,string>={};
+  for(let i=0;i<args.length;i++){
+    const arg=args[i]!;
+    if(!allowed.includes(arg)||!args[i+1]||args[i+1]!.startsWith('--')||options[arg])throw Error('Invalid or duplicate option: '+arg);
+    options[arg]=args[++i]!;
   }
-
   return options;
 }
-
-/**
- * Main CLI function
- */
-async function main() {
-  try {
-    // Parse command line arguments first
-    const args = process.argv.slice(2);
-    if (args[0] === 'generate') {
-      const options: Record<string, string> = {};
-      let verify = false;
-      for (let i = 1; i < args.length; i++) {
-        const arg = args[i]!;
-        if (arg === '--verify') { verify = true; continue; }
-        if (!['--input', '--workspace', '--output'].includes(arg) || !args[i + 1] || args[i + 1]!.startsWith('--') || options[arg]) throw new Error('Usage: generate --input SPEC.json --workspace ABSOLUTE_DIR [--output FILE.html] [--verify]');
-        options[arg] = args[++i]!;
-      }
-      if (!options['--input'] || !options['--workspace']) throw new Error('generate requires --input and --workspace');
-      const { readFile } = await import('fs/promises');
-      const { validateViewerSpec, generateViewer } = await import('./studio/generate');
-      const value: unknown = JSON.parse(await readFile(options['--input'], 'utf8'));
-      const spec = validateViewerSpec(value);
-      if (options['--output']) spec.filename = options['--output'];
-      validateViewerSpec(spec);
-      if (verify) {
-        const { inWorkspace } = await import('./export/workspace');
-        const { buildArtifact } = await import('./studio/artifact');
-        const result = await inWorkspace(options['--workspace'], () => buildArtifact(spec));
-        const { html: _html, constructionXml: _xml, ...summary } = result.structuredContent;
-        console.log(JSON.stringify(summary));
-      } else console.log(JSON.stringify(await generateViewer(spec, options['--workspace'])));
-      return;
-    }
-    if(args[0]==='install'){
-      if(args.slice(1).some(arg=>arg!=='--local'))throw new Error('Usage: install [--local]');
-      await (await import('./studio/install')).installPlugin(args.includes('--local'));return;
-    }
-    if(args[0]==='doctor'||args[0]==='browser'){
-      if(args[0]==='browser'&&(args.length!==2||args[1]!=='install'))throw new Error('Usage: browser install');
-      const {cleanWithGikz}=await import('./export/gikz');
-      await cleanWithGikz(String.raw`\begin{tikzpicture}\end{tikzpicture}`);
-      const { constructionHtml } = await import('./export/html');
-      constructionHtml({ commands: ['A=(0,0)'] });
-      if (args[0] === 'browser') {
-        const { prepareBrowser } = await import('./studio/browser');
-        console.log(JSON.stringify({success:true,executablePath:await prepareBrowser(true)}));
-      } else console.log(JSON.stringify({success:true,version:require('../package.json').version,gikz:'built-in',execution:'viewer',chromeRequired:false}));
-      return;
-    }
-    if (!args.length && !process.argv[1]?.includes('geogebra-mcp')) { showHelp(); return; }
-    if(args[0]==='mcp')args.shift();
-    if(args[0]&&!args[0].startsWith('-'))throw new Error('Unknown command: '+args[0]);
-    const options = parseArgs(args);
-
-    // Handle help and version BEFORE loading any dependencies
-    if (options.help) {
-      showHelp();
-      process.exit(0);
-    }
-
-    if (options.version) {
-      showVersion();
-      process.exit(0);
-    }
-
-    // Only import heavy dependencies if we're actually starting the server
-    await import('dotenv/config');
-    const { McpServer } = await import('./server');
-    const { getAppInfo } = await import('./utils/app-info');
-    const { default: logger } = await import('./utils/logger');
-    const appInfo = getAppInfo();
-
-    // Server configuration
-    const config = {
-      name: 'GeoGebra Studio',
-      version: appInfo.version,
-      description: appInfo.description,
-      logLevel: options.logLevel as 'error' | 'warn' | 'info' | 'debug'
-    };
-
-    logger.info('Starting GeoGebra Studio...');
-    logger.info(`Log level: ${config.logLevel}`);
-
-    // Create and start the MCP server
-    const server = new McpServer(config);
-
-    // Set up graceful shutdown
-    const shutdown = async (signal: string) => {
-      logger.info(`Received ${signal}, shutting down gracefully...`);
-      try {
-        await server.stop();
-        process.exit(0);
-      } catch (error) {
-        logger.error('Error during shutdown:', error);
-        process.exit(1);
-      }
-    };
-
-    // Handle shutdown signals
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
-
-    // Handle uncaught exceptions
-    process.on('uncaughtException', (error) => {
-      logger.error('Uncaught exception:', error);
-      process.exit(1);
-    });
-
-    process.on('unhandledRejection', (reason, promise) => {
-      logger.error('Unhandled rejection at:', promise, 'reason:', reason);
-      process.exit(1);
-    });
-
-    // Start the server
-    if (options.port) await server.startHttp(Number(options.port));
-    else await server.start();
-
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
+async function main(){
+  const [command,...args]=process.argv.slice(2);
+  if(!command||command==='--help'||command==='-h'){help();return;}
+  if(command==='--version'||command==='-v'){console.log(metadata.version);return;}
+  if(command==='generate'){
+    const verify=args.includes('--verify');
+    const options=flags(args.filter(x=>x!=='--verify'),['--input','--workspace','--output']);
+    if(!options['--input']||!options['--workspace'])throw Error('generate requires --input and --workspace');
+    const {validateViewerSpec,generateViewer}=await import('./studio/generate');
+    const spec=validateViewerSpec(JSON.parse(await readFile(options['--input'],'utf8')));
+    if(options['--output'])spec.filename=options['--output'];
+    validateViewerSpec(spec);
+    if(verify){
+      requireBrowserStack();
+      const {inWorkspace}=await import('./export/workspace');
+      const {buildArtifact}=await import('./studio/artifact');
+      const result=await inWorkspace(options['--workspace'],()=>buildArtifact(spec));
+      const {html:unusedHtml,constructionXml:unusedXml,...summary}=result.structuredContent;
+      void unusedHtml;void unusedXml;
+      console.log(JSON.stringify(summary));
+    }else console.log(JSON.stringify(await generateViewer(spec,options['--workspace'])));
+    return;
   }
+  if(command==='export'){
+    const o=flags(args,['--input','--format','--workspace','--output']);
+    if(!o['--input']||!o['--format']||!o['--workspace']||!o['--output'])throw Error('export requires --input, --format, --workspace and --output');
+    const format=o['--format'];if(!['tsqx','asymptote','tikz'].includes(format))throw Error('Unsupported format '+format);
+    const source=await readFile(o['--input'],'utf8');
+    let code:string,meta:Record<string,unknown>={};
+    if(format==='tikz'){
+      if(/<geogebra[\s>]/.test(source))throw Error('For accurate TikZ use the viewer native PGF download; XML is for semantic TSQX/Asymptote export.');
+      const {cleanWithGikz}=await import('./export/gikz');
+      code=await cleanWithGikz(source,{standalone:true});
+    }else{
+      const {sceneFromXML,exportSource}=await import('./export/semantic');
+      const result=exportSource(sceneFromXML(source),format as 'tsqx'|'asymptote',true,true);
+      const {code:resultCode,...rest}=result;
+      code=resultCode;meta=rest;
+    }
+    const {inWorkspace}=await import('./export/workspace');
+    const {saveText}=await import('./export/files');
+    const filename=await inWorkspace(o['--workspace'],()=>saveText(o['--output'],code));
+    console.log(JSON.stringify({success:true,format,filename,bytes:Buffer.byteLength(code),...meta}));
+    return;
+  }
+  if(command==='doctor'||command==='browser'){
+    if(command==='doctor'&&args.length)throw Error('doctor takes no arguments');
+    if(command==='browser'&&(args.length!==1||args[0]!=='install'))throw Error('Usage: browser install');
+    if(command==='browser')requireBrowserStack();
+    const {cleanWithGikz}=await import('./export/gikz');
+    await cleanWithGikz(String.raw`\begin{tikzpicture}\end{tikzpicture}`);
+    const {constructionHtml}=await import('./export/html');
+    constructionHtml({commands:['A=(0,0)']});
+    if(command==='browser'){
+      const {prepareBrowser}=await import('./studio/browser');
+      console.log(JSON.stringify({success:true,executablePath:await prepareBrowser(true)}));
+    }else console.log(JSON.stringify({success:true,version:metadata.version,chromeRequired:false,mcpRequired:false}));
+    return;
+  }
+  if(command==='install'){
+    if(args.some(a=>a!=='--local'))throw Error('Usage: install [--local]');
+    const {installPlugin}=await import('./studio/install');await installPlugin(args.includes('--local'));return;
+  }
+  throw Error('Unknown command: '+command+'. Use --help.');
 }
-
-// Start the CLI application
-main().catch((error) => {
-  console.error('CLI startup failed:', error);
-  process.exit(1);
-}); 
+main().catch(e=>{console.error(e instanceof Error?e.message:String(e));process.exitCode=1;});

@@ -160,8 +160,7 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
           api.setCoordSystem(cx - view.width * unit / 2, cx + view.width * unit / 2, cy - view.height * unit / 2, cy + view.height * unit / 2);
           equalAxes();
         }
-        sidebarToggle.style.top = Math.max(10, view.top - host.getBoundingClientRect().top + 10) + "px";
-        sidebarToggle.style.left = sidebarOpen ? Math.max(10, view.left - host.getBoundingClientRect().left + 10) + "px" : "10px";
+        // The sidebar control belongs to the outer header, not the GeoGebra canvas.
       });
     }
     function toBytes(data) {

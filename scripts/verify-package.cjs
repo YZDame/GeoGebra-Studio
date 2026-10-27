@@ -21,7 +21,7 @@ const {execFileSync}=require('node:child_process');
   const data=JSON.parse(execFileSync(process.execPath,[path.join(plugin,'dist/cli.js'),'generate','--input',spec,'--workspace',temp],{cwd:temp,env,encoding:'utf8'}));
   assert.equal(data.execution,'viewer');assert.equal(data.engineVerified,false);
   assert((await fs.readFile(data.filename,'utf8')).includes('geogebraStudio'));
-  assert.deepEqual(JSON.parse(await fs.readFile(path.join(plugin,'mcp.json'),'utf8')).mcpServers,{});
-  console.log(JSON.stringify({cleanInstall:true,unpackedDependencyFreeGenerator:true,defaultMcpServers:0,chromeRequired:false,version:report.version}));
+  assert.equal(await fs.access(path.join(plugin,'mcp.json')).then(()=>true,()=>false),false);
+  console.log(JSON.stringify({cleanInstall:true,unpackedDependencyFreeGenerator:true,mcp:false,chromeRequired:false,version:report.version}));
  }finally{if(process.env.KEEP_STUDIO_INSTALL==='1')console.log('Retained clean install: '+temp);else await fs.rm(temp,{recursive:true,force:true})}
 })().catch(e=>{console.error(e);process.exitCode=1});
