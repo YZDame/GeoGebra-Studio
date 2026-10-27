@@ -23,7 +23,7 @@ const settle=page=>page.waitForFunction(()=>{if(!window.ggbReady)return false;co
   for(const point of samples){assert(Math.abs(point.radius-25)<1e-7,JSON.stringify(point));assert(point.separation>1e-4,JSON.stringify(point));assert(Math.abs(point.tangentDistance-1.6)<1e-7,JSON.stringify(point))}
 
   const toolbar=await page.evaluate(()=>{const header=document.querySelector('header').getBoundingClientRect(),button=document.querySelector('#sidebar-toggle').getBoundingClientRect(),stage=document.querySelector('.stage').getBoundingClientRect(),download=document.querySelector('#download-toggle').getBoundingClientRect();return {buttonAboveCanvas:button.bottom<=stage.top,buttonLeft:button.left<download.left,headerContains:button.top>=header.top&&button.bottom<=header.bottom};});assert(toolbar.buttonAboveCanvas&&toolbar.buttonLeft&&toolbar.headerContains,JSON.stringify(toolbar));
-  assert.equal(await page.$eval('#theme-menu [data-theme]',xs=>xs.length),9);
+  assert.equal(await page.$$eval('#theme-menu [data-theme]',xs=>xs.length),9);
   const sizes=await page.$$eval('header .control-button',els=>els.map(e=>({height:e.getBoundingClientRect().height,top:e.getBoundingClientRect().top})));assert(sizes.every(s=>s.height===sizes[0].height&&s.top===sizes[0].top),JSON.stringify(sizes));
   for(const theme of ['default:0','ayu:1','catppuccin:0','nord:1']){
    await chooseTheme(page,theme);await new Promise(r=>setTimeout(r,150));const colors=await page.evaluate(()=>({paper:getComputedStyle(document.documentElement).getPropertyValue('--paper'),xml:ggbApplet.getXML().match(/<bgColor[^>]+>/)?.[0]}));assert(colors.xml.includes('r="'+parseInt(colors.paper.slice(1,3),16)+'"'),JSON.stringify(colors));console.log(theme,colors);
