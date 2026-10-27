@@ -113,7 +113,7 @@ async function main() {
         if (!['tsqx', 'asymptote', 'tikz'].includes(format))
             throw Error('Unsupported format ' + format);
         const source = await (0, promises_1.readFile)(o['--input'], 'utf8');
-        let code;
+        let code, warnings;
         if (format === 'tikz') {
             if (/<geogebra[\s>]/.test(source))
                 throw Error('For accurate TikZ use the viewer native PGF download; XML is for semantic TSQX/Asymptote export.');
@@ -124,11 +124,12 @@ async function main() {
             const { sceneFromXML, exportSource } = await Promise.resolve().then(() => __importStar(require('./export/semantic')));
             const result = exportSource(sceneFromXML(source), format, true, true);
             code = result.code;
+            warnings = result.warnings;
         }
         const { inWorkspace } = await Promise.resolve().then(() => __importStar(require('./export/workspace')));
         const { saveText } = await Promise.resolve().then(() => __importStar(require('./export/files')));
         const filename = await inWorkspace(o['--workspace'], () => saveText(o['--output'], code));
-        console.log(JSON.stringify({ success: true, format, filename, bytes: Buffer.byteLength(code) }));
+        console.log(JSON.stringify({ success: true, format, filename, bytes: Buffer.byteLength(code), ...(warnings ? { warnings } : {}) }));
         return;
     }
     if (command === 'doctor' || command === 'browser') {
