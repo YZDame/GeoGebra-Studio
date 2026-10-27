@@ -74,7 +74,10 @@ jobs:
           package-manager-cache: false
       - run: npm ci
       - run: npm run build
-      - run: node dist/cli.js browser install
+      - name: Prepare Chrome and publish its executable path
+        run: |
+          node dist/cli.js browser install > browser.json
+          echo "PUPPETEER_EXECUTABLE_PATH=$(node -p 'JSON.parse(require("fs").readFileSync("browser.json","utf8")).executablePath')" >> "$GITHUB_ENV"
       - run: node scripts/verify-artifact.cjs
       - run: STUDIO_HTML_FIXTURE=output/verification/studio/tangent-construction.html node scripts/verify-viewer.cjs
       - run: node scripts/verify-viewer-3d.cjs
