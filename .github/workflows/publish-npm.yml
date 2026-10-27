@@ -46,8 +46,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra
       - if: github.event_name == 'workflow_dispatch' && inputs.native
         run: node scripts/verify-gikz-latex.cjs
-      - if: github.event_name == 'workflow_dispatch' && inputs.native
-        run: node dist/cli.js browser install
+      - name: Prepare optional Chrome runtime
+        if: github.event_name == 'workflow_dispatch' && inputs.native
+        run: |
+          node dist/cli.js browser install > browser.json
+          echo "PUPPETEER_EXECUTABLE_PATH=$(node -p 'JSON.parse(require("fs").readFileSync("browser.json","utf8")).executablePath')" >> "$GITHUB_ENV"
       - if: github.event_name == 'workflow_dispatch' && inputs.native
         run: node scripts/verify-artifact.cjs
       - if: github.event_name == 'workflow_dispatch' && inputs.native
