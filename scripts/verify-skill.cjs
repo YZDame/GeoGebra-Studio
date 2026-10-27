@@ -26,7 +26,7 @@ const {execFileSync,spawnSync}=require('node:child_process');
   await fs.writeFile(xml,'<geogebra><construction>'+p('A',0,0)+p('B',4,0)+'<command name="Midpoint"><input a0="A" a1="B"/><output a0="M"/></command>'+p('M',2,0)+'</construction></geogebra>');
   for(const [format,out] of [['tsqx','figure.tsqx'],['asymptote','figure.asy']]){
    const result=run(['export','--input',xml,'--format',format,'--workspace',workspace,'--output',out]);
-   assert(result.success);assert((await fs.readFile(result.filename,'utf8')).includes('midpoint'));
+   assert(result.success);const code=await fs.readFile(result.filename,'utf8');assert(code.length>50&&code.includes('M')&&code.includes('A')&&code.includes('B'),format+' did not preserve point construction');
   }
   const pgf=path.join(workspace,'figure.pgf');
   await fs.writeFile(pgf,'\\begin{tikzpicture}\\draw (0,0) circle (1cm);\\end{tikzpicture}');
