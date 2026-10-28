@@ -7,7 +7,7 @@ on:
         type: boolean
         default: false
       publish:
-        description: Publish the npm package for release_tag after acceptance
+        description: Publish the npm package for an existing release_tag after acceptance (requires npm OIDC trusted publisher)
         type: boolean
         default: false
       release_tag:
@@ -73,7 +73,7 @@ jobs:
             output/verification/plugin-session.json
   publish:
     needs: acceptance
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish && inputs.release_tag != '')
     runs-on: ubuntu-latest
     environment: npm
     env:
@@ -95,7 +95,7 @@ jobs:
           name: geogebra-studio-acceptance-${{ github.event.release.tag_name || inputs.release_tag }}
           path: .
       - name: Publish the exact accepted tarball
-        if: github.event_name == 'release' || inputs.publish
+        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)
         run: node -e 'const r=require("./release/package-report.json");require("node:child_process").execFileSync("npm",["publish","./release/"+r.npm,"--ignore-scripts","--access","public","--provenance","--tag",process.env.STUDIO_RELEASE_TAG],{stdio:"inherit"})'
       - name: Wait for public Registry availability and verify integrity
         run: node scripts/verify-registry.cjs

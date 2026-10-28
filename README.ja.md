@@ -30,7 +30,7 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ## Codex Plugin（任意）
 
-Codex 用ラッパーは任意です。**0.5.0 は予定バージョンで、まだ公開されていません**。公開前はビルド済みのリポジトリまたは単体 Skill を使用してください。インストール後は Codex セッションを再起動します。
+Codex 用ラッパーは任意です。リポジトリのソースは **0.5.0** です。npm で未公開の場合は GitHub から単体 Skill をインストールするか、ソースをビルドしてください。インストール後は Codex セッションを再起動します。
 
 ```sh
 npx @lydt/geogebra-studio@0.5.0 install

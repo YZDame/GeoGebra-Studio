@@ -1,26 +1,28 @@
 # Changelog
 
-## 0.5.0 (planned, not published)
+## [0.5.0]
 
-- Consolidate three skills into a single independently distributable GeoGebra Studio Agent Skill.
-- Remove MCP transport, tool registration, MCP Apps and associated dependencies while retaining semantic source exports and Gikz.
-- Align the algebra-sidebar button to the left of the external viewer toolbar; theme and downloads remain right aligned.
-- Add cross-agent installation instructions and English, simplified Chinese and traditional Chinese READMEs.
-- Preserve local standalone HTML/GGB, seven viewer downloads, 2D/3D, optional real-engine checks and strict TSQX/Asymptote conversion.
-- Breaking change: legacy MCP clients/tools are no longer supported. Stay on 0.4.0 if MCP transport is required.
+### Breaking change: portable Agent Skill
 
-# Unreleased
+- Combine `geogebra-construct`, `geogebra-setup` and `geometry-export` into one independently installable `geogebra-studio` Skill. Include the local generator, browser viewer, Gikz and XML parser with the Skill.
+- Remove the MCP server, tool registry, MCP Apps and MCP dependencies. Legacy MCP integrations must stay on version 0.4.0.
+- Preserve native 2D/3D interactive GeoGebra HTML, the Algebra View editor, themes, current-state GGB/HTML downloads, PNG/SVG/PDF/XML and Gikz-cleaned TikZ.
+- Keep strict GeoGebra XML-to-Asymptote and mixed TSQX/Asymptote exports through a local CLI.
+- Put the Algebra View toggle at the left side of the external toolbar, with theme and download controls on the right. Compact the download control.
+- Add nine-language documentation, project badges, cross-agent installation instructions and real-browser mathematical regression coverage.
+- Continue loading the official GeoGebra engine over the network; an offline engine is not bundled.
 
-- Default to a dependency-free HTML generator and execution in the Codex browser panel.
-- Stop registering MCP or preparing Chrome during default plugin installation.
-- Add `generate --input ... --workspace ...`, with opt-in `--verify` for Chrome checks.
-- Extract the viewer script; report failed commands, undefined objects and page-local snapshots.
-- Preserve current edits through packed-GGB HTML downloads. Keep legacy MCP opt-in.
-- Replace the plugin icon with the supplied five-node graphic.
+### Upgrade
 
-# Changelog
+- Generic Agent Skills: `npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio`
+- Optional Codex Plugin (after npm publication): `npx @lydt/geogebra-studio@0.5.0 install`
+- Previous MCP callers: pin `@lydt/geogebra-studio@0.4.0`; do not upgrade without migrating to the local Skill/CLI.
 
-All notable changes to this project will be documented in this file.
+## [0.4.0] — 2026-10-15
+
+- Fix GeoGebra scripting actions that successfully update viewport, style, coordinates or display state but return no object labels.
+- Route supported actions to native applet setters with validation.
+- Preserve explicit colours and sizing under theme changes; improve examples and mathematical rendering checks.
 
 ## 0.3.1 — 2026-10-11
 
@@ -29,14 +31,6 @@ All notable changes to this project will be documented in this file.
 - Require explicit opt-in for Apps API methods that replace or clear construction data.
 - Expand the core profile from 16 to 19 tools and document API bridge boundaries.
 - Package the skills and local stdio server as an installable local Codex plugin.
-
-## [0.1.2] - 2026-03-08
-
-### Security
-
-- Patched high-severity `minimatch` vulnerabilities by constraining transitive resolution with `overrides` (`minimatch@^9.0.7`).
-- Refreshed lockfile via `npm audit fix` to pick up patched transitive packages, including `brace-expansion` versions from safe ranges.
-
 
 ## 0.2.0 — 2026-10-11
 
@@ -52,3 +46,10 @@ All notable changes to this project will be documented in this file.
 - Bundle portable/Codex plugin manifests, three skills, and an MCP Apps preview.
 - Update Puppeteer and require Node >=22.12.0; use built-in UUID generation.
 - Document actual SDK protocol coverage and the 2026-07-28 migration gap.
+
+## [0.1.2] - 2026-03-08
+
+### Security
+
+- Patched high-severity `minimatch` vulnerabilities by constraining transitive resolution with `overrides` (`minimatch@^9.0.7`).
+- Refreshed lockfile via `npm audit fix` to pick up patched transitive packages, including `brace-expansion` versions from safe ranges.
