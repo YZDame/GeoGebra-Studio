@@ -39,7 +39,7 @@ The Codex distribution is only a convenience wrapper around the same Skill. With
 npx @lydt/geogebra-studio@0.5.0 install
 ```
 
-Restart the Codex session so installed Skills are reloaded. For source development, run `npm ci && npm run build`, then `node dist/cli.js install --local`. **0.5.0 is a proposed version; this PR does not publish it.** Until publication, use a built checkout or the self-contained Skill folder.
+Restart the Codex session so installed Skills are reloaded. For source development, run `npm ci && npm run build`, then `node dist/cli.js install --local`. The repository is at **0.5.0**. If npm has not published this version yet, install the standalone Skill from GitHub or use a built checkout.
 
 ## Quick start
 

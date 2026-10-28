@@ -39,7 +39,7 @@ Agent 需具有文件写入与命令执行权限。优先使用客户端内置�
 npx @lydt/geogebra-studio@0.5.0 install
 ```
 
-安装后重开 Codex 会话。源码开发用 `npm ci && npm run build`，再执行 `node dist/cli.js install --local`。**0.5.0 仅为拟议版本，本 PR 不发布。** 发布前应使用构建后的仓库或独立 Skill 目录。
+安装后重开 Codex 会话。源码开发用 `npm ci && npm run build`，再执行 `node dist/cli.js install --local`。仓库源码版本为 **0.5.0**。如 npm 尚未发布该版本，可直接从 GitHub 安装独立 Skill，或使用源码构建。
 
 ## 快速开始
 

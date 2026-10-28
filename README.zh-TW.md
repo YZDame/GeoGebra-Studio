@@ -39,7 +39,7 @@ Codex Plugin 是額外的發佈方式，而不是使用 Skill 的必要條件。
 npx @lydt/geogebra-studio@0.5.0 install
 ```
 
-安裝後請重新開啟 Codex 工作階段。本次 PR **尚未發佈 0.5.0**；發佈前請使用已建置的原始碼資料夾或獨立 Skill。原始碼開發指令為 `npm ci && npm run build`，本地 Codex 安裝則使用 `node dist/cli.js install --local`。
+安裝後請重新開啟 Codex 工作階段。此儲存庫的原始碼版本為 **0.5.0**。若 npm 尚未發佈該版本，請從 GitHub 安裝獨立 Skill，或自行建置原始碼。原始碼開發指令為 `npm ci && npm run build`，本地 Codex 安裝則使用 `node dist/cli.js install --local`。
 
 ## 快速開始
 
