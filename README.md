@@ -1,8 +1,10 @@
 # GeoGebra Studio
 
+[![CI](https://github.com/YZDame/GeoGebra-Studio/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/YZDame/GeoGebra-Studio/actions/workflows/check.yml) [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](LICENSE) [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522.12-339933?logo=node.js)](https://nodejs.org/) [![GitHub stars](https://img.shields.io/github/stars/YZDame/GeoGebra-Studio?style=flat)](https://github.com/YZDame/GeoGebra-Studio/stargazers)
+
 **A portable Agent Skill for editable mathematical constructions.** Describe a 2D or 3D figure, generate a local interactive GeoGebra HTML, inspect and edit it in a browser, then export the current construction.
 
-[简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
+[English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md)
 
 ![Right triangle rendered by the official GeoGebra applet](docs/images/right-triangle.png)
 

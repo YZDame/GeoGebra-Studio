@@ -24,6 +24,17 @@ const {execFileSync, spawnSync} = require('node:child_process');
     assert.equal(result.engineVerified,false); assert.equal(result.renderVerified,false); assert.equal(result.execution,'viewer');
     const html = await fs.readFile(result.filename,'utf8');
     assert(html.includes('deployggb.js'));assert(html.includes('gikz-browser'));assert(html.includes('geogebraStudio'));assert(html.includes('viewer-themes'));
+    // Compact English chrome: icon download, short format labels, Default theme.
+    assert(html.includes('class="control-button icon-button download-toggle"'));
+    assert(html.includes('aria-label="Download"'));
+    assert(html.includes('aria-label="Show objects"'));
+    assert(html.includes('aria-label="Theme"'));
+    assert(html.includes('id="theme-name">Default</span>'));
+    assert.equal((html.match(/data-format="(?:ggb|png|svg|tikz|pdf|xml|html)"/g)||[]).length,7);
+    assert(html.includes('>GGB</button>')&&html.includes('>PNG</button>')&&html.includes('>HTML</button>'));
+    assert(html.includes('default: "Default"'));
+    assert(html.includes('lang="en"'));
+    assert(html.includes('language: "en"')||html.includes('language:"en"'));
     const payload=JSON.parse(html.match(/<script id="construction-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
     assert.equal(payload.captionOverrides.A,'</script><script>bad()</script>');
     for (const script of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) {

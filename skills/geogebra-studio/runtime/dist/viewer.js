@@ -218,7 +218,7 @@
       const toggle = document.getElementById("download-toggle"), menu = document.getElementById("download-menu");
       const themes = JSON.parse(document.getElementById("viewer-themes").textContent);
       const themeMenu = document.getElementById("theme-menu"), themeToggle = document.getElementById("theme-toggle"), modeToggle = document.getElementById("mode-toggle"), sidebarToggle = document.getElementById("sidebar-toggle");
-      const themeNames = { default: "\u9ED8\u8BA4", ayu: "Ayu", catppuccin: "Catppuccin", everforest: "Everforest", gruvbox: "Gruvbox", "rose-pine": "Ros\xE9 Pine", nord: "Nord", solarized: "Solarized", flexoki: "Flexoki" };
+      const themeNames = { default: "Default", ayu: "Ayu", catppuccin: "Catppuccin", everforest: "Everforest", gruvbox: "Gruvbox", "rose-pine": "Ros\xE9 Pine", nord: "Nord", solarized: "Solarized", flexoki: "Flexoki" };
       themeMenu.replaceChildren();
       for (const name of Object.keys(themes)) {
         const button = document.createElement("button");
@@ -255,7 +255,7 @@
         document.documentElement.style.colorScheme = Number(mode) ? "dark" : "light";
         document.getElementById("theme-name").textContent = themeNames[name];
         for (const button of themeMenu.querySelectorAll("[data-theme]")) button.setAttribute("aria-checked", String(button.dataset.theme === name));
-        const action = Number(mode) ? "\u5207\u6362\u4E3A\u6D45\u8272" : "\u5207\u6362\u4E3A\u6DF1\u8272";
+        const action = Number(mode) ? "Switch to light" : "Switch to dark";
         modeToggle.setAttribute("aria-label", action);
         modeToggle.title = action;
         modeToggle.setAttribute("aria-pressed", String(Boolean(Number(mode))));
@@ -321,7 +321,7 @@
         };
       }
       runtime.snapshot = async () => {
-        if (!ready) throw new Error("GeoGebra \u5C1A\u672A\u5C31\u7EEA");
+        if (!ready) throw new Error("GeoGebra is not ready");
         return { ggbBase64: await callbackExport("ggb"), constructionXml: api.getXML(), checks: checkConstruction() };
       };
       function setStatus(text, error = false) {
@@ -391,10 +391,10 @@
       }
       function callbackExport(format) {
         return new Promise((resolve, reject) => {
-          const timer = setTimeout(() => reject(new Error("\u5BFC\u51FA\u8D85\u65F6")), 2e4);
+          const timer = setTimeout(() => reject(new Error("Export timed out")), 2e4);
           const done = (value) => {
             clearTimeout(timer);
-            value ? resolve(value) : reject(new Error("GeoGebra \u672A\u8FD4\u56DE\u6587\u4EF6"));
+            value ? resolve(value) : reject(new Error("GeoGebra did not return a file"));
           };
           try {
             if (format === "ggb") api.getBase64(done);
@@ -490,14 +490,14 @@
                 const delta = v - center[i];
                 return Math.abs(delta) > 1e-8 ? Math.sign(delta) * extent * 0.07 : extent * 0.035;
               }) : [dx, dy];
-              if (!api.evalCommand(label + " = Text(" + JSON.stringify(math).replaceAll(String.fromCharCode(92, 92), String.fromCharCode(92)) + ", " + anchor + " + (" + offset.join(",") + "), true, true)")) throw new Error("\u65E0\u6CD5\u521B\u5EFA LaTeX \u6807\u7B7E " + name);
+              if (!api.evalCommand(label + " = Text(" + JSON.stringify(math).replaceAll(String.fromCharCode(92, 92), String.fromCharCode(92)) + ", " + anchor + " + (" + offset.join(",") + "), true, true)")) throw new Error("Failed to create LaTeX label " + name);
               if (is3D) api.evalCommand("SetFontSize(" + label + ",18)");
               api.setLabelVisible(label, false);
               api.setFixed(label, true, false);
               api.setAuxiliary(label, true);
             }
           } catch (error) {
-            runtime.warnings.push("\u6837\u5F0F\u8BBE\u7F6E\u5931\u8D25 " + name + ": " + String(error.message || error));
+            runtime.warnings.push("Style failed " + name + ": " + String(error.message || error));
           }
         }
       }
@@ -507,12 +507,12 @@
         toggle.disabled = true;
         try {
           if (format === "tikz") {
-            if (typeof api.exportPGF !== "function") throw new Error("\u5F53\u524D GeoGebra \u5F15\u64CE\u4E0D\u652F\u6301 TikZ \u5BFC\u51FA");
-            setStatus("\u6B63\u5728\u901A\u8FC7 Gikz \u6E05\u6D17\u2026");
+            if (typeof api.exportPGF !== "function") throw new Error("This GeoGebra engine does not support TikZ export");
+            setStatus("Cleaning with Gikz\u2026");
             const source = await callbackExport("tikz");
-            if (!globalThis.Gikz) throw new Error("Gikz \u672A\u52A0\u8F7D\uFF0C\u5DF2\u505C\u6B62 TikZ \u5BFC\u51FA");
+            if (!globalThis.Gikz) throw new Error("Gikz is not loaded; TikZ export stopped");
             const cleaned = Gikz.wrapStandalone(Gikz.cleanTikZCode(source));
-            if (!cleaned.includes("\\begin{tikzpicture}")) throw new Error("Gikz \u672A\u751F\u6210\u6709\u6548 TikZ");
+            if (!cleaned.includes("\\begin{tikzpicture}")) throw new Error("Gikz did not produce valid TikZ");
             download(cleaned, "application/x-tex", "tex");
           } else if (format === "xml") download(api.getXML(), "application/xml", "xml");
           else if (format === "png") download(api.getPNGBase64(2, false, 144), "image/png", "png", true);
@@ -540,7 +540,7 @@
           }
           setStatus("");
         } catch (error) {
-          setStatus(error.message || "\u5BFC\u51FA\u5931\u8D25", true);
+          setStatus(error.message || "Export failed", true);
         } finally {
           toggle.disabled = false;
         }
@@ -603,8 +603,8 @@
         api.showToolBar(sidebarOpen);
         api.showMenuBar(sidebarOpen);
         sidebarToggle.setAttribute("aria-expanded", String(sidebarOpen));
-        sidebarToggle.setAttribute("aria-label", sidebarOpen ? "\u6536\u8D77\u5BF9\u8C61\u680F" : "\u5C55\u5F00\u5BF9\u8C61\u680F");
-        sidebarToggle.title = sidebarOpen ? "\u6536\u8D77\u5BF9\u8C61\u680F" : "\u5C55\u5F00\u5BF9\u8C61\u680F";
+        sidebarToggle.setAttribute("aria-label", sidebarOpen ? "Hide objects" : "Show objects");
+        sidebarToggle.title = sidebarOpen ? "Hide objects" : "Show objects";
         sidebarToggle.querySelector("svg path").setAttribute("d", sidebarOpen ? "M9 4v16m7-11-3 3 3 3" : "M9 4v16m4-11 3 3-3 3");
         setSize(camera);
       });
@@ -619,7 +619,7 @@
           disableAutoScale: true,
           showZoomButtons: false,
           borderColor: "transparent",
-          language: "zh-CN",
+          language: "en",
           showToolBar: true,
           showMenuBar: true,
           showAlgebraInput: true,
@@ -646,7 +646,7 @@
                 const styleCommands = [];
                 let explicitViewport = false;
                 for (const [index, command] of (specification.commands || []).entries()) {
-                  setStatus("\u6B63\u5728\u6267\u884C\u6784\u9020 " + (index + 1) + " / " + specification.commands.length);
+                  setStatus("Running command " + (index + 1) + " / " + specification.commands.length);
                   let success;
                   try {
                     const styled = executeViewerStyleCommand({
@@ -667,11 +667,11 @@
                     success = styled ?? viewport ?? action ?? await executeViewerCommand(api, command);
                   } catch (error) {
                     runtime.failedCommand = { index: index + 1, command };
-                    throw new Error("\u7B2C " + (index + 1) + " \u6761\u547D\u4EE4\u5931\u8D25\uFF1A" + command + " \u2014 " + (error.message || error));
+                    throw new Error("Command " + (index + 1) + " failed: " + command + " \u2014 " + (error.message || error));
                   }
                   if (!success) {
                     runtime.failedCommand = { index: index + 1, command };
-                    throw new Error("\u7B2C " + (index + 1) + " \u6761\u547D\u4EE4\u5931\u8D25\uFF1A" + command);
+                    throw new Error("Command " + (index + 1) + " failed: " + command);
                   }
                   runtime.completedCommands++;
                 }
@@ -688,8 +688,8 @@
               equalAxes();
               applyTheme();
               runtime.checks = checkConstruction();
-              if (runtime.checks.undefinedVisibleObjects.length) throw new Error("\u5B58\u5728\u672A\u5B9A\u4E49\u7684\u53EF\u89C1\u5BF9\u8C61\uFF1A" + runtime.checks.undefinedVisibleObjects.join(", "));
-              if (!runtime.checks.equalAxes || runtime.checks.viewWidth <= 0 || runtime.checks.viewHeight <= 0) throw new Error("\u89C6\u56FE\u6BD4\u4F8B\u6216\u5C3A\u5BF8\u68C0\u67E5\u5931\u8D25");
+              if (runtime.checks.undefinedVisibleObjects.length) throw new Error("Undefined visible objects: " + runtime.checks.undefinedVisibleObjects.join(", "));
+              if (!runtime.checks.equalAxes || runtime.checks.viewWidth <= 0 || runtime.checks.viewHeight <= 0) throw new Error("Viewport scale or size check failed");
               runtime.status = "ready";
               ready = true;
               sidebarToggle.disabled = false;
@@ -710,7 +710,7 @@
         applet.inject("ggb-element");
       };
       setTimeout(() => {
-        if (!ready && !window.ggbError) window.failGeoGebra("GeoGebra \u52A0\u8F7D\u8D85\u65F6\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u5237\u65B0");
+        if (!ready && !window.ggbError) window.failGeoGebra("GeoGebra load timed out. Check the network and refresh.");
       }, 6e4);
     })();
   })();

@@ -25,7 +25,7 @@ function constructionHtml(options = {}) {
         captionOverrides: options.captionOverrides ?? {}
     });
     return `<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark"><title>GeoGebra</title>
 <style>
 :root{color-scheme:light;--paper:#fffcf0;--line:#e6e4d9;--ink:#100f0f;--muted:#6f6e69;--hover:#f2f0e5}
@@ -44,22 +44,22 @@ header{position:relative;z-index:10;display:flex;justify-content:space-between;a
 @media(max-width:640px){main{padding:8px}.stage{border-radius:7px}header{margin-bottom:6px}}
 @media print{main{width:100%;padding:0}header{display:none}.stage{border:0;border-radius:0}}
 </style></head><body><main>
-<header><button id="sidebar-toggle" class="control-button icon-button sidebar-toggle" type="button" aria-label="展开对象栏" title="展开对象栏" aria-expanded="false" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16m4-11 3 3-3 3"/></svg></button><div class="header-actions"><div class="menu-control"><button id="theme-toggle" class="control-button" type="button" aria-label="选择主题" aria-expanded="false" aria-haspopup="menu" aria-controls="theme-menu"><span id="theme-name">默认</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="theme-menu" class="viewer-menu" role="menu" aria-label="配色主题"></div></div>
-<button id="mode-toggle" class="control-button icon-button" type="button" aria-label="切换深浅色"></button>
-<div class="menu-control downloads"><button class="control-button download-toggle" id="download-toggle" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="download-menu" title="编辑后请下载当前 HTML 或 GGB 保存；刷新会恢复文件中的构造" disabled>下载</button>
-<div class="viewer-menu" id="download-menu" role="menu" aria-label="下载格式">
-<button type="button" role="menuitem" data-format="ggb">GeoGebra 文件</button>
-<button type="button" role="menuitem" data-format="png">PNG 图片</button>
-<button type="button" role="menuitem" data-format="svg">SVG 矢量图</button>
-<button type="button" role="menuitem" data-format="tikz">TikZ 源文件 (.tex)</button>
-<button type="button" role="menuitem" data-format="pdf">PDF 文档</button>
-<button type="button" role="menuitem" data-format="xml">XML 源文件</button>
-<button type="button" role="menuitem" data-format="html">交互 HTML</button></div></div></div></header>
-<section class="stage" aria-label="GeoGebra 图形"><p id="status" role="status" aria-live="polite">正在加载…</p><div id="ggb-element"></div></section></main>
+<header><button id="sidebar-toggle" class="control-button icon-button sidebar-toggle" type="button" aria-label="Show objects" title="Show objects" aria-expanded="false" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16m4-11 3 3-3 3"/></svg></button><div class="header-actions"><div class="menu-control"><button id="theme-toggle" class="control-button" type="button" aria-label="Theme" aria-expanded="false" aria-haspopup="menu" aria-controls="theme-menu"><span id="theme-name">Default</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="theme-menu" class="viewer-menu" role="menu" aria-label="Themes"></div></div>
+<button id="mode-toggle" class="control-button icon-button" type="button" aria-label="Toggle light/dark"></button>
+<div class="menu-control downloads"><button class="control-button icon-button download-toggle" id="download-toggle" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="download-menu" aria-label="Download" title="Download" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg></button>
+<div class="viewer-menu" id="download-menu" role="menu" aria-label="Formats">
+<button type="button" role="menuitem" data-format="ggb">GGB</button>
+<button type="button" role="menuitem" data-format="png">PNG</button>
+<button type="button" role="menuitem" data-format="svg">SVG</button>
+<button type="button" role="menuitem" data-format="tikz">TikZ</button>
+<button type="button" role="menuitem" data-format="pdf">PDF</button>
+<button type="button" role="menuitem" data-format="xml">XML</button>
+<button type="button" role="menuitem" data-format="html">HTML</button></div></div></div></header>
+<section class="stage" aria-label="GeoGebra"><p id="status" role="status" aria-live="polite">Loading…</p><div id="ggb-element"></div></section></main>
 <script id="construction-data" type="application/json">${payload}</script>
 ${cleaner}
 <script id="viewer-themes" type="application/json">${scriptJson(viewer_themes_1.viewerThemes)}</script>
-<script>${viewerScript()}</script><script src="https://www.geogebra.org/apps/deployggb.js" onload="startGeoGebra()" onerror="failGeoGebra('GeoGebra 加载失败，请检查网络后刷新')"></script>
+<script>${viewerScript()}</script><script src="https://www.geogebra.org/apps/deployggb.js" onload="startGeoGebra()" onerror="failGeoGebra('GeoGebra failed to load. Check the network and refresh.')"></script>
 </body></html>`;
 }
 //# sourceMappingURL=html.js.map

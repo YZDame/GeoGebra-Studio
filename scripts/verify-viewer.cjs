@@ -58,7 +58,7 @@ const settle=page=>page.waitForFunction(()=>{if(!window.ggbReady)return false;co
   await reopened.click('.avItem .elemText',{clickCount:2});
   for(let i=0;i<50;i++)await reopened.keyboard.press('ArrowRight');for(let i=0;i<100;i++)await reopened.keyboard.press('Backspace');
   await reopened.keyboard.type('Gamma: x^2');await reopened.keyboard.press('ArrowRight');await reopened.keyboard.type('+y^2');await reopened.keyboard.press('ArrowRight');await reopened.keyboard.type('=36');
-  await reopened.click('.KeyBoardButton[aria-label="回车"]');
+  await reopened.click('.KeyBoardButton[aria-label="Enter"]');
   await reopened.waitForFunction(()=>ggbApplet.getDefinitionString('Gamma').includes('36'),{timeout:15000});assert.equal(nativeErrors.length,0,nativeErrors.join('; '));
   assert(Math.abs(await reopened.evaluate(()=>ggbApplet.getXcoord('A'))-6)<1e-6);
   const editedRaw=await reopened.evaluate(()=>new Promise(resolve=>ggbApplet.exportPGF(resolve)));
