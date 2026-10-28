@@ -11,7 +11,7 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
     const toggle = document.getElementById("download-toggle"), menu = document.getElementById("download-menu");
     const themes = JSON.parse(document.getElementById("viewer-themes").textContent);
     const themeMenu = document.getElementById("theme-menu"), themeToggle = document.getElementById("theme-toggle"), modeToggle = document.getElementById("mode-toggle"), sidebarToggle = document.getElementById("sidebar-toggle");
-    const themeNames = { default: "\u9ED8\u8BA4", ayu: "Ayu", catppuccin: "Catppuccin", everforest: "Everforest", gruvbox: "Gruvbox", "rose-pine": "Ros\xE9 Pine", nord: "Nord", solarized: "Solarized", flexoki: "Flexoki" };
+    const themeNames = { default: "Default", ayu: "Ayu", catppuccin: "Catppuccin", everforest: "Everforest", gruvbox: "Gruvbox", "rose-pine": "Ros\xE9 Pine", nord: "Nord", solarized: "Solarized", flexoki: "Flexoki" };
     themeMenu.replaceChildren();
     for (const name of Object.keys(themes)) {
       const button = document.createElement("button");
