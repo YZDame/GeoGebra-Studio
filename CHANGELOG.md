@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.5.0]
+## [0.5.0] — 2026-10-29
 
 ### Breaking change: portable Agent Skill
 
@@ -15,7 +15,7 @@
 ### Upgrade
 
 - Generic Agent Skills: `npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio`
-- Optional Codex Plugin (after npm publication): `npx @lydt/geogebra-studio@0.5.0 install`
+- Optional Codex Plugin: `npx @lydt/geogebra-studio@0.5.0 install`
 - Previous MCP callers: pin `@lydt/geogebra-studio@0.4.0`; do not upgrade without migrating to the local Skill/CLI.
 
 ## [0.4.0] — 2026-10-15

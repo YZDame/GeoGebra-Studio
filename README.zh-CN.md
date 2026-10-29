@@ -33,13 +33,13 @@ Agent 需具有文件写入与命令执行权限。优先使用客户端内置�
 
 ## 可选 Codex Plugin
 
-保留 Codex 的便捷安装渠道（需对应 npm 版本正式发布）：
+保留 Codex 的便捷安装渠道（0.5.0 已在 npm 发布）：
 
 ```sh
 npx @lydt/geogebra-studio@0.5.0 install
 ```
 
-安装后重开 Codex 会话。源码开发用 `npm ci && npm run build`，再执行 `node dist/cli.js install --local`。仓库源码版本为 **0.5.0**。如 npm 尚未发布该版本，可直接从 GitHub 安装独立 Skill，或使用源码构建。
+安装后重开 Codex 会话。源码开发用 `npm ci && npm run build`，再执行 `node dist/cli.js install --local`。
 
 ## 快速开始
 

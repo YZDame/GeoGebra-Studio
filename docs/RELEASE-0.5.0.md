@@ -19,7 +19,7 @@ This version turns GeoGebra Studio into **one self-contained Agent Skill** with 
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
-**Codex Plugin (once the npm package is published):**
+**Codex Plugin** ([npm](https://www.npmjs.com/package/@lydt/geogebra-studio/v/0.5.0)):
 
 ```sh
 npx @lydt/geogebra-studio@0.5.0 install
@@ -39,4 +39,4 @@ The v0.5.0 rearchitecture was verified with dependency-free Skill installation, 
 
 ## Publication
 
-Publishing a GitHub Release with tag `v0.5.0` triggers `.github/workflows/publish-npm.yml` to build, verify and publish `@lydt/geogebra-studio@0.5.0` through npm trusted publishing. Configure the npm Trusted Publisher for GitHub owner `YZDame`, repository `GeoGebra-Studio`, workflow filename `publish-npm.yml`, and environment `npm` before publishing the Release. Verify the package and dist-tag after the workflow succeeds.
+Publishing a GitHub Release with tag `v0.5.0` triggers `.github/workflows/publish-npm.yml` to build, verify and publish `@lydt/geogebra-studio@0.5.0` through npm trusted publishing. Configure the npm Trusted Publisher for GitHub owner `YZDame`, repository `GeoGebra-Studio`, workflow filename `publish-npm.yml`, and environment `npm` before publishing the Release. Published on 2026-10-29 as `@lydt/geogebra-studio@0.5.0` (dist-tag `latest`) with npm provenance.

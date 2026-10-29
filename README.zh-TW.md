@@ -33,13 +33,13 @@ Agent 需要具備檔案寫入與終端機指令執行權限。優先使用客�
 
 ## 可選的 Codex Plugin
 
-Codex Plugin 是額外的發佈方式，而不是使用 Skill 的必要條件。正式發佈相容版本後，可以使用：
+Codex Plugin 是額外的發佈方式，而不是使用 Skill 的必要條件。0.5.0 已在 npm 發佈，可以使用：
 
 ```sh
 npx @lydt/geogebra-studio@0.5.0 install
 ```
 
-安裝後請重新開啟 Codex 工作階段。此儲存庫的原始碼版本為 **0.5.0**。若 npm 尚未發佈該版本，請從 GitHub 安裝獨立 Skill，或自行建置原始碼。原始碼開發指令為 `npm ci && npm run build`，本地 Codex 安裝則使用 `node dist/cli.js install --local`。
+安裝後請重新開啟 Codex 工作階段。原始碼開發指令為 `npm ci && npm run build`，本地 Codex 安裝則使用 `node dist/cli.js install --local`。
 
 ## 快速開始
 

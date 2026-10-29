@@ -30,7 +30,7 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ## 선택 사항: Codex Plugin
 
-Codex용 배포 방식은 선택 사항입니다. 저장소 소스 버전은 **0.5.0**입니다. npm에 아직 게시되지 않았다면 GitHub에서 독립형 Skill을 설치하거나 소스를 빌드하여 사용하세요. 설치 후 Codex 세션을 다시 시작해야 합니다.
+Codex용 배포 방식은 선택 사항입니다. **0.5.0** 버전은 npm에 게시되어 있습니다. 설치 후 Codex 세션을 다시 시작해야 합니다.
 
 ```sh
 npx @lydt/geogebra-studio@0.5.0 install
