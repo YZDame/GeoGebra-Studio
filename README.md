@@ -33,13 +33,13 @@ Agents need file-write/shell access. Open HTML in the client's built-in browser 
 
 ## Optional Codex Plugin
 
-The Codex distribution is only a convenience wrapper around the same Skill. With an npm release that includes this architecture:
+The Codex distribution is only a convenience wrapper around the same Skill. Version 0.5.0 is published on npm:
 
 ```sh
 npx @lydt/geogebra-studio@0.5.0 install
 ```
 
-Restart the Codex session so installed Skills are reloaded. For source development, run `npm ci && npm run build`, then `node dist/cli.js install --local`. The repository is at **0.5.0**. If npm has not published this version yet, install the standalone Skill from GitHub or use a built checkout.
+Restart the Codex session so installed Skills are reloaded. For source development, run `npm ci && npm run build`, then `node dist/cli.js install --local`.
 
 ## Quick start
 
