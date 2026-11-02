@@ -56,7 +56,12 @@ header{position:relative;z-index:10;display:flex;justify-content:space-between;a
 .viewer-menu.open{display:grid}.viewer-menu button{display:flex;align-items:center;gap:10px;min-height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--ink);text-align:left;font:inherit;cursor:pointer}
 .viewer-menu button:hover,.viewer-menu button[aria-checked="true"]{background:var(--hover)}.viewer-menu{max-height:min(70vh,400px);overflow:auto}.theme-name{flex:1}.swatch{width:12px;height:12px;border-radius:50%;border:1px solid rgb(128 128 128 / 35%)}.sidebar-toggle{flex-shrink:0}.viewer-menu button:disabled{opacity:.5;cursor:wait}
 .stage{position:relative;width:100%;flex:1;min-height:200px;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+:root[data-color-mode="dark"] .stage{border-color:transparent}
 #ggb-element{position:absolute;inset:0;width:100%!important;height:100%!important;overflow:hidden}
+#ggb-element .GeoGebraFrame{border-color:transparent!important;background:var(--paper)!important}
+#ggb-element .GeoGebraFrame>.gwt-SplitLayoutPanel{background:var(--paper)!important}
+#ggb-element .TitleBarPanel:has(.StyleBarPanel_){display:none!important}
+.stage:not([data-objects-open="true"]) .AlgebraInput{display:none!important}
 #status{position:absolute;inset:0;z-index:2;display:grid;place-items:center;margin:0;padding:16px;color:var(--muted);background:var(--paper);text-align:center;pointer-events:none}
 #status[hidden]{display:none}#status.error{color:#af3029}
 @media(max-width:640px){main{padding:8px}.stage{border-radius:7px}header{margin-bottom:6px}}

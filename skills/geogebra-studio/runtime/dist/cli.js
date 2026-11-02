@@ -41,13 +41,15 @@ function help() {
     console.log(`GeoGebra Studio ${metadata.version} — local geometry Skill
 Usage:
   geogebra-studio generate --input SPEC.json --workspace ABS_DIR [--output FILE.html] [--verify]
+  geogebra-studio preview --input FILE.html --workspace ABS_DIR
   geogebra-studio export --input CONSTRUCTION.xml --format tsqx|asymptote --workspace ABS_DIR --output FILE
   geogebra-studio export --input NATIVE.pgf --format tikz --workspace ABS_DIR --output FILE.tex
   geogebra-studio doctor
   geogebra-studio browser install                 Optional browser-based verification
   geogebra-studio install [--local]              Optional Codex plugin installation
 --verify and browser install need the npm package or a built checkout (Puppeteer);
-install --local needs a built checkout. A copied Skill supports generate, export and doctor.
+install --local needs a built checkout. A copied Skill supports generate, preview, export and doctor.
+preview serves only the selected HTML on loopback; keep it running while the browser is open.
 The generated HTML uses official GeoGebra assets and requires internet access.`);
 }
 function requireBrowserStack() {
@@ -103,6 +105,18 @@ async function main() {
         }
         else
             console.log(JSON.stringify(await generateViewer(spec, options['--workspace'])));
+        return;
+    }
+    if (command === 'preview') {
+        const options = flags(args, ['--input', '--workspace']);
+        if (!options['--input'] || !options['--workspace'])
+            throw Error('preview requires --input and --workspace');
+        const { previewViewer } = await Promise.resolve().then(() => __importStar(require('./studio/preview')));
+        const { server, filename, url } = await previewViewer(options['--input'], options['--workspace']);
+        for (const signal of ['SIGINT', 'SIGTERM'])
+            process.once(signal, () => server.close());
+        console.log(JSON.stringify({ success: true, filename, url, requiresNetwork: true, engineVerified: false, renderVerified: false,
+            note: 'Open this HTTP URL in the client browser, keep this process running, and verify geogebraStudio.status and the drawing. A file preview may restrict external scripts.' }));
         return;
     }
     if (command === 'export') {

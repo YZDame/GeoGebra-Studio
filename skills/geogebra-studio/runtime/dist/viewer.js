@@ -253,6 +253,7 @@
         const palette = themes[name][Number(mode)];
         for (const [key, value] of Object.entries(palette)) document.documentElement.style.setProperty("--" + key, value);
         document.documentElement.style.colorScheme = Number(mode) ? "dark" : "light";
+        document.documentElement.dataset.colorMode = Number(mode) ? "dark" : "light";
         document.getElementById("theme-name").textContent = themeNames[name];
         for (const button of themeMenu.querySelectorAll("[data-theme]")) button.setAttribute("aria-checked", String(button.dataset.theme === name));
         const action = Number(mode) ? "Switch to light" : "Switch to dark";
@@ -598,6 +599,7 @@
         if (!ready) return;
         const camera = readCamera();
         sidebarOpen = !sidebarOpen;
+        document.querySelector(".stage").dataset.objectsOpen = String(sidebarOpen);
         api.setPerspective((sidebarOpen ? "A" : "") + graphicsPerspective);
         api.showAlgebraInput(sidebarOpen);
         api.showToolBar(sidebarOpen);
@@ -618,12 +620,12 @@
           height,
           disableAutoScale: true,
           showZoomButtons: false,
-          borderColor: "transparent",
+          borderColor: "none",
           language: "en",
           showToolBar: true,
           showMenuBar: true,
           showAlgebraInput: true,
-          allowStyleBar: true,
+          allowStyleBar: false,
           enableRightClick: true,
           showResetIcon: false,
           useBrowserForJS: false,

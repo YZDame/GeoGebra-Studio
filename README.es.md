@@ -30,10 +30,10 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ## Codex Plugin opcional
 
-El Plugin es un envoltorio opcional. La versión **0.5.0** está publicada en npm. Reinicia Codex después de instalarla.
+El Plugin es un envoltorio opcional. La versión **0.6.0** está publicada en npm. Reinicia Codex después de instalarla.
 
 ```sh
-npx @lydt/geogebra-studio@0.5.0 install
+npx @lydt/geogebra-studio@0.6.0 install
 ```
 
 ## Inicio rápido

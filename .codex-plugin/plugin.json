@@ -1,6 +1,6 @@
 {
   "name": "geogebra-studio",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Portable Agent Skill for editable GeoGebra HTML constructions and geometry source exports",
   "skills": "./skills/",
   "extensions": {

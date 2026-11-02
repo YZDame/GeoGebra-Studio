@@ -33,10 +33,10 @@ Agent 需要具備檔案寫入與終端機指令執行權限。優先使用客�
 
 ## 可選的 Codex Plugin
 
-Codex Plugin 是額外的發佈方式，而不是使用 Skill 的必要條件。0.5.0 已在 npm 發佈，可以使用：
+Codex Plugin 是額外的發佈方式，而不是使用 Skill 的必要條件。0.6.0 安裝指令：
 
 ```sh
-npx @lydt/geogebra-studio@0.5.0 install
+npx @lydt/geogebra-studio@0.6.0 install
 ```
 
 安裝後請重新開啟 Codex 工作階段。原始碼開發指令為 `npm ci && npm run build`，本地 Codex 安裝則使用 `node dist/cli.js install --local`。
@@ -59,11 +59,13 @@ npx @lydt/geogebra-studio@0.5.0 install
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-用瀏覽器開啟產生的 HTML。若內建瀏覽器不支援 `file://`，可使用僅繫結 `127.0.0.1` 的臨時靜態伺服器：
+Agent 客戶端應使用真正的瀏覽器面板；HTML 檔案預覽可能限制 GeoGebra 的遠端腳本。內建執行環境提供單檔 HTTP 預覽：
 
 ```sh
-python3 -m http.server 8765 --bind 127.0.0.1 --directory /absolute/project
+node /path/to/geogebra-studio/scripts/geogebra-studio.cjs preview --input /absolute/project/diagram.html --workspace /absolute/project
 ```
+
+保持程序執行，在客戶端瀏覽器開啟傳回的本機網址。它只提供選定 HTML 的快照，修改檔案後須重新啟動預覽。一般瀏覽器仍可直接開啟 HTML。這不會覆寫客戶端的存取政策；安全檢查若拒絕存取，應回報限制，不可切換傳輸方式規避。必須在目標客戶端確認 `window.geogebraStudio.status === "ready"` 並檢查實際畫面，才能回報繪製成功。
 
 產生器只會建立新檔案，不覆寫既有檔案，也不會在產生階段執行幾何指令。必須檢視實際的 GeoGebra 畫面，確認幾何關係、交點分支、比例、標籤及拖曳效果。
 

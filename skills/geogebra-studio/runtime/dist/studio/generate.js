@@ -67,7 +67,7 @@ async function generateViewer(value, workspace) {
         const filename = await (0, files_1.saveText)(spec.filename, (0, html_1.constructionHtml)(spec));
         return { success: true, filename, requiresNetwork: true, engineVerified: false,
             renderVerified: false, execution: 'viewer',
-            note: 'Open this HTML in the Codex browser panel. Check geogebraStudio.status and the visible diagram. Download current HTML or GGB to preserve edits.' };
+            note: 'For an agent client browser, run preview --input FILE.html --workspace ABS_DIR and open its HTTP URL in the browser, not a static file preview. Check geogebraStudio.status and the drawing. Respect client access restrictions. Download current HTML or GGB to preserve edits.' };
     });
 }
 //# sourceMappingURL=generate.js.map

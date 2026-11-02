@@ -41,6 +41,7 @@ jobs:
       - run: npm run verify:manifests
       - run: node scripts/verify-generator.cjs
       - run: node scripts/verify-skill.cjs
+      - run: node scripts/verify-preview.cjs
       - run: node scripts/verify-exports.cjs
       - if: github.event_name == 'workflow_dispatch' && inputs.native
         run: sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra

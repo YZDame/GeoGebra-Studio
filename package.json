@@ -1,6 +1,6 @@
 {
   "name": "@lydt/geogebra-studio",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Portable Agent Skill for editable GeoGebra HTML constructions and geometry source exports",
   "main": "dist/index.js",
   "private": false,
@@ -42,7 +42,7 @@
   "scripts": {
     "build": "npm run clean && tsc && node scripts/build-plugin.cjs",
     "clean": "node -e \"require('node:fs').rmSync('dist', {recursive:true, force:true})\"",
-    "verify": "npm run build && npm run verify:manifests && node scripts/verify-generator.cjs && node scripts/verify-skill.cjs && node scripts/verify-exports.cjs",
+    "verify": "npm run build && npm run verify:manifests && node scripts/verify-generator.cjs && node scripts/verify-skill.cjs && node scripts/verify-preview.cjs && node scripts/verify-exports.cjs",
     "verify:manifests": "node scripts/verify-manifests.cjs",
     "test:unit": "jest --runInBand --runTestsByPath tests/unit/semantic-export.test.ts tests/unit/studio-artifact.test.ts tests/unit/viewer-3d.test.ts tests/unit/viewer-action-commands.test.ts tests/unit/viewer-command-executor.test.ts tests/unit/viewer-style-commands.test.ts tests/unit/geogebra-instance.test.ts",
     "verify:math": "node scripts/verify-math.cjs",

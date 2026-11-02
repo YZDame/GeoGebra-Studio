@@ -111,3 +111,7 @@ Thumbs.db /.env.example
 .npmrc
 
 /release/
+
+# Portable Skill runtime is distributed from GitHub as well as npm.
+!skills/geogebra-studio/runtime/dist/
+!skills/geogebra-studio/runtime/dist/**

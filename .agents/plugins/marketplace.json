@@ -9,7 +9,7 @@
       "source": {
         "source": "npm",
         "package": "@lydt/geogebra-studio",
-        "version": "0.5.0"
+        "version": "0.6.0"
       },
       "policy": {
         "installation": "AVAILABLE",

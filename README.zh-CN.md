@@ -33,10 +33,10 @@ Agent 需具有文件写入与命令执行权限。优先使用客户端内置�
 
 ## 可选 Codex Plugin
 
-保留 Codex 的便捷安装渠道（0.5.0 已在 npm 发布）：
+Codex 的便捷安装命令（0.6.0）：
 
 ```sh
-npx @lydt/geogebra-studio@0.5.0 install
+npx @lydt/geogebra-studio@0.6.0 install
 ```
 
 安装后重开 Codex 会话。源码开发用 `npm ci && npm run build`，再执行 `node dist/cli.js install --local`。
@@ -59,7 +59,13 @@ npx @lydt/geogebra-studio@0.5.0 install
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-在浏览器中打开得到的 HTML。如果内置浏览器不支持 `file://`，使用仅监听 `127.0.0.1` 的临时静态服务，例如 `python3 -m http.server 8765 --bind 127.0.0.1 --directory /absolute/project`。
+Agent 客户端应使用真正的浏览器面板；HTML 文件预览可能限制 GeoGebra 的远程脚本。内置运行时提供单文件 HTTP 预览：
+
+```sh
+node /path/to/geogebra-studio/scripts/geogebra-studio.cjs preview --input /absolute/project/diagram.html --workspace /absolute/project
+```
+
+保持进程运行，在客户端浏览器打开返回的本机地址。它仅提供选定 HTML 的快照，修改文件后需重启预览。普通浏览器仍可直接打开 HTML。这不会覆盖客户端的访问策略；若安全检查拒绝访问，应报告限制，不能切换传输方式规避。必须在目标客户端确认 `window.geogebraStudio.status === "ready"` 并检查实际画面，才能报告渲染成功。
 
 生成器**只写入新文件**，不会覆盖已有文件，也不代表已实际验证数学图形。需要在真实 GeoGebra 画布中检查标签、交点、切线、比例和拖动效果。
 

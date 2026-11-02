@@ -23,6 +23,7 @@ const {execFileSync}=require('node:child_process');
    packed=JSON.parse(execFileSync('npm',['pack','--ignore-scripts','--json','--pack-destination',out],{cwd:staging,encoding:'utf8',env:{...process.env,npm_config_cache:path.join(os.tmpdir(),'geogebra-studio-release-npm-cache')}}))[0];
   }
   for(const file of ['dist/cli.js','dist/gikz-browser.js','dist/viewer.js','dist/studio/generate.js','gikz/core.cjs','gikz/cli.cjs','gikz/LICENSE','LICENSE','LICENSE-MIT','skills/geogebra-studio/SKILL.md','skills/geogebra-studio/runtime/dist/cli.js'])await fs.access(path.join(staging,file));
+  for(const file of ['dist/studio/preview.js','skills/geogebra-studio/runtime/dist/studio/preview.js'])await fs.access(path.join(staging,file));
   const configs=await Promise.all(['plugin.json','.codex-plugin/plugin.json'].map(f=>fs.readFile(path.join(staging,f),'utf8')));
   if(configs.some(s=>/\/Users\/|_npx\/|GIKZ_CLI/.test(s)))throw Error('Nonportable release manifest');
   const zip=path.join(out,`geogebra-studio-${version}.zip`);await fs.rm(zip,{force:true});

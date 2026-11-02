@@ -30,10 +30,10 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ## Plugin Codex facultatif
 
-Le Plugin Codex est un complément facultatif. La version **0.5.0** est publiée sur npm. Redémarrez Codex après installation.
+Le Plugin Codex est un complément facultatif. La version **0.6.0** est publiée sur npm. Redémarrez Codex après installation.
 
 ```sh
-npx @lydt/geogebra-studio@0.5.0 install
+npx @lydt/geogebra-studio@0.6.0 install
 ```
 
 ## Démarrage rapide

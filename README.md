@@ -33,10 +33,10 @@ Agents need file-write/shell access. Open HTML in the client's built-in browser 
 
 ## Optional Codex Plugin
 
-The Codex distribution is only a convenience wrapper around the same Skill. Version 0.5.0 is published on npm:
+The Codex distribution is only a convenience wrapper around the same Skill. Install version 0.6.0:
 
 ```sh
-npx @lydt/geogebra-studio@0.5.0 install
+npx @lydt/geogebra-studio@0.6.0 install
 ```
 
 Restart the Codex session so installed Skills are reloaded. For source development, run `npm ci && npm run build`, then `node dist/cli.js install --local`.
@@ -59,7 +59,13 @@ Then ask your agent to use the installed `geogebra-studio` Skill. Or run directl
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-Open the resulting HTML in the agent browser panel or any modern browser. If `file://` navigation is blocked, serve the workspace using a localhost-only static server (`python3 -m http.server 8765 --bind 127.0.0.1 --directory /absolute/project`), then open the corresponding URL.
+For agent clients, use a real browser pane; an HTML file-preview pane may restrict GeoGebra's remote scripts. The bundled runtime includes a single-document HTTP preview:
+
+```sh
+node /path/to/geogebra-studio/scripts/geogebra-studio.cjs preview --input /absolute/project/diagram.html --workspace /absolute/project
+```
+
+Keep the process running and open its returned loopback URL in the client browser. It serves only the selected HTML snapshot; restart it after changing that file. Normal browsers can open the HTML directly. This does not override host access policies; stop and report a security rejection rather than switching transports to evade it. Verify `window.geogebraStudio.status === "ready"` and the visible drawing in the intended client before claiming successful rendering.
 
 The generator writes **new files only**; it does not execute or validate the geometry. The viewer reports errors, but a mathematical/visual check requires inspection of the actual figure.
 
