@@ -15,6 +15,8 @@ and preview screenshots are optional; inspect the visible diagram for visual qua
   GeoGebra Text needs its fourth boolean. Its string escaping differs from JS.
 - Shared buttons: 38px height, 9px radius; matching custom popovers, no native select.
   Header: native Algebra View toggle left; theme, separate light/dark icon and downloads right, all outside the canvas. Keep manual object definition/style editing.
+- Keep the canvas outer border in both light and dark modes, using the header
+  buttons' `--line` theme color. Keep the applet's internal border transparent.
 - Nine light/dark pairs: Default, Ayu, Catppuccin, Everforest, Gruvbox, Rosé Pine,
   Nord, Solarized, Flexoki. Default light, remember selection. Theme ordinary geometry
   while preserving user custom colors. Clipper-derived tokens retain MIT notices.
