@@ -19,6 +19,7 @@
     ".codex-plugin/plugin.json",
     "skills/**/*",
     "docs/**/*",
+    "!docs/images/*.gif",
     "gikz/**/*",
     "LICENSE-MIT",
     "THIRD_PARTY_NOTICES.md",

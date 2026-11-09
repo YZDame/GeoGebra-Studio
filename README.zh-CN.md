@@ -6,7 +6,12 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md)
 
-![GeoGebra 官方引擎渲染的直角三角形](docs/images/right-triangle.png)
+## 使用方式
+
+| 生成 | 编辑 | 导出 |
+| --- | --- | --- |
+| ![终端执行 generate / preview（含 ZoomIn），随后本地查看器加载完整可见外接圆的作图。](docs/images/generate.gif) | ![代数区与图形区同步：b 从 4→3、h 从 3→4，三角形与完整外接圆随之更新。](docs/images/edit.gif) | ![Download 菜单展开全部七种格式并点击 SVG / TikZ，随后展示真实 TikZ 源码。](docs/images/export.gif) |
+| 从命令 JSON 到预适配的本地可交互查看器。 | 改一个自由量，依赖关系跟着走。 | 一次作图，七种格式 — 真实 Download 菜单。 |
 
 ## 核心功能
 

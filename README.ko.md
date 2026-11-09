@@ -6,7 +6,12 @@
 
 **편집 가능한 GeoGebra 수학 도형을 생성, 수정, 내보내기 위한 이식 가능한 Agent Skill입니다.**
 
-![GeoGebra construction](docs/images/right-triangle.png)
+## 사용 방법
+
+| 생성 | 편집 | 내보내기 |
+| --- | --- | --- |
+| ![터미널에서 generate / preview(ZoomIn 포함)를 실행한 뒤, 외접원 전체가 보이는 직각삼각형을 로컬 뷰어에 불러온다.](docs/images/generate.gif) | ![대수 보기에서 b를 4→3, 이어서 h를 3→4로 바꾸면 삼각형과 외접원 전체가 바로 갱신된다.](docs/images/edit.gif) | ![Download 메뉴에 GGB, PNG, SVG, TikZ, PDF, XML, HTML이 보이고, SVG와 TikZ를 누른 뒤 내보낸 TikZ 소스가 나타난다.](docs/images/export.gif) |
+| 명령 JSON에서 미리 맞춰 둔 로컬 대화형 뷰어로. | 자유 값을 바꿔도 종속 객체는 관계를 유지한다. | 하나의 작도. 실제 Download 메뉴의 일곱 가지 형식. |
 
 ## 주요 기능
 
