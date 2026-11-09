@@ -6,7 +6,12 @@
 
 **Ein portabler Agent Skill zum Erstellen, Bearbeiten und Exportieren interaktiver mathematischer GeoGebra-Konstruktionen.**
 
-![GeoGebra construction](docs/images/right-triangle.png)
+## So funktioniert es
+
+| Erzeugen | Bearbeiten | Exportieren |
+| --- | --- | --- |
+| ![Im Terminal generate und preview (einschließlich ZoomIn); der lokale Viewer lädt das rechtwinklige Dreieck mit vollständig sichtbarem Umkreis.](docs/images/generate.gif) | ![Algebra-Ansicht: b von 4 auf 3, danach h von 3 auf 4; Dreieck und vollständiger Umkreis aktualisieren sich sofort.](docs/images/edit.gif) | ![Download-Menü mit GGB, PNG, SVG, TikZ, PDF, XML und HTML; Klicks auf SVG und TikZ, danach der exportierte TikZ-Quelltext.](docs/images/export.gif) |
+| Von Befehls-JSON zum vorausgerichteten lokalen interaktiven Viewer. | Einen freien Wert ändern. Abhängige Objekte behalten ihre Beziehungen. | Eine Konstruktion. Sieben Formate aus dem echten Download-Menü. |
 
 ## Funktionen
 

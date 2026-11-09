@@ -6,7 +6,12 @@
 
 **Une Agent Skill portable pour créer, modifier et exporter des constructions mathématiques interactives avec GeoGebra.**
 
-![GeoGebra construction](docs/images/right-triangle.png)
+## Comment ça marche
+
+| Générer | Modifier | Exporter |
+| --- | --- | --- |
+| ![Le terminal lance generate et preview (avec ZoomIn) ; le visualiseur local charge le triangle rectangle avec le cercle circonscrit entièrement visible.](docs/images/generate.gif) | ![Dans la vue Algèbre, b passe de 4 à 3 puis h de 3 à 4 ; le triangle et le cercle circonscrit complet se mettent à jour.](docs/images/edit.gif) | ![Menu Download avec GGB, PNG, SVG, TikZ, PDF, XML et HTML ; clics sur SVG et TikZ, puis le source TikZ exporté.](docs/images/export.gif) |
+| Du JSON de commandes au visualiseur local interactif déjà cadré. | Modifiez une valeur libre. Les objets dépendants conservent leurs relations. | Une construction. Sept formats depuis le vrai menu Download. |
 
 ## Fonctionnalités
 

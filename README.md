@@ -6,7 +6,12 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md)
 
-![Right triangle rendered by the official GeoGebra applet](docs/images/right-triangle.png)
+## How it works
+
+| Generate | Edit | Export |
+| --- | --- | --- |
+| ![Terminal generate + preview for right-triangle-v2.json (commands include ZoomIn), then the local viewer loading with the full circumcircle visible.](docs/images/generate.gif) | ![Algebra + graphics showing b change 4→3 then h change 3→4, with the triangle and full circumcircle updating.](docs/images/edit.gif) | ![Download menu open with GGB, PNG, SVG, TikZ, PDF, XML, HTML; clicks on SVG and TikZ; then real TikZ source.](docs/images/export.gif) |
+| From commands JSON → local interactive viewer (pre-fitted). | Change a free value. Dependent objects keep their relationships. | One construction. Seven formats from the real Download menu. |
 
 ## What it does
 

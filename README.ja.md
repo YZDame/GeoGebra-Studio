@@ -6,7 +6,12 @@
 
 **GeoGebra の編集可能な数学図形を生成・編集・書き出しするための、移植可能な Agent Skill です。**
 
-![GeoGebra construction](docs/images/right-triangle.png)
+## 使い方
+
+| 生成 | 編集 | 書き出し |
+| --- | --- | --- |
+| ![端末で generate / preview（ZoomIn を含む）を実行し、外接円全体が見える直角三角形をローカルビューアに読み込む。](docs/images/generate.gif) | ![代数ビューで b を 4→3、続いて h を 3→4 に変えると、三角形と外接円全体がすぐに更新される。](docs/images/edit.gif) | ![Download メニューに GGB、PNG、SVG、TikZ、PDF、XML、HTML が表示され、SVG と TikZ をクリックしたあと、書き出された TikZ ソースが表示される。](docs/images/export.gif) |
+| コマンド JSON から、あらかじめ配置したローカルの対話ビューアへ。 | 自由な値を変えても、依存オブジェクトは関係を保つ。 | 一つの作図。実際の Download メニューから七つの形式。 |
 
 ## 主な機能
 
