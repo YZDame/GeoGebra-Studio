@@ -1,6 +1,6 @@
 # Showcase constructions
 
-Styled demo specs for README, Skill templates, and video capture. Each pair is a JSON specification plus the generated HTML.
+Styled demo specs for README, Skill templates, and video capture. Each pair is a JSON specification plus the generated HTML. The same JSON files are packaged inside the portable Skill at `skills/geogebra-studio/examples/` so a Skill-only install can still load them.
 
 | Level | File | Why it looks good |
 | --- | --- | --- |
