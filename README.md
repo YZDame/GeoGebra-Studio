@@ -64,13 +64,15 @@ Then ask your agent to use the installed `geogebra-studio` Skill. Or run directl
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-For agent clients, use a real browser pane; an HTML file-preview pane may restrict GeoGebra's remote scripts. The bundled runtime includes a single-document HTTP preview:
+When an agent client can access loopback URLs, the Skill starts a single-document HTTP preview by default. Prefer that over an HTML file-preview pane, which can block GeoGebra's remote engine scripts:
 
 ```sh
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs preview --input /absolute/project/diagram.html --workspace /absolute/project
 ```
 
-Keep the process running and open its returned loopback URL in the client browser. It serves only the selected HTML snapshot; restart it after changing that file. Normal browsers can open the HTML directly. This does not override host access policies; stop and report a security rejection rather than switching transports to evade it. Verify `window.geogebraStudio.status === "ready"` and the visible drawing in the intended client before claiming successful rendering.
+The agent opens the returned URL in the client's browser sidebar or tab, puts it first in the reply as **Open interactive preview**, and keeps the process running. The server serves only the selected HTML snapshot. Restart it after changing the file. Opening a file-preview tab is not browser verification. If the client rejects access for security reasons, stop and report the restriction; do not change transports to evade it. Report rendering as successful only after `window.geogebraStudio.status === "ready"` and the drawing looks correct in the intended browser.
+
+The reply also includes the HTML download. If the client cannot access the preview URL, download the HTML and open it directly in Chrome, Safari, or another regular browser. Both viewing paths require the browser to reach the official GeoGebra engine online. Generating the HTML can be done offline.
 
 The generator writes **new files only**; it does not execute or validate the geometry. The viewer reports errors, but a mathematical/visual check requires inspection of the actual figure.
 

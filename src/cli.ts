@@ -61,7 +61,7 @@ async function main(){
     const {server,filename,url}=await previewViewer(options['--input'],options['--workspace']);
     for(const signal of ['SIGINT','SIGTERM'] as const)process.once(signal,()=>server.close());
     console.log(JSON.stringify({success:true,filename,url,requiresNetwork:true,engineVerified:false,renderVerified:false,
-      note:'Open this HTTP URL in the client browser, keep this process running, and verify geogebraStudio.status and the drawing. A file preview may restrict external scripts.'}));
+      note:'Put this loopback URL first in the reply as Open interactive preview, open it in the client browser sidebar or tab (not a static file preview), keep this process running, and verify geogebraStudio.status and the drawing. Attach the HTML as a separate download. Viewing needs the official GeoGebra engine online. If access is rejected, report the restriction; do not change transports to evade it.'}));
     return;
   }
   if(command==='export'){

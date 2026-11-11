@@ -18,16 +18,15 @@ Use the official GeoGebra applet, not a screenshot or a hand-drawn approximation
    ```
 
    The packaged runtime travels with the skill. Node.js >=22.12 is required; there is no extra `npm install`, MCP registration, or Chrome setup.
-4. For Codex and other agent clients, use an actual browser tab rather than the HTML file-preview pane. Start the bundled, single-document preview and keep its process running while the browser is open:
+4. After generation, start the bundled, single-document preview by default when the client can open a loopback URL. HTML attachment or file-preview panes can block GeoGebra's remote engine scripts; do not treat opening a file-preview tab as browser verification. Keep the process running after you reply so the user can open the link:
 
    ```sh
    node "<SKILL_DIR>/scripts/geogebra-studio.cjs" preview --input "<ABS_HTML>" --workspace "<ABS_WORKSPACE>"
    ```
 
-   Open the returned `http://127.0.0.1:<port>/viewer.html` in the client's browser pane. The preview uses only Node.js, binds to loopback, and exposes only that HTML, not the workspace. It is a temporary static preview, not a backend or installation requirement. A normal browser can also open the saved HTML directly. Do not interpret opening a file-preview tab as browser verification. If the client rejects access for security reasons, stop that attempt and report the restriction; do not change transports or use another tool to work around the rejection.
-5. Wait for `window.geogebraStudio.status` to become `ready` or `error`. Inspect the *actual* drawing: labels, branches, tangency, incidence, equal-axis scale, clipping, moving free points, and the native algebra sidebar. Check light and dark modes: keep a subtle outer canvas border matching the header buttons' `--line` theme color in both modes, and prevent a second applet frame. Distinguish an engine resource-loading error from a failed construction command, and use the failed command/index or browser logs for diagnosis. A successfully written HTML file, a reachable CDN from the terminal, or a passing external-browser check is not proof of rendering inside the intended agent client. Report when visual/browser verification was not possible.
-
-The viewer loads official GeoGebra engine assets over the internet. Do not claim offline support.
+   Open the returned `http://127.0.0.1:<port>/viewer.html` in the client's browser sidebar or browser tab. The temporary Node.js process binds to loopback and serves only the selected HTML snapshot. Follow these Skill steps over any shorter CLI `note` text. If the client rejects access for security reasons, stop that attempt and report the restriction. Do not change transports or use another tool to work around the rejection.
+5. In your reply, put the clickable loopback URL first as **Open interactive preview** (or its equivalent in the user's language) when the client can open it. Link to the generated HTML separately as a download. You may share the link before verification finishes, but do not claim successful rendering yet. When loopback access is unavailable, give the HTML download and explain how to open it directly in Chrome, Safari, or another regular browser. Mention that both ways of viewing the HTML require the browser to reach the official GeoGebra engine online. Generating the HTML itself can be done offline.
+6. Wait for `window.geogebraStudio.status` to become `ready` or `error`. Inspect the *actual* drawing: labels, branches, tangency, incidence, equal-axis scale, clipping, moving free points, and the native algebra sidebar. Check light and dark modes: keep a subtle outer canvas border matching the header buttons' `--line` theme color in both modes, and prevent a second applet frame. Distinguish an engine resource-loading error from a failed construction command, and use the failed command/index or browser logs for diagnosis. A successfully written HTML file, a reachable CDN from the terminal, or a passing external-browser check is not proof of rendering inside the intended agent client. Report when visual/browser verification was not possible.
 
 ## Export and edits
 
