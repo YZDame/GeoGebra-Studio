@@ -97,6 +97,15 @@ node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolu
 
 Skill 中的 `references/` 按需加载构造、导出、设计和排障规则。通用 Skill 与 Codex Plugin 共用源码，不提供 MCP 服务。
 
+### 展示示例
+
+| 学段 | 规格 | 亮点 |
+| --- | --- | --- |
+| 初中 | [`examples/napoleon.json`](examples/napoleon.json) | 拿破仑定理：外侧等边三角形与可拖动的内侧等边三角形 |
+| 高中 | [`examples/nine-point-circle.json`](examples/nine-point-circle.json) | 九点圆与欧拉线 |
+| 大学 | [`examples/hyperboloid-ruled.json`](examples/hyperboloid-ruled.json) | 单叶双曲面与两族直母线（3D） |
+| 进阶演示 | [`examples/calabi-yau.json`](examples/calabi-yau.json) | 费马五次超曲面投影的卡拉比–丘示意（可视化，非 Ricci-flat 度量） |
+
 相关资料：[教师教程](docs/TEACHER-QUICKSTART.zh-CN.md)、[示例](examples/)、[架构](docs/MODERNIZATION.md)、[贡献说明](CONTRIBUTING.md)。
 
 开发运行 `npm ci`、`npm run verify`、`npm run test:unit`。可选的真实引擎/浏览器测试需要 Chrome 和网络；日常使用不需要它们。

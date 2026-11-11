@@ -18,6 +18,12 @@ const p=require('../package.json');
  await fs.rm(dest,{recursive:true,force:true});await fs.mkdir(dest,{recursive:true});
  await fs.cp('dist',path.join(dest,'dist'),{recursive:true});
  await fs.cp('gikz',path.join(dest,'gikz'),{recursive:true});
+ // Keep portable Skill showcase templates in sync with repository examples/.
+ const skillExamples=path.join('skills','geogebra-studio','examples');
+ await fs.mkdir(skillExamples,{recursive:true});
+ for(const name of ['napoleon','nine-point-circle','hyperboloid-ruled','calabi-yau']){
+  await fs.copyFile(path.join('examples',name+'.json'),path.join(skillExamples,name+'.json'));
+ }
  const slim={name:p.name,version:p.version,private:true,license:p.license};
  await write(path.join(dest,'package.json'),slim);
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -95,6 +95,15 @@ node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolu
 
 詳細指引會從 `references/` 按需載入。通用 Skill 與 Codex Plugin 共用相同來源，不提供 MCP Server。
 
+### 展示範例
+
+| 學段 | 規格 | 亮點 |
+| --- | --- | --- |
+| 國中 | [`examples/napoleon.json`](examples/napoleon.json) | 拿破崙定理：外側等邊三角形與可拖曳的內側等邊三角形 |
+| 高中 | [`examples/nine-point-circle.json`](examples/nine-point-circle.json) | 九點圓與歐拉線 |
+| 大學 | [`examples/hyperboloid-ruled.json`](examples/hyperboloid-ruled.json) | 單葉雙曲面與兩族直母線（3D） |
+| 進階演示 | [`examples/calabi-yau.json`](examples/calabi-yau.json) | 費馬五次超曲面投影的卡拉比–丘示意（視覺化，非 Ricci-flat 度量） |
+
 參考：[教師入門指南](docs/TEACHER-QUICKSTART.zh-CN.md)、[範例](examples/)、[架構說明](docs/MODERNIZATION.md)、[貢獻指南](CONTRIBUTING.md)。
 
 開發驗證：`npm ci`、`npm run verify`、`npm run test:unit`。額外的真實 GeoGebra/瀏覽器測試需要 Chrome 與網路，但日常使用並不需要額外的 Chrome 安裝。
