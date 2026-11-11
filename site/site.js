@@ -1,7 +1,6 @@
-/* Language, the live star count, copyable commands, and GSAP.
-   The construction strokes draw once on load. ScrollTrigger only assigns
-   an iframe address when that figure nears the screen, so deployggb.js
-   stays off the first paint. Reduced motion skips the stroke draw. */
+/* Language, GitHub stars, the copyable install command, GSAP.
+   The hero draws the construction once, then the live figure covers it.
+   Other viewers load when they near the screen. Reduced motion skips the draw. */
 (function () {
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -26,18 +25,15 @@
       applyLang(document.documentElement.lang === "en" ? "zh" : "en");
     });
   }
-  var stored = null;
-  try { stored = localStorage.getItem("ggs-lang"); } catch (e) {}
-  if (stored === "en") applyLang("en");
+  try { if (localStorage.getItem("ggs-lang") === "en") applyLang("en"); } catch (e) {}
 
   var stars = document.querySelector("[data-stars]");
-  var STAR_KEY = "ggs-stars";
   function showStars(n) {
     if (!stars || typeof n !== "number") return;
-    stars.textContent = "· " + n;
+    stars.textContent = String(n);
   }
   try {
-    var cached = JSON.parse(localStorage.getItem(STAR_KEY) || "null");
+    var cached = JSON.parse(localStorage.getItem("ggs-stars") || "null");
     if (cached && typeof cached.n === "number" && Date.now() - cached.t < 6 * 60 * 60 * 1000) showStars(cached.n);
   } catch (e) {}
   fetch("https://api.github.com/repos/YZDame/GeoGebra-Studio")
@@ -45,90 +41,71 @@
     .then(function (data) {
       if (!data || typeof data.stargazers_count !== "number") return;
       showStars(data.stargazers_count);
-      try { localStorage.setItem(STAR_KEY, JSON.stringify({ n: data.stargazers_count, t: Date.now() })); } catch (e) {}
+      try { localStorage.setItem("ggs-stars", JSON.stringify({ n: data.stargazers_count, t: Date.now() })); } catch (e) {}
     })
     .catch(function () {});
 
   document.querySelectorAll("[data-copy]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var node = document.querySelector(btn.getAttribute("data-copy"));
-      if (!node) return;
-      var text = node.innerText.trim();
-      var done = function () {
-        if (!btn.dataset.zh) btn.dataset.zh = btn.textContent;
-        var en = document.documentElement.lang === "en";
-        var prev = en ? (btn.dataset.en || btn.dataset.zh) : btn.dataset.zh;
-        btn.textContent = en ? "Copied" : "已复制";
-        setTimeout(function () { btn.textContent = prev; }, 1600);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done).catch(function () {});
-      }
+      if (!node || !navigator.clipboard) return;
+      var label = btn.querySelector(".cmd__copy");
+      navigator.clipboard.writeText(node.textContent.trim()).then(function () {
+        if (!label) return;
+        var prev = label.textContent;
+        label.textContent = document.documentElement.lang === "en" ? "Copied" : "已复制";
+        setTimeout(function () { label.textContent = prev; }, 1400);
+      }).catch(function () {});
     });
   });
 
-  function arm(frame) {
-    if (!frame || frame.dataset.armed) return;
-    frame.dataset.armed = "1";
-    frame.addEventListener("load", function () { frame.classList.add("is-ready"); });
-  }
-
   function mount(frame) {
-    if (!frame || frame.src) return;
+    if (!frame || frame.getAttribute("src")) return;
     var src = frame.getAttribute("data-src");
     if (!src) return;
-    arm(frame);
+    frame.addEventListener("load", function () { frame.classList.add("is-ready"); }, { once: true });
     frame.src = src;
   }
 
-  document.querySelectorAll("iframe[data-src]").forEach(arm);
-
-  if (window.gsap) {
-    if (window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
-    if (!reduce) {
-      document.querySelectorAll("[data-draw]").forEach(function (el) {
-        var len = 0;
-        try { len = el.getTotalLength(); } catch (e) { len = 0; }
-        if (!len) return;
-        el.style.strokeDasharray = String(len);
-        el.style.strokeDashoffset = String(len);
-      });
-      gsap.to("[data-draw]", {
-        strokeDashoffset: 0,
-        duration: 1.35,
-        stagger: 0.12,
-        ease: "power2.out",
-        delay: 0.25
-      });
-    }
-    if (window.ScrollTrigger) {
-      document.querySelectorAll("iframe[data-src]").forEach(function (frame) {
-        ScrollTrigger.create({
-          trigger: frame,
-          start: "top 125%",
-          once: true,
-          onEnter: function () { mount(frame); }
-        });
-      });
-    } else {
-      document.querySelectorAll("iframe[data-src]").forEach(mount);
-    }
+  var hero = document.querySelector(".plate--hero");
+  var heroFrame = document.querySelector("#live-frame");
+  function showHero() {
+    if (hero) hero.classList.add("is-drawn");
+    mount(heroFrame);
+  }
+  if (hero && window.gsap && !reduce) {
+    var lines = hero.querySelectorAll("[data-draw]");
+    lines.forEach(function (el) {
+      var len = 0;
+      try { len = el.getTotalLength(); } catch (e) { len = 0; }
+      if (!len) return;
+      el.style.strokeDasharray = String(len);
+      el.style.strokeDashoffset = String(len);
+    });
+    gsap.to(lines, {
+      strokeDashoffset: 0,
+      duration: 0.85,
+      stagger: 0.1,
+      ease: "power2.out",
+      delay: 0.15,
+      onComplete: showHero
+    });
   } else {
-    document.querySelectorAll("iframe[data-src]").forEach(mount);
+    showHero();
   }
 
-  document.querySelectorAll(".ex-row").forEach(function (row) {
-    row.addEventListener("click", function () {
-      var frame = document.querySelector("#live-frame");
-      var src = row.getAttribute("data-src");
-      if (!frame || !src) return;
-      document.querySelectorAll(".ex-row").forEach(function (other) {
-        other.setAttribute("aria-pressed", other === row ? "true" : "false");
+  var rest = document.querySelectorAll("iframe[data-src]:not(#live-frame)");
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    rest.forEach(function (frame) {
+      ScrollTrigger.create({
+        trigger: frame,
+        start: "top 120%",
+        once: true,
+        onEnter: function () { mount(frame); }
       });
-      if (frame.src && frame.src.indexOf(src) !== -1) return;
-      frame.classList.remove("is-ready");
-      arm(frame);
-      frame.src = src;
     });
-  });
+  } else {
+    rest.forEach(mount);
+  }
 })();
