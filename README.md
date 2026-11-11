@@ -95,6 +95,15 @@ These exports cover a documented semantic subset and reject unsupported dependen
 
 The one Skill uses progressively loaded `references/` for construction, export, visual standards and troubleshooting. The standalone runtime and the Codex Plugin share the same build sources. The project ships no MCP server.
 
+### Showcase examples
+
+| Level | Spec | Idea |
+| --- | --- | --- |
+| Middle school | [`examples/napoleon.json`](examples/napoleon.json) | Napoleon's theorem — outer equilateral triangles, inner equilateral that survives dragging |
+| High school | [`examples/nine-point-circle.json`](examples/nine-point-circle.json) | Nine-point circle and Euler line |
+| University | [`examples/hyperboloid-ruled.json`](examples/hyperboloid-ruled.json) | One-sheet hyperboloid with both ruling families (3D) |
+| Advanced demo | [`examples/calabi-yau.json`](examples/calabi-yau.json) | Fermat-quintic projection inspired by Calabi–Yau imagery (visualization, not a Ricci-flat metric) |
+
 See [teacher walkthrough](docs/TEACHER-QUICKSTART.md), [sample constructions](examples/), [architecture](docs/MODERNIZATION.md), and [contributing](CONTRIBUTING.md).
 
 ## Develop and verify
