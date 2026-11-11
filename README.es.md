@@ -33,6 +33,28 @@ Instala la Skill desde GitHub en un entorno compatible con Agent Skills. Como al
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
+## DeepSeek Harness
+
+DeepSeek Harness (`dsh`) carga este proyecto como Agent Skill. La `SKILL.md` publicada ya tiene el `name` en kebab-case y la `description` obligatorios; el frontmatter no cambia. `whenToUse` se omite porque el catálogo enruta por `name` y `description`. No instales este repositorio con `dsh plugin add`. Ese comando añade un plugin de interfaz, y este proyecto no incluye un plugin de barra lateral para DeepSeek Harness.
+
+Usa el mismo instalador que los demás clientes. En el modo predeterminado escribe una copia completa en `.agents/skills/geogebra-studio`, un directorio que DeepSeek Harness ya explora:
+
+- Sin `-g`: `./.agents/skills/geogebra-studio` en el directorio actual. DeepSeek Harness lo descubre cuando la raíz Git de ese proyecto es el espacio de trabajo. Si el instalador pregunta el ámbito, la opción de proyecto es esta ruta.
+- Con `-g`, o Global cuando pregunta: `~/.agents/skills/geogebra-studio`. DeepSeek Harness examina ese directorio en cada espacio de trabajo.
+
+Añade `-g` para la copia en el directorio personal. Enlaces como `~/.claude/skills` o `~/.cursor/skills` son de otros clientes. DeepSeek Harness explora `~/.dsh/skills`, `~/.agents/skills` y, en el proyecto, `.dsh/skills` y `.agents/skills`. Conserva el modo predeterminado para que exista la copia en `.agents/skills`. `--copy` omite ese directorio.
+
+Para instalar a mano, copia **toda** la carpeta `skills/geogebra-studio/`, con `SKILL.md`, `scripts/`, `references/` y `runtime/`:
+
+- `~/.dsh/skills/geogebra-studio`
+- `~/.agents/skills/geogebra-studio`
+
+En el chat, invócala con `/geogebra-studio`.
+
+Abrir este repositorio como espacio de trabajo de DeepSeek Harness no descubre `skills/geogebra-studio/`. La búsqueda solo mira los hijos directos de `.dsh/skills` y `.agents/skills`. Copia la carpeta completa a `.dsh/skills/geogebra-studio` o `.agents/skills/geogebra-studio` dentro del espacio de trabajo. Para una copia solo de ese espacio, prefiere `.dsh/skills/geogebra-studio`. Este repositorio no incluye esa copia ni un enlace simbólico: en Windows, Git suele extraer los enlaces simbólicos como archivos de texto, y `.agents/skills` ya es el directorio de instalación de Codex, Cursor y `npx skills`. `.agents/plugins` sigue siendo el registro opcional del marketplace de Codex.
+
+Los requisitos son los mismos: Node.js 22.12 o superior, acceso a archivos y shell, y la vista previa HTTP cuando el cliente puede abrir una URL de loopback. GeoGebra Studio es un proyecto independiente y no está afiliado a GeoGebra.
+
 ## Codex Plugin opcional
 
 El Plugin es un envoltorio opcional. La versión **0.6.0** está publicada en npm. Reinicia Codex después de instalarla.

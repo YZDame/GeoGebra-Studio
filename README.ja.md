@@ -33,6 +33,28 @@ Agent Skills 対応環境で GitHub から `geogebra-studio` をインストー�
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
+## DeepSeek Harness
+
+DeepSeek Harness（`dsh`）はこのプロジェクトを Agent Skill として読み込みます。公開済みの `SKILL.md` は必要な kebab-case の `name` と `description` をすでに持っているため、frontmatter はそのままです。カタログは `name` と `description` で振り分けるので、任意の `whenToUse` は付けていません。このリポジトリを `dsh plugin add` でインストールしないでください。そのコマンドは UI プラグインを追加し、このプロジェクトに DeepSeek Harness のサイドバープラグインはありません。
+
+他のクライアントと同じインストーラを使います。既定モードでは完全なコピーが `.agents/skills/geogebra-studio` に書き込まれ、DeepSeek Harness はこのディレクトリをすでに走査します。
+
+- `-g` なし: カレントディレクトリの `./.agents/skills/geogebra-studio`。そのプロジェクトの Git ルートがワークスペースなら発見されます。インストーラが範囲を尋ねる場合、プロジェクトを選ぶとこのパスになります。
+- `-g` を付けるか、尋ねられたときに Global を選ぶと `~/.agents/skills/geogebra-studio` になります。DeepSeek Harness はすべてのワークスペースでこのディレクトリを走査します。
+
+ホームディレクトリへ置く場合は `-g` を付けます。`~/.claude/skills` や `~/.cursor/skills` などのリンクは各クライアント用です。DeepSeek Harness が走査するのは `~/.dsh/skills`、`~/.agents/skills`、およびプロジェクト内の `.dsh/skills` と `.agents/skills` です。`.agents/skills` へコピーされる既定モードのままにしてください。`--copy` はそのディレクトリを書きません。
+
+手動では `skills/geogebra-studio/` フォルダー全体（`SKILL.md`、`scripts/`、`references/`、`runtime/`）を次のいずれかにコピーします。
+
+- `~/.dsh/skills/geogebra-studio`
+- `~/.agents/skills/geogebra-studio`
+
+チャットでは `/geogebra-studio` で呼び出します。
+
+このリポジトリを DeepSeek Harness のワークスペースとして開いても、`skills/geogebra-studio/` は自動では見つかりません。探索は `.dsh/skills` と `.agents/skills` の直下だけです。フォルダー全体をワークスペース内の `.dsh/skills/geogebra-studio` または `.agents/skills/geogebra-studio` にコピーしてください。ワークスペース専用なら `.dsh/skills/geogebra-studio` を優先します。このリポジトリはそのコピーもシンボリックリンクも同梱しません。Windows の Git はシンボリックリンクをしばしばテキストファイルとして展開し、`.agents/skills` は Codex、Cursor、`npx skills` がすでに使うインストール先です。`.agents/plugins` は任意の Codex マーケットプレイス記録のままです。
+
+要件は他のクライアントと同じです。Node.js 22.12 以降、ファイルとシェルへのアクセス、そしてクライアントがループバック URL を開けるときは HTTP プレビューを使います。GeoGebra Studio は独立したプロジェクトであり、GeoGebra とは無関係です。
+
 ## Codex Plugin（任意）
 
 Codex 用ラッパーは任意です。**0.6.0** は npm で公開済みです。インストール後は Codex セッションを再起動します。

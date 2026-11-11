@@ -11,3 +11,15 @@ Include the generated HTML as a separate download. If loopback preview is unavai
 `GeoGebra failed to load` is an engine bootstrap failure; inspect network/CSP errors in the intended browser. A terminal CDN check cannot prove client access. `Command N failed` means the engine loaded and the construction must be checked instead. A browser without scripting access can display the diagram, but the agent cannot claim a programmatic readiness check. Always state when client rendering has not been verified.
 
 For the Codex Plugin convenience installer, use the published npm version's `install` command; after install restart the client session. This is an optional distribution mode rather than a dependency of Agent Skills.
+
+## DeepSeek Harness
+
+DeepSeek Harness loads this Skill from disk. The published frontmatter stays unchanged: `name` is the kebab-case `geogebra-studio`, `description` is present, and there are no legacy camelCase invocation keys (`disableModelInvocation`, `modelInvocable`, `userInvocable`). Optional `whenToUse` is omitted on purpose. The DeepSeek Harness catalog routes on `name` and `description`; `whenToUse` is provider metadata and is not shown to the model. Leaving the frontmatter as published keeps the same file valid for Claude, Codex, Cursor, and `npx skills`.
+
+Do not install this repository with `dsh plugin add`. That command installs a UI plugin. This project has no DeepSeek Harness sidebar plugin.
+
+Use `npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio`. Without `-g`, including a non-interactive run, the CLI writes a full copy to `./.agents/skills/geogebra-studio` in the current directory. With `-g`, or Global when the installer asks, that copy is `~/.agents/skills/geogebra-studio`. DeepSeek Harness already scans both, plus `~/.dsh/skills` and a workspace `.dsh/skills`. Invoke the installed Skill with `/geogebra-studio`.
+
+A manual install copies the entire `skills/geogebra-studio` directory, including `SKILL.md`, `scripts/`, `references/`, and `runtime/`, to `~/.dsh/skills/geogebra-studio` or `~/.agents/skills/geogebra-studio`. Opening this repository as a workspace does not discover `skills/geogebra-studio/` because discovery is one level deep. Copy the whole folder to `.dsh/skills/geogebra-studio` in that workspace. This repository does not ship a symlink: Git on Windows often materializes symlinks as plain text files, and `.agents/skills` is already the install path used by Codex, Cursor, and `npx skills`. The existing `.agents/plugins` record is only the optional Codex marketplace entry.
+
+Node.js >=22.12, file and shell access, and the HTTP preview are the same requirements as for other clients. Prefer the loopback preview when the client can open it. GeoGebra Studio is an independent project and is not affiliated with GeoGebra.

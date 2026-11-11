@@ -36,6 +36,32 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 Agent 需要具備檔案寫入與終端機指令執行權限。優先使用客戶端內建瀏覽器；若不提供側邊瀏覽器，可使用一般瀏覽器。不同 Agent 對 Skill 的安裝與瀏覽器存取支援程度不一定相同。
 
+## DeepSeek Harness
+
+DeepSeek Harness（`dsh`）把本專案當作 Agent Skill 載入。已發布的 `SKILL.md` 已包含必要的 kebab-case `name` 與 `description`，因此 frontmatter 維持原樣。未加入選用的 `whenToUse`：DeepSeek Harness 的技能目錄依 `name` 與 `description` 路由，`whenToUse` 只是提供者詮釋資料，不會顯示給模型。請不要對本儲存庫執行 `dsh plugin add`。該指令安裝的是介面外掛，本專案不提供 DeepSeek Harness 側邊欄外掛。
+
+建議使用與其他 Agent Skills 客戶端相同的安裝指令。預設模式下，`skills` CLI 會把完整 Skill 寫入 `.agents/skills/geogebra-studio`，DeepSeek Harness 已經掃描這個目錄：
+
+- 不加 `-g` 時，指令把複本寫到目前目錄的 `./.agents/skills/geogebra-studio`。當該專案的 Git 根目錄是工作區時，DeepSeek Harness 會發現它。如果安裝程式詢問範圍，專案選項就是這條路徑。
+- 加上 `-g`，或在詢問時選擇 Global，會寫到 `~/.agents/skills/geogebra-studio`。DeepSeek Harness 會在每個工作區掃描這個目錄。
+
+```sh
+npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
+```
+
+需要使用者主目錄中的複本時加上 `-g`。安裝程式也可能把 Skill 連結到 `~/.claude/skills` 或 `~/.cursor/skills` 等客戶端目錄。DeepSeek Harness 掃描 `~/.dsh/skills`、`~/.agents/skills`，以及專案內的 `.dsh/skills` 與 `.agents/skills`。請保持預設安裝模式，以便寫入 `.agents/skills` 複本。`--copy` 會略過該目錄，只寫入所選客戶端自己的資料夾。
+
+也可以手動把**整個** `skills/geogebra-studio/` 資料夾（含 `SKILL.md`、`scripts/`、`references/` 與 `runtime/`）複製到以下其中一個位置：
+
+- `~/.dsh/skills/geogebra-studio`
+- `~/.agents/skills/geogebra-studio`
+
+在對話中用 `/geogebra-studio` 呼叫。
+
+把本儲存庫當作 DeepSeek Harness 工作區開啟時，不會發現 `skills/geogebra-studio/`。發現範圍只包含 `.dsh/skills` 與 `.agents/skills` 的直接子項目。請把整個資料夾複製到工作區內的 `.dsh/skills/geogebra-studio` 或 `.agents/skills/geogebra-studio`。工作區複本優先放在 `.dsh/skills/geogebra-studio`：它只服務 DeepSeek Harness，並把 `.agents/skills` 留給 `npx skills`。本儲存庫不提交這份複本或符號連結。Windows 上的 Git 經常把符號連結取出成純文字檔，而 `.agents/skills` 已是 Codex、Cursor 與 `npx skills` 使用的安裝目錄。現有的 `.agents/plugins` 仍然只是可選的 Codex 市集記錄。
+
+需求與其他客戶端相同：Node.js 22.12+、檔案寫入與命令執行權限，並在客戶端能夠開啟本機網址時使用 HTTP 預覽。GeoGebra Studio 是獨立社群專案，與 GeoGebra 官方無隸屬關係。
+
 ## 可選的 Codex Plugin
 
 Codex Plugin 是額外的發佈方式，而不是使用 Skill 的必要條件。0.6.0 安裝指令：

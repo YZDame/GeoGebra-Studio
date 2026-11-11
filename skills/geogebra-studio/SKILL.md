@@ -43,4 +43,4 @@ Strict export rejects unsupported relations instead of silently replacing them w
 
 ## Optional and compatibility
 
-Read [visual standards](references/visual-standard.md) for 2D/3D style rules, [showcase templates](references/showcase.md) for striking demo constructions, and [install/diagnostics](references/installation.md) when setup fails. Codex plugin installation is optional; this standalone skill works wherever an agent can read skill resources, run Node.js and open a browser. No MCP interface is shipped.
+Read [visual standards](references/visual-standard.md) for 2D/3D style rules, [showcase templates](references/showcase.md) for striking demo constructions, and [install/diagnostics](references/installation.md) when setup fails. Codex plugin installation is optional; this standalone skill works wherever an agent can read skill resources, run Node.js and open a browser. DeepSeek Harness loads this same skill from `.dsh/skills` or `.agents/skills` and invokes it as `/geogebra-studio`; it does not use a sidebar plugin. No MCP interface is shipped.
