@@ -49,6 +49,6 @@ export async function generateViewer(value: unknown, workspace: string) {
     const filename = await saveText(spec.filename, constructionHtml(spec));
     return { success: true, filename, requiresNetwork: true, engineVerified: false,
       renderVerified: false, execution: 'viewer',
-      note: 'For an agent client browser, run preview --input FILE.html --workspace ABS_DIR and open its HTTP URL in the browser, not a static file preview. Check geogebraStudio.status and the drawing. Respect client access restrictions. Download current HTML or GGB to preserve edits.' };
+      note: 'When the client can open loopback URLs, run preview --input FILE.html --workspace ABS_DIR, open the HTTP URL in the browser sidebar or tab (not a static file preview), put it first in the reply as Open interactive preview, and attach the HTML as a separate download. Keep the preview process running. Check geogebraStudio.status and the drawing before claiming success. Viewing needs the official GeoGebra engine online; generation itself can be offline. Respect client access restrictions; do not change transports to evade a rejection. Download current HTML or GGB to preserve edits.' };
   });
 }

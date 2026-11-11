@@ -64,13 +64,13 @@ Then ask your agent to use the installed `geogebra-studio` Skill. Or run directl
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-When an agent client can access loopback URLs, the Skill starts a single-document HTTP preview by default:
+When an agent client can access loopback URLs, the Skill starts a single-document HTTP preview by default. Prefer that over an HTML file-preview pane, which can block GeoGebra's remote engine scripts:
 
 ```sh
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs preview --input /absolute/project/diagram.html --workspace /absolute/project
 ```
 
-The agent opens the returned URL in the client's browser sidebar or tab, puts it first in the reply as **Open interactive preview**, and keeps the process running. The server serves only the selected HTML snapshot. Restart it after changing the file. Report rendering as successful only after inspecting the drawing in the intended browser.
+The agent opens the returned URL in the client's browser sidebar or tab, puts it first in the reply as **Open interactive preview**, and keeps the process running. The server serves only the selected HTML snapshot. Restart it after changing the file. Opening a file-preview tab is not browser verification. If the client rejects access for security reasons, stop and report the restriction; do not change transports to evade it. Report rendering as successful only after `window.geogebraStudio.status === "ready"` and the drawing looks correct in the intended browser.
 
 The reply also includes the HTML download. If the client cannot access the preview URL, download the HTML and open it directly in Chrome, Safari, or another regular browser. Both viewing paths require the browser to reach the official GeoGebra engine online. Generating the HTML can be done offline.
 
