@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="zh-CN" data-type="software" data-radius="sharp" data-ground="sky" data-buttons="tonal" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>数学配图助手: GeoGebra geometry figures for teachers</title>
+<meta name="description" content="数学配图助手：一句话画几何图。描述一道题，得到可拖动、可导出的 GeoGebra 图形。非官方，与 GeoGebra 无隶属关系。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="数学配图助手: GeoGebra geometry figures for teachers">
+<meta property="og:description" content="一句话描述题目，得到可拖动、可导出的几何图。给数学老师用的 Agent Skill。">
+<meta property="og:image" content="share.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#eef0f3">
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@400;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/system.css">
+<link rel="stylesheet" href="assets/ui/cards.css">
+<link rel="stylesheet" href="assets/motion/motion.css">
+<link rel="stylesheet" href="assets/backgrounds/backgrounds.css">
+<link rel="stylesheet" href="assets/layout/layout.css">
+<link rel="stylesheet" href="assets/icons/icon.css">
+<link rel="stylesheet" href="site.css">
+<style>
+:root {
+  --p-bg: #eef0f3; --p-surface: #e2e5ea; --p-ink: #0b0c0e; --p-muted: #5d6470;
+  --p-accent: #1f2de6; --p-accent-ink: #ffffff; --p-action: #1f2de6; --p-action-ink: #ffffff;
+  --p-inv-bg: #0b0c0e; --p-inv-surface: #17181a; --p-inv-ink: #eef0f3; --p-inv-muted: #8e8f92;
+  --p-inv-accent: #eef0f3; --p-inv-accent-ink: #0b0c0e; --p-inv-action: #eef0f3; --p-inv-action-ink: #0b0c0e;
+  --font-display: "Geist", "LXGW WenKai", "Noto Serif SC", system-ui, sans-serif;
+  --font-text: "Geist", "Noto Serif SC", "LXGW WenKai", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.035em;
+  --display-tracking-xl: -0.045em;
+}
+#steps .panel { --p-h: 300px; }
+</style>
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script src="assets/backgrounds/backgrounds.js"></script>
+<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<link rel="modulepreload" href="assets/moments/moments.js">
+<link rel="modulepreload" href="assets/moments/lib.js">
+<link rel="modulepreload" href="assets/moments/iris-opens/moment.js">
+<link rel="modulepreload" href="assets/moments/word-highlight/moment.js">
+</head>
+<body>
+<!--
+type: software
+deal: hero collage; nav nav-mega; close close-word; footer footer-statement; rhythm surface-pairs; buttons tonal; mark wordmark; ground sky.
+palette cool-grey-cobalt: a drafting table is cool off-white, and a construction line is cobalt.
+effect: painterly-landscape in the hero art, behind the theorem window.
+moments: iris-opens on #install (surface ground after a base section); word-highlight on #statement.
+motion: kit entrance and hover; GSAP draws the theorem once on load; ScrollTrigger assigns each iframe when the figure nears, so the GeoGebra engine stays off the first paint.
+-->
+<header class="nav">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">跳到内容</a>
+    <a class="nav__logo" href="#top">数学配图助手</a>
+    <nav class="nav__links" aria-label="页内">
+      <div class="nav__item">
+        <a class="nav__link" href="#figure">图形 <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <div class="menu-col span-3">
+              <p class="t-label">学段</p>
+              <a href="#figure">拿破仑定理<span>初中，拖动后仍等边</span></a>
+              <a href="#school">九点圆<span>高中，欧拉线共线</span></a>
+              <a href="#hyper">直母线<span>大学，两族直线</span></a>
+            </div>
+            <div class="menu-col span-3">
+              <p class="t-label">用法</p>
+              <a href="#install">安装技能<span>Node.js 22.12</span></a>
+              <a href="#exports">七种下载<span>查看器里直接存</span></a>
+              <a href="#works">一条命令<span>generate 与 preview</span></a>
+            </div>
+            <a class="menu-card span-3 start-10" href="#calabi">
+              <div class="panel">
+                <div class="stage stage--fade-br">
+                  <svg class="menu-svg at-corner" viewBox="0 0 160 110" aria-hidden="true">
+                    <path d="M20 78c28-40 48-40 60-8s32 32 60 8" fill="none" stroke="#c97b84" stroke-width="3"/>
+                    <path d="M24 70c30-28 46-10 56 8 12 20 28 28 56-4" fill="none" stroke="#6b9ac4" stroke-width="3"/>
+                    <path d="M30 84c22-18 40-36 50-36s28 18 50 36" fill="none" stroke="#2f6f5e" stroke-width="3"/>
+                  </svg>
+                </div>
+              </div>
+              <span class="t-card">0.6.0</span>
+              <span>当前发布的技能版本</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="nav__item"><a class="nav__link" href="#install">安装</a></div>
+      <div class="nav__item"><a class="nav__link" href="#exports">导出</a></div>
+      <div class="nav__item"><a class="nav__link" href="#faq">问答</a></div>
+    </nav>
+    <div class="nav__actions">
+      <button class="lang-switch" type="button" data-lang-toggle aria-pressed="false">EN</button>
+      <a class="nav__link" href="https://github.com/YZDame/GeoGebra-Studio">GitHub <span class="star-count" data-stars></span></a>
+      <a class="btn btn--primary" href="#install"><span data-en="Install the skill">安装技能</span></a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="菜单"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero hero--collage" data-enter aria-labelledby="hero-h">
+    <div class="wrap"><div class="hero-text grid hero__grid">
+      <div class="hero__text span-5">
+        <p class="hero__notice" data-en="Unofficial. Not affiliated with GeoGebra.">非官方，与 GeoGebra 无隶属关系。</p>
+        <h1 id="hero-h" data-en="GeoGebra geometry for teachers">给老师的 GeoGebra geometry</h1>
+        <p class="hero__lead" data-en="One sentence becomes a figure you can drag and export. Needs Node.js 22.12.">数学配图助手：一句话画几何图。需要 Node.js 22.12。</p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="#install"><span data-en="Install the skill">安装技能</span></a>
+          <a class="btn btn--secondary" href="#figure"><span data-en="Open Napoleon's theorem">打开拿破仑定理</span></a>
+        </div>
+        <p class="hero__proof" data-en="Seven downloads in the viewer: GGB, HTML, PNG, SVG, PDF, XML, TikZ.">查看器可下载 GGB、HTML、PNG、SVG、PDF、XML、TikZ。</p>
+      </div>
+      <div class="hero__art span-6 start-7" data-fx="painterly-landscape" data-fx-palette="light" role="img" aria-label="拿破仑定理：外侧三个等边三角形，中心连成内侧等边三角形">
+        <div class="ly-piece ly-piece--main">
+          <div class="ggb-bar"><span class="ggb-dots" aria-hidden="true"><i></i><i></i><i></i></span><b>拿破仑定理</b></div>
+          <svg class="ggb-canvas" viewBox="0 0 640 620" aria-hidden="true">
+            <rect class="paper" width="640" height="620"></rect>
+            <polygon class="tri" data-draw points="140,430 500,470 270,150"></polygon>
+            <polygon class="rose" data-draw points="140,430 500,470 355,138"></polygon>
+            <polygon class="blue" data-draw points="500,470 270,150 108,509"></polygon>
+            <polygon class="gold" data-draw points="270,150 140,430 448,403"></polygon>
+            <polygon class="inner" data-draw points="293,376 286,328 332,346"></polygon>
+            <circle class="pt" cx="140" cy="430" r="5"></circle>
+            <circle class="pt" cx="500" cy="470" r="5"></circle>
+            <circle class="pt" cx="270" cy="150" r="5"></circle>
+            <text x="122" y="454">A</text>
+            <text x="508" y="492">B</text>
+            <text x="258" y="140">C</text>
+          </svg>
+        </div>
+        <div class="ly-piece ly-piece--note ggb-note" data-ly-steps="700" aria-hidden="true">
+          <span class="chip" data-step data-step-at="4">仍等边</span>
+          <h3 data-step>内侧三角形</h3>
+          <p data-step>拖动 A、B、C，外侧三个等边三角形跟着转。</p>
+          <p data-step>三个中心的连线保持等边。</p>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="section" id="figure" style="--h:1" aria-labelledby="figure-h">
+    <div class="wrap">
+      <h2 id="figure-h" data-en="Napoleon's theorem, live">拿破仑定理，可以拖</h2>
+      <div class="grid fill fig-split">
+        <div class="span-6">
+          <p data-en="Any triangle. Equilateral triangles outward. The centres stay equilateral while you drag. Open the file in a new tab if this frame stays on the drawing.">任意三角形外侧作等边三角形，三个中心连成的三角形仍等边。在图里拖 A、B、C。<a class="link" href="figures/napoleon.html">在新标签打开拿破仑定理</a></p>
+          <div class="ex-switch">
+            <button class="ex-row" type="button" data-src="figures/napoleon.html" aria-pressed="true"><i class="ex-mark" style="--mark:#2f6f5e"></i><b>拿破仑定理</b><small>初中</small></button>
+            <button class="ex-row" type="button" data-src="figures/nine-point-circle.html" aria-pressed="false"><i class="ex-mark" style="--mark:#507a9d"></i><b>九点圆</b><small>高中</small></button>
+            <button class="ex-row" type="button" data-src="figures/hyperboloid-ruled.html" aria-pressed="false"><i class="ex-mark" style="--mark:#b65c55"></i><b>直母线</b><small>大学</small></button>
+            <button class="ex-row" type="button" data-src="figures/calabi-yau.html" aria-pressed="false"><i class="ex-mark" style="--mark:#7c6fa8"></i><b>投影</b><small>示意</small></button>
+          </div>
+        </div>
+        <div class="span-6 start-7 fig-stack">
+          <svg class="fig-draw" viewBox="0 0 640 620" role="img" aria-label="拿破仑定理：外侧三个等边三角形，中心连成内侧等边三角形">
+            <polygon points="140,430 500,470 355,138" fill="#c97b84"></polygon>
+            <polygon points="500,470 270,150 108,509" fill="#6b9ac4"></polygon>
+            <polygon points="270,150 140,430 448,403" fill="#d4a84b"></polygon>
+            <polygon points="140,430 500,470 270,150" fill="#e7e5da"></polygon>
+            <polygon points="293,376 286,328 332,346" fill="#2f6f5e"></polygon>
+          </svg>
+          <div class="stage-frame">
+            <iframe id="live-frame" data-src="figures/napoleon.html" title="拿破仑定理，可拖动顶点"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="steps" style="--h:1; --hm:2" aria-labelledby="steps-h">
+    <div class="wrap">
+      <h2 id="steps-h" data-en="Three steps to a figure">三步得到一张图</h2>
+      <p data-en="The agent writes a new HTML file. Dragging does not write back to the JSON.">Agent 写一份新的 HTML。拖动不会写回原来的 JSON。</p>
+      <div class="grid fill">
+        <a class="card card--row span-4" href="#works">
+          <h3 data-en="Write the construction">写下构造</h3>
+          <p data-en="Free points stay free. Midpoints and lines stay dependent.">自由点保持自由，中点和直线保持依赖。</p>
+          <div class="panel panel--inset" role="img" aria-label="三点连成三角形">
+            <div class="stage"><svg viewBox="0 0 240 140" aria-hidden="true"><polygon points="28,112 200,100 96,24" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="28" cy="112" r="4" fill="currentColor"/><circle cx="200" cy="100" r="4" fill="currentColor"/><circle cx="96" cy="24" r="4" fill="currentColor"/></svg></div>
+          </div>
+        </a>
+        <a class="card card--row span-4" href="#install">
+          <h3 data-en="Generate the HTML">生成 HTML</h3>
+          <p data-en="The generator only writes a new file. It does not overwrite.">生成器只写新文件，不覆盖已有文件。</p>
+          <div class="panel panel--inset" role="img" aria-label="一条 generate 命令">
+            <div class="stage"><svg viewBox="0 0 240 140" aria-hidden="true"><rect x="24" y="36" width="192" height="68" rx="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M40 62h90M40 80h64" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          </div>
+        </a>
+        <a class="card card--row span-4" href="#exports">
+          <h3 data-en="Drag, then export">拖动再导出</h3>
+          <p data-en="Download the current HTML or GGB before you leave the page.">离开页面前下载当前 HTML 或 GGB。</p>
+          <div class="panel panel--inset" role="img" aria-label="七种下载里的 GGB 与 TikZ">
+            <div class="stage"><svg viewBox="0 0 240 140" aria-hidden="true"><path d="M120 28v52M98 62l22 22 22-22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M48 108h144" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="school" style="--h:1" aria-labelledby="school-h">
+    <div class="wrap">
+      <h2 id="school-h" data-en="Nine-point circle and Euler line">九点圆与欧拉线</h2>
+      <div class="grid fig-split fill">
+        <div class="span-6">
+          <p data-en="High school. Drag a vertex: the circumcenter, centroid, nine-point center and orthocenter stay on one line.">高中。拖动顶点时，外心、重心、九点圆心和垂心仍在一条直线上。<a class="link" href="figures/nine-point-circle.html">在新标签打开九点圆</a></p>
+        </div>
+        <div class="span-6 start-7 stage-frame">
+          <svg class="frame-plate" viewBox="0 0 800 520" role="img" aria-label="九点圆与欧拉线的画框">
+            <rect x="6" y="6" width="788" height="508" fill="#fffcf0" stroke="#0b0c0e" stroke-width="3"></rect>
+            <circle cx="400" cy="260" r="120" fill="none" stroke="#2f6f5e" stroke-width="4"></circle>
+            <path d="M220 360 520 140" stroke="#a17a3d" stroke-width="3"></path>
+          </svg>
+          <iframe data-src="figures/nine-point-circle.html" title="九点圆与欧拉线，可拖动顶点"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section ground-surface" id="install" data-moment="iris-opens" data-moment-opts='{"from":"base"}' style="--h:1" aria-labelledby="install-h">
+    <div class="wrap">
+      <h2 id="install-h" data-en="Install the skill">安装这个技能</h2>
+      <div class="cmd-row">
+        <p data-en="Claude Code, Cursor, Codex, WorkBuddy and any client that reads Agent Skills. Copy the whole folder if there is no installer. Node.js 22.12. Opening a figure needs the internet.">Claude Code、Cursor、Codex、WorkBuddy，以及别的能读 Agent Skills 的客户端。没有安装器就复制整个目录。Node.js 22.12。打开图形要联网。</p>
+        <button class="copy-link" type="button" data-copy="#cmd-skill" data-en="Copy the command">复制命令</button>
+      </div>
+      <pre class="cmd" id="cmd-skill"><code>npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code></pre>
+      <ul class="rows">
+        <li><span class="rows__name">Codex 插件</span><span class="rows__value mono">npx @lydt/geogebra-studio@0.6.0 install</span></li>
+        <li><span class="rows__name">generate</span><span class="rows__value mono">--input --workspace --output</span></li>
+        <li><span class="rows__name">preview</span><span class="rows__value mono">--input --workspace</span></li>
+        <li><span class="rows__name">export</span><span class="rows__value mono">tsqx、asymptote 或 tikz</span></li>
+        <li><span class="rows__name">doctor</span><span class="rows__value mono">检查 Node 与运行时</span></li>
+      </ul>
+      <svg class="flow" viewBox="0 0 1100 280" role="img" aria-label="圆规和直尺：一条弧与一条直线交出两点">
+        <rect width="1100" height="280" fill="#e2e5ea"></rect>
+        <path d="M80 200 A 220 220 0 0 1 420 40" fill="none" stroke="#1f2de6" stroke-width="6"></path>
+        <path d="M60 160 H1040" stroke="#0b0c0e" stroke-width="3"></path>
+        <circle cx="168" cy="160" r="10" fill="#c97b84"></circle>
+        <circle cx="332" cy="160" r="10" fill="#2f6f5e"></circle>
+        <path d="M700 40 V240 M760 40 V240 M820 40 V240" stroke="#6b9ac4" stroke-width="3"></path>
+        <path d="M640 80 H900" stroke="#d4a84b" stroke-width="4"></path>
+      </svg>
+    </div>
+  </section>
+
+  <section class="section" id="hyper" style="--h:1" aria-labelledby="hyper-h">
+    <div class="wrap">
+      <h2 id="hyper-h" data-en="Ruled hyperboloid">单叶双曲面的直母线</h2>
+      <p data-en="University, in 3D. One-sheet hyperboloid and both families of straight lines. Rotate the view.">大学，三维。单叶双曲面和它的两族直母线。按住画面可以旋转。<a class="link" href="figures/hyperboloid-ruled.html">在新标签打开直母线</a></p>
+      <div class="stage-frame fill">
+        <svg class="frame-plate" viewBox="0 0 1100 520" role="img" aria-label="单叶双曲面直母线的画框">
+          <rect x="6" y="6" width="1088" height="508" fill="#fffcf0" stroke="#0b0c0e" stroke-width="3"></rect>
+          <ellipse cx="550" cy="120" rx="160" ry="36" fill="none" stroke="#94a3b8" stroke-width="3"></ellipse>
+          <ellipse cx="550" cy="400" rx="160" ry="36" fill="none" stroke="#94a3b8" stroke-width="3"></ellipse>
+          <ellipse cx="550" cy="260" rx="70" ry="22" fill="none" stroke="#a17a3d" stroke-width="4"></ellipse>
+          <path d="M400 140 680 380M700 140 420 380" fill="none" stroke="#b65c55" stroke-width="3"></path>
+        </svg>
+        <iframe data-src="figures/hyperboloid-ruled.html" title="单叶双曲面与两族直母线，可旋转"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="works" style="--h:1" aria-labelledby="works-h">
+    <div class="wrap">
+      <h2 id="works-h" data-en="From one sentence to files">从一句话到文件</h2>
+      <p data-en="The agent turns the sentence into commands, writes HTML, and the browser loads the official engine. Asymptote and TSQX come from the current XML, and unsupported relations are rejected.">Agent 把句子写成命令，生成 HTML，浏览器再加载官方引擎。Asymptote 和 TSQX 从当前 XML 导出，不支持的依赖会报错，不会偷偷换成固定坐标。</p>
+      <svg class="flow" viewBox="0 0 1100 460" role="img" aria-label="一句话进入技能，同时得到 HTML、可拖动的点和七种导出">
+        <rect width="1100" height="460" fill="none"></rect>
+        <rect x="40" y="170" width="200" height="120" rx="8" fill="#fffcf0" stroke="#0b0c0e" stroke-width="2"></rect>
+        <text x="140" y="228" text-anchor="middle" font-size="28">一句话</text>
+        <text x="140" y="262" text-anchor="middle" font-size="16" fill="#5d6470">题目</text>
+        <path d="M240 230 H360" stroke="#1f2de6" stroke-width="2"></path>
+        <rect x="360" y="150" width="200" height="160" rx="8" fill="#0b0c0e"></rect>
+        <text x="460" y="240" text-anchor="middle" fill="#fffcf0" font-size="28">技能</text>
+        <path d="M560 190 H700 M560 230 H700 M560 270 H700" stroke="#1f2de6" stroke-width="2"></path>
+        <rect x="700" y="70" width="340" height="80" rx="8" fill="#fffcf0" stroke="#0b0c0e" stroke-width="2"></rect>
+        <text x="870" y="118" text-anchor="middle" font-size="24">HTML，可再打开</text>
+        <rect x="700" y="190" width="340" height="80" rx="8" fill="#fffcf0" stroke="#0b0c0e" stroke-width="2"></rect>
+        <text x="870" y="238" text-anchor="middle" font-size="24">自由点，可以拖</text>
+        <rect x="700" y="310" width="340" height="80" rx="8" fill="#fffcf0" stroke="#0b0c0e" stroke-width="2"></rect>
+        <text x="870" y="358" text-anchor="middle" font-size="24">七种格式导出</text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="section" id="calabi" style="--h:1" aria-labelledby="calabi-h">
+    <div class="wrap">
+      <h2 id="calabi-h" data-en="Fermat quintic projection">费马五次投影</h2>
+      <div class="grid fig-split fill">
+        <div class="span-6">
+          <p data-en="A projection of a Fermat quintic, drawn as a Calabi–Yau picture. It is a picture, and the metric is not computed.">用费马五次超曲面的投影画一张卡拉比–丘示意。这是可视化，度量没有计算。<a class="link" href="figures/calabi-yau.html">在新标签打开投影</a></p>
+        </div>
+        <div class="span-6 start-7 stage-frame">
+          <svg class="frame-plate" viewBox="0 0 800 520" role="img" aria-label="费马五次投影的画框">
+            <rect x="6" y="6" width="788" height="508" fill="#fffcf0" stroke="#0b0c0e" stroke-width="3"></rect>
+            <path d="M80 360c80-160 140-160 180-40s80 140 180 20" fill="none" stroke="#c97b84" stroke-width="6"></path>
+            <path d="M100 300c90-100 120-20 160 20 50 50 80 80 180-30" fill="none" stroke="#6b9ac4" stroke-width="6"></path>
+            <path d="M120 380c60-60 100-140 140-140s80 80 160 100" fill="none" stroke="#2f6f5e" stroke-width="6"></path>
+          </svg>
+          <iframe data-src="figures/calabi-yau.html" title="费马五次超曲面投影，可旋转"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="exports" style="--h:1" aria-labelledby="exports-h">
+    <div class="wrap">
+      <h2 id="exports-h" data-en="Seven downloads">七种下载</h2>
+      <p data-en="The viewer menu writes the current figure. TikZ is native PGF, then Gikz. It is a static drawing. TSQX output is mixed with Asymptote.">查看器菜单写出当前图形。TikZ 先走 GeoGebra 原生 PGF，再经 Gikz 清理，得到的是静态图。TSQX 结果混有 Asymptote，不是纯 TSQX。</p>
+      <div class="grid fill">
+        <ul class="rows span-6">
+          <li><span class="rows__name">GGB</span><span class="rows__value">构造定义，含手动编辑</span></li>
+          <li><span class="rows__name">HTML</span><span class="rows__value">内嵌打包的 GGB，可再打开</span></li>
+          <li><span class="rows__name">PNG / SVG / PDF</span><span class="rows__value">讲义用的画面</span></li>
+          <li><span class="rows__name">XML</span><span class="rows__value">给 Asymptote 与 TSQX</span></li>
+          <li><span class="rows__name">TikZ</span><span class="rows__value">原生 PGF，再经 Gikz</span></li>
+        </ul>
+        <div class="format-menu span-6 start-7" role="img" aria-label="查看器下载菜单，七项依次为 GGB、PNG、SVG、TikZ、PDF、XML、HTML">
+          <span>GGB</span><span>PNG</span><span>SVG</span><span>TikZ</span><span>PDF</span><span>XML</span><span>HTML</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section faq" id="faq" style="--h:1" aria-labelledby="faq-h">
+    <div class="wrap">
+      <h2 id="faq-h" data-en="Questions">问答</h2>
+      <div>
+        <details open>
+          <summary data-en="Do I install GeoGebra?">要单独安装 GeoGebra 吗？</summary>
+          <p data-en="No. The browser loads the official engine when you open the HTML. Generating the file can be offline.">不用。打开 HTML 时，浏览器联网加载官方引擎。生成文件本身可以离线。</p>
+        </details>
+        <details open>
+          <summary data-en="Will it overwrite my file?">会覆盖我的文件吗？</summary>
+          <p data-en="No. The generator only writes a new file. Pass --output when you want another name.">不会。生成器只写新文件。要另一份时加上 --output。</p>
+        </details>
+        <details open>
+          <summary data-en="Does dragging save?">拖动会自动保存吗？</summary>
+          <p data-en="No. Download the current HTML or GGB before you close the page. The original JSON stays as it was.">不会。关闭前下载当前 HTML 或 GGB。原来的 JSON 保持不动。</p>
+        </details>
+        <details open>
+          <summary data-en="Why is the preview blank?">预览为什么是空白？</summary>
+          <p data-en="A file-preview pane can block the engine script. Use the preview command's loopback address, or open the HTML in Chrome or Safari. GeoGebra failed to load means the engine did not start. Command N failed means the construction needs a look.">文件预览面板可能拦住引擎脚本。用 preview 给出的本机地址，或用 Chrome、Safari 直接打开 HTML。GeoGebra failed to load 是引擎没起来。Command N failed 是构造命令要检查。</p>
+        </details>
+        <details open>
+          <summary data-en="What is the license?">许可是什么？</summary>
+          <p data-en="GPL-2.0-or-later. LICENSE-MIT keeps the original MIT notice. Third-party notes cover the Obsidian Clipper palettes (MIT) and Gikz (GPL).">整体 GPL-2.0-or-later。<a class="link" href="https://github.com/YZDame/GeoGebra-Studio/blob/main/LICENSE-MIT">LICENSE-MIT</a> 保留原 MIT 声明。<a class="link" href="https://github.com/YZDame/GeoGebra-Studio/blob/main/THIRD_PARTY_NOTICES.md">第三方声明</a>包括 Obsidian Clipper 色板（MIT）和 Gikz（GPL）。</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section statement" id="statement" data-moment="word-highlight" style="--h:1" aria-labelledby="statement-h">
+    <div class="wrap">
+      <h2 id="statement-h" data-en="The current figure">当前图形</h2>
+      <p class="mo-wh__text" data-en="Turn one sentence into commands and leave the free points free to drag. The midpoint, the altitude and the circumcenter follow their definitions. What you download is the <strong>current figure</strong> on the screen.">把一句题目写成命令，自由点留着可以拖。中点、垂线和外心按定义跟着走。离开之前下载的是<strong>当前图形</strong>，不是另一张截图。</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer closing footer--statement" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--word">
+      <div class="section-head--split">
+        <div>
+          <h2 id="close-h" data-en="Install the skill">安装技能</h2>
+          <p class="t-lead" data-en="Node.js 22.12. The figure needs the official engine online.">Node.js 22.12。打开图形时要联网加载官方引擎。</p>
+        </div>
+        <a class="btn btn--primary btn--xl" href="#install"><span data-en="Install the skill">安装技能</span><svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+      </div>
+      <p class="close__word" aria-hidden="true">数学配图助手</p>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 footer__col">
+          <h3>图形</h3>
+          <ul>
+            <li><a href="#figure">拿破仑定理</a></li>
+            <li><a href="#school">九点圆</a></li>
+            <li><a href="#hyper">直母线</a></li>
+            <li><a href="#calabi">费马五次投影</a></li>
+          </ul>
+        </div>
+        <div class="span-4 footer__col">
+          <h3>文档</h3>
+          <ul>
+            <li><a href="#install">安装</a></li>
+            <li><a href="#works">命令</a></li>
+            <li><a href="#exports">导出</a></li>
+            <li><a href="#faq">问答</a></li>
+          </ul>
+        </div>
+        <div class="span-4 footer__col">
+          <h3>仓库</h3>
+          <ul>
+            <li><a href="https://github.com/YZDame/GeoGebra-Studio">GitHub</a></li>
+            <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/LICENSE">GPL-2.0-or-later</a></li>
+            <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/LICENSE-MIT">原 MIT 声明</a></li>
+            <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/THIRD_PARTY_NOTICES.md">第三方声明</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__legal">
+        <span>© 2026 YZDame。非官方，与 GeoGebra 无隶属关系。GeoGebra 是其权利人的商标。产品名称与标志归各自所有者。</span>
+      </div>
+    </div>
+  </div>
+</footer>
+<script type="module" src="assets/system.js"></script>
+<script type="module" src="assets/motion/motion.js"></script>
+<script type="module" src="assets/layout/layout.js"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="site.js"></script>
+</body>
+</html>
