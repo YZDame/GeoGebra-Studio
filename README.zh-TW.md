@@ -64,13 +64,15 @@ npx @lydt/geogebra-studio@0.6.0 install
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-Agent 客戶端應使用真正的瀏覽器面板；HTML 檔案預覽可能限制 GeoGebra 的遠端腳本。內建執行環境提供單檔 HTTP 預覽：
+如果 Agent 客戶端能存取本機網址，Skill 預設啟動單檔 HTTP 預覽：
 
 ```sh
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs preview --input /absolute/project/diagram.html --workspace /absolute/project
 ```
 
-保持程序執行，在客戶端瀏覽器開啟傳回的本機網址。它只提供選定 HTML 的快照，修改檔案後須重新啟動預覽。一般瀏覽器仍可直接開啟 HTML。這不會覆寫客戶端的存取政策；安全檢查若拒絕存取，應回報限制，不可切換傳輸方式規避。必須在目標客戶端確認 `window.geogebraStudio.status === "ready"` 並檢查實際畫面，才能回報繪製成功。
+Agent 在客戶端的瀏覽器側邊欄或分頁開啟傳回的網址，把 **開啟互動預覽** 連結放在回覆首位，並保持程序執行。預覽服務只提供選定 HTML 的快照，修改檔案後須重新啟動。只有在目標瀏覽器中看到實際圖形後，才能回報繪製成功。
+
+回覆也會另外提供 HTML 下載。若客戶端無法存取預覽網址，可下載 HTML 並用 Chrome、Safari 等一般瀏覽器直接開啟。兩種檢視方式都需要瀏覽器能連線載入 GeoGebra 官方引擎。產生 HTML 本身可以離線。
 
 產生器只會建立新檔案，不覆寫既有檔案，也不會在產生階段執行幾何指令。必須檢視實際的 GeoGebra 畫面，確認幾何關係、交點分支、比例、標籤及拖曳效果。
 

@@ -64,13 +64,15 @@ npx @lydt/geogebra-studio@0.6.0 install
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
 ```
 
-Agent 客户端应使用真正的浏览器面板；HTML 文件预览可能限制 GeoGebra 的远程脚本。内置运行时提供单文件 HTTP 预览：
+如果 Agent 客户端能访问本机地址，Skill 默认启动单文件 HTTP 预览：
 
 ```sh
 node /path/to/geogebra-studio/scripts/geogebra-studio.cjs preview --input /absolute/project/diagram.html --workspace /absolute/project
 ```
 
-保持进程运行，在客户端浏览器打开返回的本机地址。它仅提供选定 HTML 的快照，修改文件后需重启预览。普通浏览器仍可直接打开 HTML。这不会覆盖客户端的访问策略；若安全检查拒绝访问，应报告限制，不能切换传输方式规避。必须在目标客户端确认 `window.geogebraStudio.status === "ready"` 并检查实际画面，才能报告渲染成功。
+Agent 在客户端的浏览器侧栏或标签页打开返回的地址，把 **打开交互预览** 链接放在回复首位，并保持进程运行。预览服务仅提供选定 HTML 的快照，修改文件后需重启。只有在目标浏览器里看到实际图形后，才能报告渲染成功。
+
+回复也会单独提供 HTML 下载。若客户端无法访问预览地址，可下载 HTML 并用 Chrome、Safari 等普通浏览器直接打开。两种查看方式都需要浏览器能联网加载 GeoGebra 官方引擎。生成 HTML 本身可以离线。
 
 生成器**只写入新文件**，不会覆盖已有文件，也不代表已实际验证数学图形。需要在真实 GeoGebra 画布中检查标签、交点、切线、比例和拖动效果。
 
