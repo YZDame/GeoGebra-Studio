@@ -18,21 +18,33 @@
 <body>
   <a class="skip-link" href="#top" data-en="Skip to content">跳到内容</a>
   <header class="wrap site-header">
-    <a class="brand" href="#top">GeoGebra Studio</a>
+    <a class="brand" href="#top">
+      <img src="geogebra-icon.png" width="22" height="22" alt="">
+      GeoGebra Studio
+    </a>
     <nav aria-label="网站导航" data-en-label="Site navigation">
       <a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/README.zh-CN.md" data-en="Docs" data-en-href="https://github.com/YZDame/GeoGebra-Studio#readme">文档</a>
-      <a href="https://github.com/YZDame/GeoGebra-Studio">GitHub</a>
+      <a class="repo-link" href="https://github.com/YZDame/GeoGebra-Studio">
+        <svg class="icon" aria-hidden="true"><use href="icons.svg#github"></use></svg>
+        <span>GitHub</span>
+        <span class="stars" data-stars hidden>
+          <svg class="icon" aria-hidden="true"><use href="icons.svg#star"></use></svg>
+          <span data-star-count></span><span class="sr-only" data-en=" stars"> 颗星</span>
+        </span>
+      </a>
       <button class="language" type="button" data-lang-toggle aria-label="Switch to English" hidden>EN</button>
     </nav>
   </header>
 
   <main class="wrap" id="top">
     <section class="hero" id="install" aria-labelledby="hero-title">
-      <h1 id="hero-title" data-en="Make interactive math figures">生成可拖动的数学图形</h1>
-      <p class="lead" data-en="An Agent Skill for creating, editing and exporting GeoGebra figures.">用 Agent Skill 生成、编辑和导出 GeoGebra 图形。</p>
+      <h1 id="hero-title">AI Agent + GeoGebra = ？</h1>
+      <p class="lead" data-en="Create interactive GeoGebra figures with an Agent Skill and export GGB, PNG, PDF, TikZ, HTML, and more.">用 Agent Skill 生成可交互的 GeoGebra 图形，并导出为 GGB、PNG、PDF、TikZ、HTML 等格式。</p>
       <div class="command">
         <code id="cmd-install">npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code>
-        <button type="button" data-copy="cmd-install" data-en="Copy" hidden>复制</button>
+        <button type="button" data-copy="cmd-install" aria-label="复制安装命令" data-en-label="Copy install command" hidden>
+          <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+        </button>
       </div>
       <p class="requirements" data-en="Requires Node.js 22.12+ and a client that supports Agent Skills.">需要 Node.js 22.12+ 和支持 Agent Skills 的客户端。</p>
       <p class="sr-only" role="status" id="copy-status"></p>
@@ -40,28 +52,60 @@
 
     <section class="examples" id="examples" aria-labelledby="examples-title">
       <h2 id="examples-title" data-en="Examples">示例</h2>
-      <ul>
-        <li id="figure">
-          <a href="figures/napoleon.html">
-            <span data-en="Napoleon’s theorem">拿破仑定理</span><span aria-hidden="true">→</span>
-          </a>
-        </li>
-        <li>
-          <a href="figures/nine-point-circle.html">
-            <span data-en="Nine-point circle">九点圆</span><span aria-hidden="true">→</span>
-          </a>
-        </li>
-        <li id="hyper">
-          <a href="figures/hyperboloid-ruled.html">
-            <span data-en="Ruled hyperboloid">单叶双曲面</span><span aria-hidden="true">→</span>
-          </a>
-        </li>
-        <li id="calabi">
-          <a href="figures/calabi-yau.html">
-            <span data-en="Fermat quintic projection">费马五次投影</span><span aria-hidden="true">→</span>
-          </a>
-        </li>
-      </ul>
+      <div class="example-groups">
+        <div>
+          <h3 data-en="2D">平面</h3>
+          <ul>
+            <li id="figure"><a href="figures/napoleon.html">
+              <span data-en="Napoleon’s theorem">拿破仑定理</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/nine-point-circle.html">
+              <span data-en="Nine-point circle">九点圆</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/cycloid.html">
+              <span data-en="Cycloid">钟摆线</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/spirograph.html">
+              <span data-en="Spirograph">万花尺</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/fourier-square-wave.html">
+              <span data-en="Fourier approximation of a square wave">傅里叶级数逼近方波</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/pascal-theorem.html">
+              <span data-en="Pascal’s theorem">帕斯卡定理</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/mandelbrot.html">
+              <span data-en="Mandelbrot set">曼德博集合</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/golden-spiral-sunflower.html">
+              <span data-en="Golden spiral and sunflower">黄金螺线与葵花子排布</span><span aria-hidden="true">→</span>
+            </a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 data-en="3D">三维</h3>
+          <ul>
+            <li id="hyper"><a href="figures/hyperboloid-ruled.html">
+              <span data-en="Ruled hyperboloid">单叶双曲面</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/mobius-strip.html">
+              <span data-en="Möbius strip">莫比乌斯带</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/klein-bottle.html">
+              <span data-en="Klein bottle">克莱因瓶</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/torus-knot.html">
+              <span data-en="T(p,q) torus knot">PQ 环面结</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/helicoid.html">
+              <span data-en="Minimal surface: helicoid">极小曲面：正螺旋面</span><span aria-hidden="true">→</span>
+            </a></li>
+            <li><a href="figures/lorenz-attractor.html">
+              <span data-en="Lorenz attractor">洛伦兹吸引子</span><span aria-hidden="true">→</span>
+            </a></li>
+          </ul>
+        </div>
+      </div>
     </section>
   </main>
 

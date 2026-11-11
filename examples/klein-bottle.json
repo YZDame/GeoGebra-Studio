@@ -1,0 +1,27 @@
+{
+  "filename": "klein-bottle.html",
+  "title": "Klein bottle immersion / 克莱因瓶浸入",
+  "commands": [
+    "bottle=Surface((2.3+cos(u/2)sin(v)-sin(u/2)sin(2v))cos(u),(2.3+cos(u/2)sin(v)-sin(u/2)sin(2v))sin(u),sin(u/2)sin(v)+cos(u/2)sin(2v),u,0,2pi,v,0,2pi)",
+    "SetColor(bottle,\"#367D68\")",
+    "SetFilling(bottle,0.67)"
+  ],
+  "visibleLabels": [],
+  "showAxes": false,
+  "mode": "3D",
+  "view3D": {
+    "bounds": [
+      -4,
+      4,
+      -4,
+      4,
+      -2.8,
+      2.8
+    ],
+    "direction": [
+      1.3,
+      -2.3,
+      1.55
+    ]
+  }
+}

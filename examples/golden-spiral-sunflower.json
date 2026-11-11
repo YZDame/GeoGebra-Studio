@@ -1,0 +1,19 @@
+{
+  "filename": "golden-spiral-sunflower.html",
+  "title": "Golden spiral and sunflower / 黄金螺线与葵花子排布",
+  "commands": [
+    "phi=(1+sqrt(5))/2",
+    "angle=2pi/(phi^2)",
+    "n=Slider(25,360,1,1,160,false,true,false,false)",
+    "SetValue(n,230)",
+    "spiral=Curve(-6+phi^(2u/pi)cos(u),phi^(2u/pi)sin(u),u,-4pi,1.6pi)",
+    "seeds=Sequence((5+0.31sqrt(k)cos(k*angle),0.31sqrt(k)sin(k*angle)),k,1,n)",
+    "SetColor(spiral,\"#367D68\")",
+    "SetLineThickness(spiral,3)",
+    "SetColor(seeds,\"#946B36\")",
+    "SetPointSize(seeds,2)",
+    "ZoomIn(-12,-7,12,7)"
+  ],
+  "visibleLabels": [],
+  "showAxes": true
+}

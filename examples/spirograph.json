@@ -1,0 +1,16 @@
+{
+  "filename": "spirograph.html",
+  "title": "Spirograph / 万花尺",
+  "commands": [
+    "r=Slider(1,4,1,1,145,false,true,false,false)",
+    "SetValue(r,2)",
+    "d=Slider(0.2,4,0.1,1,145,false,true,false,false)",
+    "SetValue(d,1.65)",
+    "trace=Curve((5-r)cos(u)+d cos((5-r)u/r),(5-r)sin(u)-d sin((5-r)u/r),u,0,2pi*r)",
+    "SetColor(trace,\"#367D68\")",
+    "SetLineThickness(trace,3)",
+    "ZoomIn(-7.8,-7.8,7.8,7.8)"
+  ],
+  "visibleLabels": [],
+  "showAxes": true
+}

@@ -102,7 +102,9 @@ The one Skill uses progressively loaded `references/` for construction, export, 
 | Middle school | [`examples/napoleon.json`](examples/napoleon.json) | Napoleon's theorem — outer equilateral triangles, inner equilateral that survives dragging |
 | High school | [`examples/nine-point-circle.json`](examples/nine-point-circle.json) | Nine-point circle and Euler line |
 | University | [`examples/hyperboloid-ruled.json`](examples/hyperboloid-ruled.json) | One-sheet hyperboloid with both ruling families (3D) |
-| Advanced demo | [`examples/calabi-yau.json`](examples/calabi-yau.json) | Fermat-quintic projection inspired by Calabi–Yau imagery (visualization, not a Ricci-flat metric) |
+| Showcase | [`examples/cycloid.json`](examples/cycloid.json) | Cycloid: move the slider to roll a circle and trace a point on its rim |
+
+More 2D and 3D constructions are listed in the [example gallery](examples/README.md).
 
 See [teacher walkthrough](docs/TEACHER-QUICKSTART.md), [sample constructions](examples/), [architecture](docs/MODERNIZATION.md), and [contributing](CONTRIBUTING.md).
 

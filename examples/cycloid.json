@@ -1,0 +1,26 @@
+{
+  "filename": "cycloid.html",
+  "title": "Cycloid / 钟摆线",
+  "commands": [
+    "t=Slider(0,2pi,0.01,1,160,false,true,false,false)",
+    "SetValue(t,2.4)",
+    "track=Curve(u-sin(u),1-cos(u),u,0,2pi)",
+    "O=(t,1)",
+    "wheel=Circle(O,1)",
+    "P=(t-sin(t),1-cos(t))",
+    "spoke=Segment(O,P)",
+    "SetColor(track,\"#386E98\")",
+    "SetLineThickness(track,3)",
+    "SetColor(wheel,\"#747474\")",
+    "SetLineThickness(wheel,2)",
+    "SetColor(spoke,\"#B35A4C\")",
+    "SetLineThickness(spoke,2)",
+    "SetColor(P,\"#B35A4C\")",
+    "SetPointSize(P,4)",
+    "ZoomIn(-1.7,-1.6,8.1,3.2)"
+  ],
+  "visibleLabels": [
+    "P"
+  ],
+  "showAxes": true
+}

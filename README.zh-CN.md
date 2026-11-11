@@ -104,7 +104,9 @@ Skill 中的 `references/` 按需加载构造、导出、设计和排障规则�
 | 初中 | [`examples/napoleon.json`](examples/napoleon.json) | 拿破仑定理：外侧等边三角形与可拖动的内侧等边三角形 |
 | 高中 | [`examples/nine-point-circle.json`](examples/nine-point-circle.json) | 九点圆与欧拉线 |
 | 大学 | [`examples/hyperboloid-ruled.json`](examples/hyperboloid-ruled.json) | 单叶双曲面与两族直母线（3D） |
-| 进阶演示 | [`examples/calabi-yau.json`](examples/calabi-yau.json) | 费马五次超曲面投影的卡拉比–丘示意（可视化，非 Ricci-flat 度量） |
+| 交互演示 | [`examples/cycloid.json`](examples/cycloid.json) | 钟摆线：拖动滑块滚动圆，观察圆周上一点的轨迹 |
+
+更多平面和三维构造见[示例目录](examples/README.md)。
 
 相关资料：[教师教程](docs/TEACHER-QUICKSTART.zh-CN.md)、[示例](examples/)、[架构](docs/MODERNIZATION.md)、[贡献说明](CONTRIBUTING.md)。
 

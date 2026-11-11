@@ -33,3 +33,9 @@ includes executable cleaner source and its full GPL license; preserve these noti
 ## Original MCP
 Original MIT notices remain in LICENSE-MIT. Combined distribution does not remove
 or replace those original copyright notices.
+
+## GitHub Pages assets
+
+- Studio Han Serif is a subset of Adobe Source Han Serif SC Semibold, with its font name changed for distribution under the SIL Open Font License 1.1. The license is in [site/fonts/source-han-serif-sc-OFL.txt](site/fonts/source-han-serif-sc-OFL.txt).
+- Source Serif 4 and JetBrains Mono are distributed as subsets under the SIL Open Font License 1.1. See [Source Serif 4 license](site/fonts/source-serif-4-OFL.txt) and [JetBrains Mono license](site/fonts/jetbrains-mono-OFL.txt).
+- The icon sprite uses Bootstrap Icons 1.13.1 under the [MIT license](site/icons-LICENSE.txt).

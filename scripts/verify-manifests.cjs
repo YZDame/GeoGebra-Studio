@@ -8,7 +8,7 @@ assert.equal(market.plugins.find(x=>x.name==='geogebra-studio').source.version,p
 assert(!fs.existsSync('mcp.json'));assert(!fs.existsSync('.mcp.json'));assert(!fs.existsSync('mcp.optional.json'));
 assert(!Object.keys(p.dependencies).some(x=>x.startsWith('@modelcontextprotocol/')));
 for(const f of ['skills/geogebra-studio/SKILL.md','skills/geogebra-studio/scripts/geogebra-studio.cjs','skills/geogebra-studio/runtime/dist/cli.js','skills/geogebra-studio/runtime/dist/viewer.js','skills/geogebra-studio/runtime/dist/export/semantic.js','skills/geogebra-studio/runtime/gikz/core.cjs'])assert(fs.existsSync(f),f);
-for(const name of ['napoleon','nine-point-circle','hyperboloid-ruled','calabi-yau']){
+for(const name of ['napoleon','nine-point-circle','hyperboloid-ruled','cycloid']){
  const repo=path.join('examples',name+'.json');
  const skill=path.join('skills/geogebra-studio/examples',name+'.json');
  assert(fs.existsSync(repo),repo);assert(fs.existsSync(skill),skill);

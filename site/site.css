@@ -1,3 +1,24 @@
+@font-face {
+  font-family: "Studio Han Serif";
+  src: url("fonts/source-han-serif-sc.otf") format("opentype");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/source-serif-4.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/jetbrains-mono.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light dark;
   --paper: #fafafa;
@@ -6,7 +27,7 @@
   --line: #dcdcdc;
   --surface: #f1f1f1;
   --hover: #e8e8e8;
-  font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: "PingFang SC", system-ui, "Microsoft YaHei", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,7 +43,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.6; }
-h1, h2, p { margin: 0; }
+h1, h2, h3, p { margin: 0; }
 a { color: inherit; }
 a:hover { text-decoration: underline; text-underline-offset: .22em; }
 button { font: inherit; }
@@ -39,11 +60,16 @@ button { font: inherit; }
   color: var(--muted);
   font-size: .875rem;
 }
-.site-header { padding-block: 1.1rem; border-bottom: 1px solid var(--line); }
-.site-header nav, .footer div { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1.15rem; }
+.site-header { align-items: center; padding-block: 1.1rem; border-bottom: 1px solid var(--line); }
+.site-header nav, .footer div { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.15rem; }
 .site-header a { text-decoration: none; }
 .site-header a:hover { text-decoration: underline; }
-.brand { color: var(--ink); font-weight: 700; }
+.brand, .repo-link, .stars:not([hidden]) { display: inline-flex; align-items: center; gap: .35rem; }
+.brand { color: var(--ink); font-weight: 700; gap: .5rem; }
+.brand img { display: block; }
+.icon { width: 1rem; height: 1rem; fill: currentColor; flex: none; }
+.stars { margin-inline-start: .18rem; font-variant-numeric: tabular-nums; }
+.stars .icon { width: .8rem; height: .8rem; }
 
 .language {
   border: 0;
@@ -55,7 +81,8 @@ button { font: inherit; }
 .language:hover { text-decoration: underline; text-underline-offset: .22em; }
 
 .hero { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2.75rem, 7vw, 4.75rem); }
-h1 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.18; letter-spacing: -.035em; text-wrap: balance; }
+h1, h2, h3 { font-family: "Source Serif 4", "Studio Han Serif", "Songti SC", Georgia, serif; font-weight: 600; }
+h1 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.18; letter-spacing: -.025em; text-wrap: balance; }
 .lead { margin-top: .9rem; color: var(--muted); }
 .command {
   display: flex;
@@ -68,31 +95,32 @@ h1 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.18; letter-spacing: -.
   border-radius: 6px;
   background: var(--surface);
 }
-.command code { min-width: 0; overflow-wrap: anywhere; font: .875rem/1.6 ui-monospace, monospace; }
+.command code { min-width: 0; overflow-wrap: anywhere; font: .875rem/1.6 "JetBrains Mono", ui-monospace, monospace; }
 .command button {
   flex: none;
-  padding: .3rem .65rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: 6px;
   color: var(--ink);
   background: var(--paper);
-  font-size: .85rem;
-  white-space: nowrap;
   cursor: pointer;
 }
+.command button:not([hidden]) { display: grid; place-items: center; }
 .command button:hover { background: var(--hover); }
 .requirements { margin-top: .6rem; color: var(--muted); font-size: .875rem; }
 
 .examples { padding-block: 1.35rem 1.75rem; border-top: 1px solid var(--line); }
 .examples h2 { font-size: 1.15rem; }
-.examples ul {
+.example-groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 2rem;
-  padding: 0;
-  margin: .5rem 0 0;
-  list-style: none;
+  gap: 1.2rem 2rem;
+  margin-top: .9rem;
 }
+.examples h3 { font-size: 1rem; color: var(--muted); }
+.examples ul { padding: 0; margin: .25rem 0 0; list-style: none; }
 .examples a {
   display: flex;
   align-items: baseline;
@@ -112,5 +140,5 @@ h1 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.18; letter-spacing: -.
 @media (max-width: 480px) {
   .wrap { width: calc(100% - 2rem); }
   .site-header nav { gap: .4rem .65rem; }
-  .examples ul { grid-template-columns: 1fr; }
+  .example-groups { grid-template-columns: 1fr; }
 }

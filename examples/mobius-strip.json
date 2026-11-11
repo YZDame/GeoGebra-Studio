@@ -1,0 +1,30 @@
+{
+  "filename": "mobius-strip.html",
+  "title": "Möbius strip / 莫比乌斯带",
+  "commands": [
+    "strip=Surface((2+v cos(u/2))cos(u),(2+v cos(u/2))sin(u),v sin(u/2),u,0,2pi,v,-0.65,0.65)",
+    "edge=Curve((2+0.65cos(t/2))cos(t),(2+0.65cos(t/2))sin(t),0.65sin(t/2),t,0,4pi)",
+    "SetColor(strip,\"#386E98\")",
+    "SetFilling(strip,0.72)",
+    "SetColor(edge,\"#367D68\")",
+    "SetLineThickness(edge,3)"
+  ],
+  "visibleLabels": [],
+  "showAxes": false,
+  "mode": "3D",
+  "view3D": {
+    "bounds": [
+      -3,
+      3,
+      -3,
+      3,
+      -2,
+      2
+    ],
+    "direction": [
+      1.3,
+      -2.3,
+      1.55
+    ]
+  }
+}

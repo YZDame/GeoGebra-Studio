@@ -1,0 +1,27 @@
+{
+  "filename": "helicoid.html",
+  "title": "Helicoid minimal surface / 极小曲面：正螺旋面",
+  "commands": [
+    "sheet=Surface((v cos(u),v sin(u),0.44u),u,-2pi,2pi,v,-2,2)",
+    "SetColor(sheet,\"#386E98\")",
+    "SetFilling(sheet,0.75)"
+  ],
+  "visibleLabels": [],
+  "showAxes": false,
+  "mode": "3D",
+  "view3D": {
+    "bounds": [
+      -2.8,
+      2.8,
+      -2.8,
+      2.8,
+      -3.2,
+      3.2
+    ],
+    "direction": [
+      1.3,
+      -2.3,
+      1.55
+    ]
+  }
+}

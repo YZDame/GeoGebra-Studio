@@ -45,6 +45,7 @@ toggle.addEventListener("click", () => {
 
 for (const button of document.querySelectorAll("[data-copy]")) {
   const command = document.getElementById(button.dataset.copy);
+  const glyph = button.querySelector("use");
   button.hidden = false;
   let reset;
 
@@ -52,17 +53,28 @@ for (const button of document.querySelectorAll("[data-copy]")) {
     clearTimeout(reset);
     try {
       await navigator.clipboard.writeText(command.textContent);
-      button.textContent = english ? "Copied" : "已复制";
+      glyph.setAttribute("href", "icons.svg#check-lg");
       copyStatus.textContent = english ? "Command copied." : "已复制命令。";
     } catch {
       const selection = window.getSelection();
       selection.selectAllChildren(command);
-      button.textContent = english ? "Selected" : "已选中";
       copyStatus.textContent = english ? "Command selected. Copy it using your keyboard or menu." : "命令已选中，请用键盘或菜单复制。";
     }
 
     reset = setTimeout(() => {
-      button.textContent = english ? "Copy" : "复制";
+      glyph.setAttribute("href", "icons.svg#copy");
     }, 1800);
   });
 }
+
+const starCount = document.querySelector("[data-star-count]");
+fetch("https://api.github.com/repos/YZDame/GeoGebra-Studio")
+  .then((response) => response.ok ? response.json() : null)
+  .then((repository) => {
+    if (!Number.isSafeInteger(repository?.stargazers_count) || repository.stargazers_count < 0) return;
+    starCount.textContent = repository.stargazers_count;
+    starCount.parentElement.hidden = false;
+  })
+  .catch(() => {
+    // Keep the count recorded at deployment if GitHub's API is unavailable.
+  });

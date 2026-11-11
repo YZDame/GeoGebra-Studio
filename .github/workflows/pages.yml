@@ -25,13 +25,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Assemble the site
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           rm -rf _site
           mkdir -p _site/figures
           cp -a site/. _site/
           rm -rf _site/.taste-skill
-          rm -f _site/figures/*.html
-          cp examples/napoleon.html examples/nine-point-circle.html examples/hyperboloid-ruled.html examples/calabi-yau.html _site/figures/
+          cp assets/geogebra-icon.png _site/
+          cp examples/*.html _site/figures/
+          if stars=$(gh api "repos/$GITHUB_REPOSITORY" --jq .stargazers_count) && [[ "$stars" =~ ^[0-9]+$ ]]; then
+            sed -i -e 's/data-stars hidden/data-stars/' -e "s/data-star-count><\/span>/data-star-count>$stars<\/span>/" _site/index.html
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

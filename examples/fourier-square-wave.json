@@ -1,0 +1,17 @@
+{
+  "filename": "fourier-square-wave.html",
+  "title": "Fourier square wave / 傅里叶级数逼近方波",
+  "commands": [
+    "n=Slider(1,35,1,1,160,false,true,false,false)",
+    "SetValue(n,7)",
+    "wave(x)=If(sin(x)>0,1,-1)",
+    "approx(x)=4/pi Sum(Sequence(sin((2k-1)x)/(2k-1),k,1,n))",
+    "SetColor(wave,\"#797979\")",
+    "SetLineThickness(wave,2)",
+    "SetColor(approx,\"#B35A4C\")",
+    "SetLineThickness(approx,3)",
+    "ZoomIn(-7.6,-2,7.6,2)"
+  ],
+  "visibleLabels": [],
+  "showAxes": true
+}

@@ -102,7 +102,9 @@ node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolu
 | 國中 | [`examples/napoleon.json`](examples/napoleon.json) | 拿破崙定理：外側等邊三角形與可拖曳的內側等邊三角形 |
 | 高中 | [`examples/nine-point-circle.json`](examples/nine-point-circle.json) | 九點圓與歐拉線 |
 | 大學 | [`examples/hyperboloid-ruled.json`](examples/hyperboloid-ruled.json) | 單葉雙曲面與兩族直母線（3D） |
-| 進階演示 | [`examples/calabi-yau.json`](examples/calabi-yau.json) | 費馬五次超曲面投影的卡拉比–丘示意（視覺化，非 Ricci-flat 度量） |
+| 互動示範 | [`examples/cycloid.json`](examples/cycloid.json) | 鐘擺線：拖動滑桿滾動圓，觀察圓周上一點的軌跡 |
+
+更多平面與三維構造見[範例目錄](examples/README.md)。
 
 參考：[教師入門指南](docs/TEACHER-QUICKSTART.zh-CN.md)、[範例](examples/)、[架構說明](docs/MODERNIZATION.md)、[貢獻指南](CONTRIBUTING.md)。
 
