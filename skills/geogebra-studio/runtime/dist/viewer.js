@@ -1,5 +1,40 @@
 "use strict";
 (() => {
+  // src/export/slider-labels.ts
+  var SLIDER_LABEL_NAME = 0;
+  var SLIDER_LABEL_CAPTION = 3;
+  function objectXmlIsSlider(xml) {
+    return /<slider\b/.test(xml);
+  }
+  function planSliderLabel(name, caption, override) {
+    const authored = override !== void 0 ? override : caption;
+    const text = (authored ?? "").trim();
+    if (text && text !== name) return { caption: text, style: SLIDER_LABEL_CAPTION };
+    return { style: SLIDER_LABEL_NAME };
+  }
+  function showSliderLabels(api, captionOverrides = {}) {
+    const failed = [];
+    for (const name of api.getAllObjectNames() || []) {
+      try {
+        if (api.getObjectType(name) !== "numeric" || !objectXmlIsSlider(api.getXML(name))) continue;
+        const override = Object.prototype.hasOwnProperty.call(captionOverrides, name) ? captionOverrides[name] : void 0;
+        let existing = "";
+        try {
+          existing = api.getCaption(name, false) ?? "";
+        } catch {
+          existing = api.getCaption(name) ?? "";
+        }
+        const plan = planSliderLabel(name, existing, override);
+        if (plan.caption !== void 0) api.setCaption(name, plan.caption);
+        api.setLabelStyle(name, plan.style);
+        api.setLabelVisible(name, true);
+      } catch {
+        failed.push(name);
+      }
+    }
+    return failed;
+  }
+
   // src/export/viewer-action-commands.ts
   function splitCommandArguments(input) {
     const args = [];
@@ -476,7 +511,14 @@
         const extent = Math.max(1, ...coordinates.map((p) => Math.hypot(...p.map((v, i) => v - center[i]))));
         for (const name of names) {
           try {
-            const type = api.getObjectType(name), show = visible.size ? visible.has(name) : type === "point";
+            const type = api.getObjectType(name);
+            if (type === "numeric") {
+              try {
+                if (objectXmlIsSlider(api.getXML(name))) continue;
+              } catch (_) {
+              }
+            }
+            const show = visible.size ? visible.has(name) : type === "point";
             api.setLabelVisible(name, false);
             if (type === "point") api.setPointSize(name, is3D ? 1 : 3);
             else if (["line", "segment", "ray", "vector", "circle", "conic", "polygon", "function", "curve"].includes(type) || is3D && type === "angle") api.setLineThickness(name, is3D ? 1 : 3);
@@ -501,6 +543,7 @@
             runtime.warnings.push("Style failed " + name + ": " + String(error.message || error));
           }
         }
+        for (const name of showSliderLabels(api, captions)) runtime.warnings.push("Slider label failed " + name);
       }
       const scriptJson = (value) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
       async function exportAs(format) {

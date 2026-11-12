@@ -10,7 +10,7 @@ Use the official GeoGebra applet, not a screenshot or a hand-drawn approximation
 ## Construct and inspect
 
 1. Read [construction guidance](references/construction.md). Translate the mathematical problem into dependency-preserving GeoGebra commands. Prefer dependent constructions to frozen coordinates.
-2. Write a JSON specification in the user's workspace with a new `filename` ending in `.html`, a nonempty `commands` array, and optional `visibleLabels`, `showAxes`, `captionOverrides`, `mode`, `view3D`, and `labelOffsets`.
+2. Write a JSON specification in the user's workspace with a new `filename` ending in `.html`, a nonempty `commands` array, and optional `visibleLabels`, `showAxes`, `captionOverrides`, `mode`, `view3D`, and `labelOffsets`. Every slider shows a label beside the control: `SetCaption(a,"半长轴 a")` or `captionOverrides` (Chinese included) is the caption, and a slider with neither shows its object name. `ShowLabel` is optional for sliders. See [construction guidance](references/construction.md).
 3. Locate this skill folder from the location of this SKILL.md and run, with quoted absolute paths:
 
    ```sh
