@@ -74,7 +74,7 @@ cd plugins/dsh-geogebra-studio
 npm publish --access public
 ```
 
-npm may hold each publish in **staged publishing**: the package's **Staged packages** tab then needs a 2FA approval before the version becomes installable. 0.2.0 was approved; 0.3.0 is waiting there. For CI releases, configure npm's trusted publisher for `dsh-geogebra-studio` (repository `YZDame/GeoGebra-Studio`, workflow `publish-dsh-plugin.yml`, environment `npm`); `dsh-v*` tags then publish with provenance through `.github/workflows/publish-dsh-plugin.yml`, without a long-lived token.
+npm may hold each publish in **staged publishing**: the package's **Staged packages** tab then needs a 2FA approval before the version becomes installable. 0.2.0 and 0.3.0 were approved. For CI releases, configure npm's trusted publisher for `dsh-geogebra-studio` (repository `YZDame/GeoGebra-Studio`, workflow `publish-dsh-plugin.yml`, environment `npm`); `dsh-v*` tags then publish with provenance through `.github/workflows/publish-dsh-plugin.yml`, without a long-lived token.
 
 ## Develop
 
