@@ -1,4 +1,6 @@
 export interface HtmlOptions {
+    /** Compact chrome for a viewer inside a host application's panel. */
+    layout?: 'panel';
     /** Defaults to 2D for existing constructions. */
     mode?: '2D' | '3D';
     /** Native 3D camera bounds and direction; omitted bounds fit visible points. */

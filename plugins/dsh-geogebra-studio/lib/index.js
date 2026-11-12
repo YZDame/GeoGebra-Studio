@@ -8,7 +8,7 @@
  *
  * - `/dsh-geogebra-studio/state` returns the Session's latest render version.
  * - `/dsh-geogebra-studio/viewer` returns the blank or populated viewer HTML
- *   that the right-Sidebar tab embeds, with the standard viewer header
+ *   that the right-Sidebar tab embeds, with a compact viewer header
  *   (objects toggle, theme, light/dark and downloads).
  *
  * The Client half (`lib/client.js`) owns the sidebar entry, the right tab and
@@ -223,14 +223,13 @@ export function apply(ctx) {
       return
     }
     const render = renders.get(requestSession(request))
-    let html
+    let body
     try {
-      html = constructionHtml(render?.spec ?? BLANK_SPEC)
+      body = constructionHtml({ ...(render?.spec ?? BLANK_SPEC), layout: 'panel' })
     } catch (error) {
       send(response, 500, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }, String(error))
       return
     }
-    const body = html
     send(response, 200, {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'no-store',

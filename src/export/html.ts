@@ -4,6 +4,8 @@ import { runtimeAsset } from './runtime-assets';
 import { viewerThemes } from './viewer-themes';
 
 export interface HtmlOptions {
+  /** Compact chrome for a viewer inside a host application's panel. */
+  layout?: 'panel';
   /** Defaults to 2D for existing constructions. */
   mode?: '2D' | '3D';
   /** Native 3D camera bounds and direction; omitted bounds fit visible points. */
@@ -64,8 +66,18 @@ header{position:relative;z-index:10;display:flex;justify-content:space-between;a
 #status{position:absolute;inset:0;z-index:2;display:grid;place-items:center;margin:0;padding:16px;color:var(--muted);background:var(--paper);text-align:center;pointer-events:none}
 #status[hidden]{display:none}#status.error{color:#af3029}
 @media(max-width:640px){main{padding:8px}.stage{border-radius:7px}header{margin-bottom:6px}}
+[data-viewer-panel] main{padding:0}
+[data-viewer-panel] header{min-height:40px;margin:0;padding:5px 10px;border-block:1px solid var(--line)}
+[data-viewer-panel] .header-actions{gap:4px}
+[data-viewer-panel] .control-button{height:28px;min-width:0;padding:0 8px;border:0;border-radius:6px}
+[data-viewer-panel] .icon-button{flex:none;width:28px;padding:0}
+[data-viewer-panel] #theme-toggle{width:100%;gap:4px}
+[data-viewer-panel] #theme-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-viewer-panel] .menu-control{position:static;min-width:0}
+[data-viewer-panel] .viewer-menu{top:calc(100% + 2px);right:10px;min-width:min(170px,calc(100% - 20px));max-width:calc(100% - 20px)}
+[data-viewer-panel] .stage{min-height:0;border:0;border-radius:0}
 @media print{main{width:100%;padding:0}header{display:none}.stage{border:0;border-radius:0}}
-</style></head><body><main>
+</style></head><body${options.layout === 'panel' ? ' data-viewer-panel=""' : ''}><main>
 <header><button id="sidebar-toggle" class="control-button icon-button sidebar-toggle" type="button" aria-label="Show objects" title="Show objects" aria-expanded="false" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16m4-11 3 3-3 3"/></svg></button><div class="header-actions"><div class="menu-control"><button id="theme-toggle" class="control-button" type="button" aria-label="Theme" aria-expanded="false" aria-haspopup="menu" aria-controls="theme-menu"><span id="theme-name">Default</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="theme-menu" class="viewer-menu" role="menu" aria-label="Themes"></div></div>
 <button id="mode-toggle" class="control-button icon-button" type="button" aria-label="Toggle light/dark"></button>
 <div class="menu-control downloads"><button class="control-button icon-button download-toggle" id="download-toggle" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="download-menu" aria-label="Download" title="Download" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg></button>

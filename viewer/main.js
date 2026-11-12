@@ -409,7 +409,12 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
       setSize(camera);
     });
     window.startGeoGebra = () => {
-      window.constructionTemplate = "<!doctype html>\n" + document.documentElement.outerHTML;
+      let template = document.documentElement;
+      if (document.body.hasAttribute("data-viewer-panel")) {
+        template = template.cloneNode(true);
+        template.querySelector("body").removeAttribute("data-viewer-panel");
+      }
+      window.constructionTemplate = "<!doctype html>\n" + template.outerHTML;
       const width = Math.max(200, Math.round(host.clientWidth));
       const height = Math.max(200, Math.round(host.clientHeight));
       const applet = new GGBApplet({

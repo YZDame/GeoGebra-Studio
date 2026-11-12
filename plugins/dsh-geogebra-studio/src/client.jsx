@@ -22,6 +22,17 @@ const TAB_ID = 'dsh-geogebra-studio'
 const STATE_PATH = '/dsh-geogebra-studio/state'
 const VIEWER_PATH = '/dsh-geogebra-studio/viewer'
 
+// Dockkit's strip normally has 10px above its 28px controls and no bottom
+// inset. Match the conversation's 30px title row and 10px vertical insets
+// when the GeoGebra tab is selected.
+const DOCKED_TAB_STYLE = `
+  [data-dockkit-strip]:has([role="tab"][aria-selected="true"] [data-geogebra-tab-title]) {
+    box-sizing: border-box;
+    height: 50px;
+    padding-block: 10px;
+  }
+`
+
 export const name = 'dsh-geogebra-studio'
 
 /** The sidebar, its tab registry, the main-panel selector and copy. */
@@ -40,6 +51,10 @@ const en = {
 /** The sidebar glyph: the official split-view icon, not a custom mark. */
 function GeoGebraPanelIcon({ size }) {
   return <IconCompareSplitOutlineRegular size={size} />
+}
+
+function GeoGebraTabTitle({ t }) {
+  return <span data-geogebra-tab-title>{t('tab')}</span>
 }
 
 /** A blank GeoGebra canvas that follows the Session's latest construction. */
@@ -89,6 +104,7 @@ export function GeoGebraCanvas({ sessionId }) {
         background: 'var(--dsw-alias-bg-layer-1)',
       }}
     >
+      <style>{DOCKED_TAB_STYLE}</style>
       <iframe
         key={src}
         src={src}
@@ -144,6 +160,15 @@ export function apply(ctx) {
       locale: NS,
     }, GeoGebraCanvas)),
     'geogebra-studio: right tab body',
+  )
+
+  ctx.effect(
+    () => ctx.slots.inject('sidebar.right.pane.tab.title', () => ctx.slots.register({
+      name: 'sidebar.right.pane.tab.title',
+      key: TAB_ID,
+      inject: () => ({ t }),
+    }, GeoGebraTabTitle)),
+    'geogebra-studio: right tab title',
   )
 
   // The sidebar row's id must address a registered main panel. This one is a
