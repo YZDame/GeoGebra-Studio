@@ -1,3 +1,4 @@
+import { objectXmlIsSlider, showSliderLabels } from '../src/export/slider-labels';
 import { executeViewerActionCommand } from '../src/export/viewer-action-commands';
 import { executeViewerCommand } from '../src/export/viewer-command-executor';
 import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/export/viewer-style-commands';
@@ -265,7 +266,13 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
       const extent = Math.max(1,...coordinates.map(p => Math.hypot(...p.map((v,i) => v - center[i]))));
       for (const name of names) {
         try {
-          const type = api.getObjectType(name), show = visible.size ? visible.has(name) : type === "point";
+          const type = api.getObjectType(name);
+          // A screen slider is not a path, so the LaTeX stand-in below cannot be
+          // anchored to it, and that pass would hide the native caption.
+          if (type === "numeric") {
+            try { if (objectXmlIsSlider(api.getXML(name))) continue; } catch (_) {}
+          }
+          const show = visible.size ? visible.has(name) : type === "point";
           api.setLabelVisible(name, false);
           if (type === "point") api.setPointSize(name, is3D ? 1 : 3);
           else if (["line", "segment", "ray", "vector", "circle", "conic", "polygon", "function", "curve"].includes(type) || is3D && type === "angle") api.setLineThickness(name, is3D ? 1 : 3);
@@ -290,6 +297,8 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
           runtime.warnings.push("Style failed " + name + ": " + String(error.message || error));
         }
       }
+      // After the hide pass. Caption mode keeps Unicode; name mode keeps the object name.
+      for (const name of showSliderLabels(api, captions)) runtime.warnings.push("Slider label failed " + name);
     }
     const scriptJson = (value) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
     async function exportAs(format) {
