@@ -8,6 +8,8 @@
 
 ## Comment ça marche
 
+<img src="docs/images/cover.png" alt="Codex sous macOS : une question en chinois demandant si GeoGebra Studio peut tracer la géométrie dans l’espace du lycée, à côté d’un quart de cylindre avec une section mobile à la hauteur h." width="100%">
+
 | Générer | Modifier | Exporter |
 | --- | --- | --- |
 | ![Le terminal lance generate et preview (avec ZoomIn) ; le visualiseur local charge le triangle rectangle avec le cercle circonscrit entièrement visible.](docs/images/generate.gif) | ![Dans la vue Algèbre, b passe de 4 à 3 puis h de 3 à 4 ; le triangle et le cercle circonscrit complet se mettent à jour.](docs/images/edit.gif) | ![Menu Download avec GGB, PNG, SVG, TikZ, PDF, XML et HTML ; clics sur SVG et TikZ, puis le source TikZ exporté.](docs/images/export.gif) |

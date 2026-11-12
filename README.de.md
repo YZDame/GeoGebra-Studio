@@ -8,6 +8,8 @@
 
 ## So funktioniert es
 
+<img src="docs/images/cover.png" alt="Codex unter macOS: eine chinesische Frage, ob GeoGebra Studio 3D-Raumgeometrie der Oberstufe zeichnen kann, neben einem Viertelzylinder mit verschiebbarem Querschnitt auf Höhe h." width="100%">
+
 | Erzeugen | Bearbeiten | Exportieren |
 | --- | --- | --- |
 | ![Im Terminal generate und preview (einschließlich ZoomIn); der lokale Viewer lädt das rechtwinklige Dreieck mit vollständig sichtbarem Umkreis.](docs/images/generate.gif) | ![Algebra-Ansicht: b von 4 auf 3, danach h von 3 auf 4; Dreieck und vollständiger Umkreis aktualisieren sich sofort.](docs/images/edit.gif) | ![Download-Menü mit GGB, PNG, SVG, TikZ, PDF, XML und HTML; Klicks auf SVG und TikZ, danach der exportierte TikZ-Quelltext.](docs/images/export.gif) |

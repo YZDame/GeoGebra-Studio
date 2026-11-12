@@ -8,6 +8,8 @@
 
 ## How it works
 
+<img src="docs/images/cover.png" alt="Codex on macOS: a user asks in Chinese whether GeoGebra Studio can draw 3D high-school solid geometry, beside a quarter-cylinder solid with a movable cross-section at height h." width="100%">
+
 | Generate | Edit | Export |
 | --- | --- | --- |
 | ![Terminal generate + preview for right-triangle-v2.json (commands include ZoomIn), then the local viewer loading with the full circumcircle visible.](docs/images/generate.gif) | ![Algebra + graphics showing b change 4→3 then h change 3→4, with the triangle and full circumcircle updating.](docs/images/edit.gif) | ![Download menu open with GGB, PNG, SVG, TikZ, PDF, XML, HTML; clicks on SVG and TikZ; then real TikZ source.](docs/images/export.gif) |
