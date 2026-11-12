@@ -18,6 +18,7 @@ jobs:
         with:
           node-version: 24.10.0
           package-manager-cache: false
+      - run: node scripts/stamp-figure-pages.cjs
       - run: npm ci
       - run: npm run verify
       - run: npm run test:unit
