@@ -116,6 +116,16 @@ async function resolveExistingFile(input, workspace) {
   return real
 }
 
+/** Refuse writes when the session's file policy is read-only. */
+function assertWritable(ctx, exec) {
+  if (!exec?.agent) return
+  const policy = typeof ctx.get === 'function' ? ctx.get('sandboxPolicy') : undefined
+  const mode = policy?.resolve?.({ session: exec.agent.session })?.mode
+  if (mode === 'read-only') {
+    throw new Error('the session file policy is read-only; GeoGebra Studio needs workspace write access')
+  }
+}
+
 /** Read a skill body without its discovery frontmatter. */
 function readSkillBody() {
   const source = readFileSync(SKILL_FILE, 'utf8')
@@ -181,6 +191,7 @@ export function apply(ctx) {
       }],
     },
     async execute(args, exec) {
+      assertWritable(ctx, exec)
       const workspace = await resolveWorkspace(args.workspace, exec)
       let raw = args.spec
       if (raw === undefined) {
@@ -290,6 +301,7 @@ export function apply(ctx) {
       }],
     },
     async execute(args, exec) {
+      assertWritable(ctx, exec)
       const workspace = await resolveWorkspace(args.workspace, exec)
       const input = await resolveExistingFile(args.input, workspace)
       const source = await readFile(input, 'utf8')

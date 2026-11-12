@@ -89,6 +89,7 @@ check('host name', host.name === 'dsh-geogebra-studio', String(host.name))
 check('host injects tools', Array.isArray(host.inject) && host.inject.includes('tools'))
 check('host apply', typeof host.apply === 'function')
 
+let sandboxMode = 'workspace-write'
 const tools = new Map()
 const skills = []
 const effects = []
@@ -99,6 +100,10 @@ const ctx = {
       tools.set(definition.name, definition)
       return () => tools.delete(definition.name)
     },
+  },
+  get(name) {
+    if (name !== 'sandboxPolicy') return undefined
+    return { resolve: () => ({ mode: sandboxMode }) }
   },
   skills: {
     register(skill) {
@@ -198,6 +203,11 @@ check('preview sets the HTML content type', response.headers.get('content-type')
 const again = await preview.execute({ file: 'verify.html' }, exec)
 check('preview replaces its snapshot', again.url !== served.url || again.file.endsWith('verify.html'))
 await rejects('preview only serves HTML', () => preview.execute({ file: 'figure.xml' }, exec))
+
+sandboxMode = 'read-only'
+await rejects('build respects a read-only session policy', () => build.execute({ spec }, exec))
+await rejects('export respects a read-only session policy', () => exporter.execute({ input: 'figure.xml', format: 'tsqx', output: 'blocked.tsqx' }, exec))
+sandboxMode = 'workspace-write'
 
 await rm(workspace, { recursive: true, force: true })
 await rm(join(workspace, '..', 'ggb-dsh-outside.xml'), { force: true })
