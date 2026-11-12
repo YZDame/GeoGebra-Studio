@@ -18,13 +18,13 @@ The generated page keeps the full viewer: native algebra sidebar, nine theme fam
 
 ## Install
 
-Once `dsh-geogebra-studio@0.2.0` is on npm, installation is one short spec with no quotes and no repository path:
+Installation is one short spec with no quotes and no repository path:
 
 ```sh
 dsh plugin --profile web add dsh-geogebra-studio
 ```
 
-Use `--profile desktop` for the Desktop app. Until that npm release exists, or when testing a branch, install from a checkout or from GitHub:
+Use `--profile desktop` for the Desktop app. Before a release, or when testing a branch, install from a checkout or from GitHub:
 
 ```sh
 dsh plugin --profile web add ./plugins/dsh-geogebra-studio
