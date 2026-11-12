@@ -174,7 +174,8 @@ const blankState = getState('session-before')
 check('blank state has version 0', blankState.status === 200 && blankState.json.version === 0 && blankState.json.spec === undefined)
 const blankViewer = getViewer('session-before')
 check('blank viewer embeds the applet', blankViewer.status === 200 && blankViewer.body.includes('id="ggb-element"'))
-check('viewer removes page chrome', blankViewer.body.includes('header{display:none'))
+check('blank viewer keeps the template header', blankViewer.body.includes('id="sidebar-toggle"') && blankViewer.body.includes('id="download-toggle"') && blankViewer.body.includes('id="theme-toggle"'))
+check('viewer does not hide its header', !blankViewer.body.includes('header{display:none!important'))
 
 // ---------------------------------------------------------------- tools
 const workspace = await mkdtemp(join(tmpdir(), 'ggb-dsh-verify-'))
@@ -207,7 +208,7 @@ check('build advances the render version', raised.status === 200 && raised.json.
 check('state names the built file', typeof raised.json.htmlPath === 'string' && raised.json.htmlPath.endsWith('verify.html'))
 const raisedViewer = getViewer('session-1')
 check('viewer serves the built construction', raisedViewer.status === 200 && raisedViewer.body.includes('Circle(A,B)'))
-check('viewer keeps only the canvas chrome', raisedViewer.body.includes('header{display:none') && raisedViewer.body.includes('id="ggb-element"'))
+check('built viewer keeps the template header', raisedViewer.body.includes('id="sidebar-toggle"') && raisedViewer.body.includes('id="download-toggle"') && raisedViewer.body.includes('id="ggb-element"'))
 
 await writeFile(join(workspace, 'spec.json'), JSON.stringify({ ...spec, filename: 'from-path.html' }))
 const fromPath = await build.execute({ specPath: 'spec.json' }, exec)

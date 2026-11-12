@@ -27,7 +27,7 @@ If the left entry opens but the canvas stays blank after `geogebra_build`, the H
 
 ## Rendering
 
-The right-side canvas embeds the same viewer HTML as `geogebra_preview`, with the page header removed. It does not proxy the GeoGebra engine: the browser needs internet access for the official CDN. `GeoGebra failed to load` means the engine bootstrap failed; inspect network and content-security-policy errors in the intended browser. A terminal CDN check does not prove client access. `Command N failed` means the engine loaded and the construction itself must be fixed.
+The right-side canvas embeds the same viewer HTML as `geogebra_preview`, including its template header (objects toggle, theme, light/dark, downloads). It does not proxy the GeoGebra engine: the browser needs internet access for the official CDN. `GeoGebra failed to load` means the engine bootstrap failed; inspect network and content-security-policy errors in the intended browser. A terminal CDN check does not prove client access. `Command N failed` means the engine loaded and the construction itself must be fixed.
 
 The canvas reloads whenever the Host records a new build for that Session; the previous figure is replaced. `geogebra_preview` remains available for a standalone loopback link and closes when the plugin unloads. Confirm `window.geogebraStudio.status === "ready"` in the canvas and inspect the drawing before reporting rendering success.
 
