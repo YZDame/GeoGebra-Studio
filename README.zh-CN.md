@@ -61,6 +61,8 @@ dsh plugin --profile web add dsh-geogebra-studio
 ```
 
 桌面应用请使用 `--profile desktop`。插件会在左侧边栏（插件、自动化、任务旁）加入 **GeoGebra Studio**；点开后右侧栏展开可实时编辑的画布，对话保持打开。`geogebra_build` 会把图形渲染到画布，`geogebra_preview` 仅用于独立链接，`geogebra_export` 导出 TSQX、Asymptote 和 TikZ。插件同时自带 `geogebra-studio` Skill。详见[插件说明](plugins/dsh-geogebra-studio/)。
+<img src="docs/images/dsh-right-canvas.png" alt="GeoGebra Studio 在右侧栏展开实时画布，对话保持打开" width="100%">
+
 
 更多安装细节见[安装与排障](skills/geogebra-studio/references/installation.md)。
 
