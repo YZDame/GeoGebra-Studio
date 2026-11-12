@@ -1,6 +1,6 @@
 # GeoGebra Studio for DeepSeek Harness
 
-A DeepSeek Harness plugin that builds, previews and exports editable GeoGebra constructions from chat, and ships the `geogebra-studio` skill. It is the DSH counterpart of the portable [GeoGebra Studio Skill](../../skills/geogebra-studio/SKILL.md) and uses the same generator, viewer and export code.
+A DeepSeek Harness plugin that adds a **GeoGebra Studio** entry to the left sidebar and a live, editable GeoGebra canvas to the **right sidebar**, while the conversation stays open. Building a figure from chat renders it into that canvas; the same package also exports source and ships the `geogebra-studio` skill. It uses the same generator, viewer and export code as the portable [GeoGebra Studio Skill](../../skills/geogebra-studio/SKILL.md).
 
 GeoGebra Studio is an independent project and is not affiliated with GeoGebra. License: GPL-2.0-or-later.
 
@@ -8,17 +8,17 @@ GeoGebra Studio is an independent project and is not affiliated with GeoGebra. L
 
 | Capability | Details |
 | --- | --- |
-| `geogebra_build` | Validates a JSON construction spec and writes a new editable HTML file in the workspace. Never overwrites. |
-| `geogebra_preview` | Serves one generated HTML file from a loopback URL so the official GeoGebra engine loads without `file://` limits. Returns the URL to put in the reply. |
+| Left-rail entry | **GeoGebra Studio** sits beside Plugins, Automation and Tasks. It uses DSH's official split-view icon, not a custom mark. |
+| Right-side canvas | Selecting the entry opens a blank GeoGebra canvas in the right sidebar. The conversation stays in the main column, so you can keep typing. |
+| `geogebra_build` | Validates a JSON construction spec, writes a new editable HTML file in the workspace, and pushes the same construction into the right canvas. Never overwrites. |
 | `geogebra_export` | Strict semantic TSQX or Asymptote from GeoGebra XML, or cleaned TikZ from native PGF. Rejects unsupported relations instead of freezing coordinates. |
-| `geogebra-studio` skill | The construction format, visual standards, preview workflow and export provenance. Registered by the plugin, so `npx skills add` is unnecessary. |
-| Sidebar panel | A **GeoGebra** button above Settings opens a quick-start panel with the tool list and a starter prompt. |
+| `geogebra_preview` | Optional standalone loopback link. The right canvas already updates after a build. |
+| `geogebra-studio` skill | The construction format, visual standards, right-canvas workflow and export provenance. Registered by the plugin, so `npx skills add` is unnecessary in DeepSeek Harness. |
+| Plugin inventory | The package contributes no custom artwork; DSH renders its official default plugin mark. |
 
-The generated page keeps the full viewer: native algebra sidebar, nine theme families, light/dark, 2D/3D, and GGB, HTML, PNG, SVG, PDF, XML and TikZ downloads. Rendering loads the official GeoGebra engine from its CDN, so the browser needs internet access; generating the HTML does not.
+The right canvas is the viewer with its page header hidden, giving the figure the whole panel. The generated HTML and the standalone `geogebra_preview` keep the full toolbar: native object editing, algebra sidebar, themes, light/dark, 2D/3D, and GGB, HTML, PNG, SVG, PDF, XML and TikZ downloads. Rendering loads the official GeoGebra engine from its CDN, so the browser needs internet access; generating the HTML does not.
 
 ## Install
-
-Installation is one short spec with no quotes and no repository path:
 
 ```sh
 dsh plugin --profile web add dsh-geogebra-studio
@@ -31,7 +31,7 @@ dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
 ```
 
-Restart `dsh web` (or the Desktop app) after installing. **Plugins** lists the package with its title, description and icon; a new session can call the three tools and load the skill.
+Restart `dsh web` or the Desktop app after installing. A left-rail **GeoGebra Studio** entry appears beside Plugins, Automation and Tasks; a new session can call the three tools and load the skill. The right-side canvas needs the Host web server (the normal Web and Desktop composition), and its routes live under `/dsh-geogebra-studio/`.
 
 The plugin is self-contained: `runtime/` carries the bundled generator, viewer, Gikz cleaner and license. There is no `npm install`, MCP server, Chrome setup or separate Skill copy in the installed directory, and no dependency on the root package.
 
@@ -39,41 +39,42 @@ On Windows, an older `dsh` can pass the GitHub spec through `cmd.exe`, which tre
 
 Do not install the repository root, `@lydt/geogebra-studio`, or `skills/geogebra-studio/` with `dsh plugin add`; those are not this plugin.
 
+## Use
+
+1. Click **GeoGebra Studio** in the left sidebar. A blank GeoGebra canvas opens in the right sidebar; the chat remains available.
+2. Ask for a figure in the conversation, for example:
+
+   > Draw a circle through three points and label them.
+
+3. The agent calls `geogebra_build` with a spec such as:
+
+   ```json
+   {
+     "filename": "circle.html",
+     "commands": ["A=(0,0)", "B=(4,0)", "C=(1,3)", "c=Circle(A,B,C)"],
+     "visibleLabels": ["A", "B", "C"],
+     "showAxes": true
+   }
+   ```
+
+   The right canvas reloads with that construction. The agent can keep iterating in the same conversation; each successful build replaces the canvas contents. The generated HTML is still written to the workspace, so the figure survives after the session.
+
+4. Generation does not execute the geometry: inspect the canvas for labels, branches, tangency, clipping and light/dark contrast. The plugin cannot watch the canvas itself, so it reports rendering as unverified unless you confirm it.
+
+Edits made in the canvas are not written back to disk. Open the generated HTML or the standalone preview to use the full toolbar; **download current HTML or GGB before leaving.** For TSQX, Asymptote or TikZ, download the current XML or native PGF there and pass the saved file to `geogebra_export`.
+
+`workspace` is an absolute directory and defaults to the session working directory. Inputs and outputs are confined to it; symlinked escapes are rejected. The plugin creates new files only.
+
 ## Release
 
-The package publishes on its own; it has no runtime dependencies. For the first release, from this directory:
+The package publishes on its own; it has no runtime dependencies:
 
 ```sh
-npm login
+cd plugins/dsh-geogebra-studio
 npm publish --access public
 ```
 
-npm holds a brand-new package in **staged publishing**: after `npm publish`, the package page shows a **Staged packages** tab where a maintainer approves `0.2.0` with 2FA. Until then `latest` points at the `0.0.0-stage` placeholder and installing the name returns 404.
-
-After that, configure npm's trusted publisher for `dsh-geogebra-studio` (repository `YZDame/GeoGebra-Studio`, workflow `publish-dsh-plugin.yml`, environment `npm`). Future `dsh-v*` tags then publish with provenance through `.github/workflows/publish-dsh-plugin.yml`, without a long-lived token.
-
-## Use
-
-Ask for a figure in a session whose workspace you can write to:
-
-> Draw a circle through three points, show the preview, then export TikZ.
-
-The agent calls `geogebra_build` with a spec such as:
-
-```json
-{
-  "filename": "circle.html",
-  "commands": ["A=(0,0)", "B=(4,0)", "C=(1,3)", "c=Circle(A,B,C)"],
-  "visibleLabels": ["A", "B", "C"],
-  "showAxes": true
-}
-```
-
-then calls `geogebra_preview` and puts the returned loopback URL first in its reply. Generation does not execute the geometry: inspect the opened page for labels, branches, tangency, clipping and light/dark contrast. The plugin cannot watch the canvas, so it reports rendering as unverified unless the user confirms it.
-
-Edits made in the viewer are not written back to disk: **download current HTML or GGB before leaving.** For TSQX, Asymptote or TikZ, download the current XML or native PGF and pass the saved file to `geogebra_export`.
-
-`workspace` is an absolute directory and defaults to the session working directory. Inputs and outputs are confined to it; symlinked escapes are rejected. The plugin creates new files only.
+npm may hold each publish in **staged publishing**: the package's **Staged packages** tab then needs a 2FA approval before the version becomes installable. 0.2.0 and 0.3.0 were approved. For CI releases, configure npm's trusted publisher for `dsh-geogebra-studio` (repository `YZDame/GeoGebra-Studio`, workflow `publish-dsh-plugin.yml`, environment `npm`); `dsh-v*` tags then publish with provenance through `.github/workflows/publish-dsh-plugin.yml`, without a long-lived token.
 
 ## Develop
 
@@ -82,9 +83,9 @@ The plugin runtime is generated by the repository build; the Client bundle is ge
 ```sh
 npm run build                              # root: dist/, Skill runtime, plugin runtime
 npm run build --prefix plugins/dsh-geogebra-studio   # plugin: lib/client.js
-npm run verify                             # includes the plugin contract and tool checks
+npm run verify                             # includes the plugin contract, tools and bridge checks
 ```
 
 `runtime/` and `lib/client.js` are committed so the GitHub directory installs without a build step. Rebuild and commit them with any source change.
 
-The verifier executes every tool against a temporary workspace, including a real loopback preview request, and checks the bundle patch, locale, icon, skill and Client slot registration without a running DSH session. Loading inside a live profile and the rendered Plugin Manager page remain manual checks.
+The verifier executes every tool against a temporary workspace, calls the state and viewer routes with real request/response objects, checks the right-tab registration and the official icon import, and makes a real loopback preview request. A live profile still needs a restart to load a replaced Host module; the rendered left-rail entry and right canvas remain manual visual checks.
