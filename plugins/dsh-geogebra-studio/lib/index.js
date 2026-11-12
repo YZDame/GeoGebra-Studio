@@ -2,10 +2,16 @@
  * Host half of the GeoGebra Studio plugin for DeepSeek Harness.
  *
  * Registers three model-facing tools (`geogebra_build`, `geogebra_preview`,
- * `geogebra_export`) over the bundled generator runtime, and contributes the
- * `geogebra-studio` skill that documents the construction format and the
- * export provenance rules. The Client half is the sidebar quick-start panel
- * in `lib/client.js`.
+ * `geogebra_export`) over the bundled generator runtime, contributes the
+ * `geogebra-studio` skill, and bridges the latest construction of each Session
+ * to the right-Sidebar canvas through two loopback routes:
+ *
+ * - `/dsh-geogebra-studio/state` returns the Session's latest render version.
+ * - `/dsh-geogebra-studio/viewer` returns the blank or populated viewer HTML
+ *   that the right-Sidebar tab embeds.
+ *
+ * The Client half (`lib/client.js`) owns the sidebar entry, the right tab and
+ * its canvas; this module never writes UI itself.
  */
 import { readFileSync } from 'node:fs'
 import { readFile, realpath, stat } from 'node:fs/promises'
@@ -14,6 +20,7 @@ import { fileURLToPath } from 'node:url'
 
 import {
   cleanWithGikz,
+  constructionHtml,
   exportSource,
   generateViewer,
   inWorkspace,
@@ -25,13 +32,23 @@ import {
 
 export const name = 'dsh-geogebra-studio'
 
-/** Tools are required; the skill registry is claimed when the profile mounts it. */
+/** Tools are required; the skill registry and web server are claimed when mounted. */
 export const inject = ['tools']
 
 const PLUGIN_DIR = fileURLToPath(new URL('..', import.meta.url))
 const SKILL_DIR = path.join(PLUGIN_DIR, 'skills', 'geogebra-studio')
 const SKILL_FILE = path.join(SKILL_DIR, 'SKILL.md')
 const PREVIEW_LIMIT = 4
+const RENDER_LIMIT = 32
+const STATE_PATH = '/dsh-geogebra-studio/state'
+const VIEWER_PATH = '/dsh-geogebra-studio/viewer'
+
+/** A blank, axes-on construction for the right-side canvas before any build. */
+const BLANK_SPEC = { filename: 'geogebra-panel.html', commands: [], showAxes: true, mode: '2D' }
+
+/** Remove the standalone viewer's page chrome; the right tab owns the frame. */
+const PANEL_STYLE = '<style>header{display:none!important}main{padding:0!important}'
+  + '.stage{border:0!important;border-radius:0!important}body{overflow:hidden!important}</style>'
 
 const SPEC_OPTIONS = {
   filename: {
@@ -146,12 +163,21 @@ function contributeSkill(ctx) {
   })
 }
 
+/** Write one plain response. */
+function send(response, status, headers, body) {
+  response.writeHead(status, headers)
+  response.end(body)
+}
+
 /**
- * Register the GeoGebra tools and the guided workflow.
+ * Register the GeoGebra tools, the bundled skill and the right-Sidebar bridge.
  * @param ctx - the plugin context.
  */
 export function apply(ctx) {
   const previews = new Map()
+  const renders = new Map()
+  let sequence = 0
+  let panelAvailable = false
 
   const closePreviews = () => {
     for (const entry of previews.values()) entry.server.close()
@@ -159,11 +185,73 @@ export function apply(ctx) {
   }
   ctx.effect(() => closePreviews)
 
+  const recordRender = (sessionId, spec, htmlPath) => {
+    renders.delete(sessionId)
+    renders.set(sessionId, { version: ++sequence, spec: { ...spec }, htmlPath })
+    while (renders.size > RENDER_LIMIT) {
+      const oldest = renders.keys().next().value
+      renders.delete(oldest)
+    }
+  }
+
+  const requestSession = (request) => {
+    try {
+      return new URL(request.url ?? '/', 'http://127.0.0.1').searchParams.get('session') ?? ''
+    } catch {
+      return ''
+    }
+  }
+
+  const stateHandler = (request, response) => {
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      send(response, 405, { Allow: 'GET, HEAD' }, '')
+      return
+    }
+    const render = renders.get(requestSession(request))
+    // The canvas only needs the version to reload; never ship a large GGB
+    // payload back on every poll.
+    const body = JSON.stringify(render === undefined
+      ? { version: 0, htmlPath: null }
+      : { version: render.version, htmlPath: render.htmlPath })
+    send(response, 200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+    }, request.method === 'HEAD' ? '' : body)
+  }
+
+  const viewerHandler = (request, response) => {
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      send(response, 405, { Allow: 'GET, HEAD' }, '')
+      return
+    }
+    const render = renders.get(requestSession(request))
+    let html
+    try {
+      html = constructionHtml(render?.spec ?? BLANK_SPEC)
+    } catch (error) {
+      send(response, 500, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }, String(error))
+      return
+    }
+    const body = html.replace('</head>', `${PANEL_STYLE}</head>`)
+    send(response, 200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+    }, request.method === 'HEAD' ? '' : body)
+  }
+
+  ctx.inject(['webServer'], (webCtx) => {
+    panelAvailable = true
+    webCtx.effect(() => webCtx.webServer.register({ kind: 'exact', path: STATE_PATH, handler: stateHandler }), 'geogebra-studio: state route')
+    webCtx.effect(() => webCtx.webServer.register({ kind: 'exact', path: VIEWER_PATH, handler: viewerHandler }), 'geogebra-studio: viewer route')
+  })
+
   contributeSkill(ctx)
 
   ctx.tools.register({
     name: 'geogebra_build',
-    description: 'Create an editable, interactive GeoGebra HTML figure from a JSON construction spec and save it as a new file in the workspace. Generation validates the spec and writes the file but does not execute the geometry; open it with geogebra_preview to render the official GeoGebra engine. Existing files are never overwritten.',
+    description: 'Create an editable, interactive GeoGebra HTML figure from a JSON construction spec and save it as a new file in the workspace. Generation validates the spec and writes the file but does not execute the geometry. On success, the DSH right-side GeoGebra Studio canvas updates to the same construction; open the HTML with geogebra_preview only for a standalone link. Existing files are never overwritten.',
     parameters: {
       type: 'object',
       additionalProperties: false,
@@ -187,7 +275,7 @@ export function apply(ctx) {
       schema: BUILD_OUTPUT,
       render: (_args, value) => [{
         type: 'text',
-        text: `Created ${value.htmlPath} (${value.bytes} bytes). Start geogebra_preview on it to open a loopback preview. Rendering requires network access to the official GeoGebra engine.`,
+        text: `Created ${value.htmlPath} (${value.bytes} bytes). ${value.note}`,
       }],
     },
     async execute(args, exec) {
@@ -203,19 +291,23 @@ export function apply(ctx) {
       const spec = validateViewerSpec(raw)
       const result = await generateViewer(spec, workspace)
       const htmlPath = result.filename
+      const sessionId = exec?.agent?.session?.id
+      if (sessionId !== undefined) recordRender(String(sessionId), spec, htmlPath)
       return {
         success: true,
         htmlPath,
         filename: path.basename(htmlPath),
         bytes: (await stat(htmlPath)).size,
-        note: result.note,
+        note: panelAvailable
+          ? 'The right-side GeoGebra Studio canvas now shows this construction. Rendering there loads the official engine and needs network access.'
+          : result.note,
       }
     },
   })
 
   ctx.tools.register({
     name: 'geogebra_preview',
-    description: 'Serve one generated GeoGebra HTML file from a loopback HTTP server and return its URL, so the browser loads the official engine without file:// restrictions. Each call snapshots the current file; the previous preview of the same file is replaced and the oldest preview is closed after four open files.',
+    description: 'Serve one generated GeoGebra HTML file from a standalone loopback HTTP server and return its URL. The right-side canvas already updates after geogebra_build, so use this only when a separate link or a full browser tab is wanted. Each call snapshots the current file; the oldest preview is closed after four open files.',
     parameters: {
       type: 'object',
       additionalProperties: false,
@@ -235,7 +327,7 @@ export function apply(ctx) {
       schema: PREVIEW_OUTPUT,
       render: (_args, value) => [{
         type: 'text',
-        text: `Preview: ${value.url}\nOpen this URL in the browser and keep the session running. The server serves only this document snapshot.`,
+        text: `Standalone preview: ${value.url}\nOpen this URL in a browser and keep the session running. The server serves only this document snapshot.`,
       }],
     },
     async execute(args, exec) {

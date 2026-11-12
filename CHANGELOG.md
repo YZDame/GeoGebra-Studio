@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
-### DeepSeek Harness plugin
+### DeepSeek Harness plugin 0.3.0
+
+- Replace the footer guide with the real DSH surface: a **GeoGebra Studio** entry in the left rail beside Plugins/Automation/Tasks opens a live, editable GeoGebra canvas in the right sidebar while the conversation stays open.
+- Use DSH's official split-view icon and remove the custom plugin artwork, so the sidebar and Plugin Manager follow the host's iconography.
+- Bridge each Session's latest construction to the right canvas through the Host web server (`/dsh-geogebra-studio/state` and `/dsh-geogebra-studio/viewer`); `geogebra_build` now renders into the canvas automatically, and `geogebra_preview` is only for a standalone link.
+- Keep the three tools and the bundled `geogebra-studio` skill; update the skill and copy for the right-canvas workflow.
+
+### DeepSeek Harness plugin 0.2.0
 
 - Replace the guide-only sidebar button with a real DSH plugin (`dsh-geogebra-studio` 0.2.0): the Host half registers model-facing `geogebra_build`, `geogebra_preview` and `geogebra_export` tools over a self-contained runtime.
 - Contribute the `geogebra-studio` skill from the plugin, so installing the plugin also installs the construction format, visual standards and export workflow.
-- Add localized plugin metadata and an original icon, keep the sidebar quick-start panel, and verify every tool against a temporary workspace including a real loopback preview.
 - Extract runtime asset resolution so the CLI build and the bundled plugin runtime load the same viewer, Gikz script and license.
 - Publish `dsh-geogebra-studio@0.2.0` to npm, so installation is `dsh plugin --profile web add dsh-geogebra-studio`; add a provenance-based release workflow and keep checkout/GitHub installs documented.
 

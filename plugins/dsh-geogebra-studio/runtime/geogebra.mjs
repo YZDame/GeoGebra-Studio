@@ -5466,6 +5466,7 @@ ${fragment}
 }
 export {
   cleanWithGikz,
+  constructionHtml,
   exportSource,
   generateViewer,
   inWorkspace,

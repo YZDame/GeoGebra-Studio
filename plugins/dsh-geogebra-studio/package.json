@@ -1,7 +1,7 @@
 {
   "name": "dsh-geogebra-studio",
-  "version": "0.2.0",
-  "description": "DeepSeek Harness plugin that builds, previews and exports editable GeoGebra constructions, and ships the geogebra-studio skill. Unofficial and not affiliated with GeoGebra.",
+  "version": "0.3.0",
+  "description": "DeepSeek Harness plugin with a left-rail GeoGebra Studio entry and a live right-side GeoGebra canvas, plus build, preview and export tools and the geogebra-studio skill. Unofficial and not affiliated with GeoGebra.",
   "license": "GPL-2.0-or-later",
   "type": "module",
   "main": "./lib/index.js",
@@ -10,7 +10,6 @@
     "./client": "./lib/client.js",
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./locale/*.json": "./locale/*.json",
-    "./icon": "./icon.svg",
     "./package.json": "./package.json"
   },
   "files": [
@@ -18,7 +17,6 @@
     "runtime/",
     "skills/",
     "locale/*.json",
-    "icon.svg",
     "cordis.patch.yml",
     "README.md",
     "LICENSE",
@@ -60,7 +58,8 @@
       "platform": "web",
       "inject": [
         "@deepseek-ai/dsh-client-locale",
-        "@deepseek-ai/dsh-client-ui-sidebar"
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
       ]
     }
   },
