@@ -8,6 +8,8 @@
 
 ## Cómo funciona
 
+<img src="docs/images/cover.png" alt="Codex en macOS: una pregunta en chino sobre si GeoGebra Studio puede dibujar geometría sólida de bachillerato en 3D, junto a un cuarto de cilindro con una sección móvil a la altura h." width="100%">
+
 | Generar | Editar | Exportar |
 | --- | --- | --- |
 | ![La terminal ejecuta generate y preview (con ZoomIn); el visor local carga el triángulo rectángulo con la circunferencia circunscrita completa.](docs/images/generate.gif) | ![En la vista Álgebra, b pasa de 4 a 3 y luego h de 3 a 4; el triángulo y la circunferencia completa se actualizan al momento.](docs/images/edit.gif) | ![Menú Download con GGB, PNG, SVG, TikZ, PDF, XML y HTML; clics en SVG y TikZ, y después el código TikZ exportado.](docs/images/export.gif) |

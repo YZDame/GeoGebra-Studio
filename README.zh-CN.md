@@ -8,6 +8,8 @@
 
 ## 使用方式
 
+<img src="docs/images/cover.png" alt="macOS 上的 Codex：用户用中文询问 GeoGebra Studio 能否绘制高中立体几何，右侧是带可移动截面（高度 h）的四分之一圆柱体三维作图。" width="100%">
+
 | 生成 | 编辑 | 导出 |
 | --- | --- | --- |
 | ![终端执行 generate / preview（含 ZoomIn），随后本地查看器加载完整可见外接圆的作图。](docs/images/generate.gif) | ![代数区与图形区同步：b 从 4→3、h 从 3→4，三角形与完整外接圆随之更新。](docs/images/edit.gif) | ![Download 菜单展开全部七种格式并点击 SVG / TikZ，随后展示真实 TikZ 源码。](docs/images/export.gif) |

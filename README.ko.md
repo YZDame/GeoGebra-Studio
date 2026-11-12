@@ -8,6 +8,8 @@
 
 ## 사용 방법
 
+<img src="docs/images/cover.png" alt="macOS의 Codex. 중국어로 GeoGebra Studio가 고등학교 입체기하를 3D로 그릴 수 있는지 묻고, 오른쪽에는 높이 h의 이동 단면이 있는 사분원기둥이 있다." width="100%">
+
 | 생성 | 편집 | 내보내기 |
 | --- | --- | --- |
 | ![터미널에서 generate / preview(ZoomIn 포함)를 실행한 뒤, 외접원 전체가 보이는 직각삼각형을 로컬 뷰어에 불러온다.](docs/images/generate.gif) | ![대수 보기에서 b를 4→3, 이어서 h를 3→4로 바꾸면 삼각형과 외접원 전체가 바로 갱신된다.](docs/images/edit.gif) | ![Download 메뉴에 GGB, PNG, SVG, TikZ, PDF, XML, HTML이 보이고, SVG와 TikZ를 누른 뒤 내보낸 TikZ 소스가 나타난다.](docs/images/export.gif) |

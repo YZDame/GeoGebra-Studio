@@ -8,6 +8,8 @@
 
 ## 使い方
 
+<img src="docs/images/cover.png" alt="macOS の Codex。中国語で GeoGebra Studio が高校の立体幾何を 3D で描けるか尋ね、右側に高さ h の可動断面を持つ四分の一円柱の立体がある。" width="100%">
+
 | 生成 | 編集 | 書き出し |
 | --- | --- | --- |
 | ![端末で generate / preview（ZoomIn を含む）を実行し、外接円全体が見える直角三角形をローカルビューアに読み込む。](docs/images/generate.gif) | ![代数ビューで b を 4→3、続いて h を 3→4 に変えると、三角形と外接円全体がすぐに更新される。](docs/images/edit.gif) | ![Download メニューに GGB、PNG、SVG、TikZ、PDF、XML、HTML が表示され、SVG と TikZ をクリックしたあと、書き出された TikZ ソースが表示される。](docs/images/export.gif) |
