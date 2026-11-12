@@ -8,7 +8,7 @@
 
 <img src="docs/images/cover.png" alt="用 AI 繪製帶可移動截面的立體幾何圖形" width="100%">
 
-## 怎麼用
+## 使用方法
 
 安裝後，直接向 AI 提出作圖需求，例如：
 
@@ -16,7 +16,7 @@
 
 也可以上傳題目文件或參考圖，讓 AI 按照內容作圖。上傳方式取決於你使用的 AI 客戶端。
 
-開啟產生的頁面後，可以拖曳點、調整數值，也可以繼續讓 AI 修改。頁面支援下載 **HTML、GGB、PNG、SVG、PDF、XML 和 TikZ**；Asymptote 和混合 TSQX/Asymptote 原始碼可讓 AI 另外匯出，支援範圍見[匯出說明](skills/geogebra-studio/references/exports.md)。
+開啟產生的頁面後，可以拖曳點、調整數值，也可以繼續讓 AI 修改。
 
 **關閉或重新整理前，請下載目前的 HTML 或 GGB，儲存你的修改。**
 
@@ -24,7 +24,13 @@
 | --- | --- | --- |
 | ![產生互動圖形](docs/images/generate.gif) | ![調整數值，圖形隨之變化](docs/images/edit.gif) | ![選擇格式並下載](docs/images/export.gif) |
 
-## 怎麼安裝
+## 功能特性
+
+- 平面與立體作圖，支援拖曳點和調整數值。
+- 頁面內下載 **HTML、GGB、PNG、SVG、PDF、XML、TikZ**。
+- 透過 AI 另行匯出 Asymptote 和混合 TSQX/Asymptote 原始碼，詳見[匯出說明](skills/geogebra-studio/references/exports.md)。
+
+## 安裝
 
 可在 macOS、Windows 和 Linux 上使用。需要 **Node.js 22.12 或更新版本**，AI 客戶端需支援讀寫檔案和執行指令。開啟產生的頁面時需要連網載入 GeoGebra。
 
@@ -36,7 +42,7 @@
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
-依照提示選擇客戶端和安裝範圍。也可以把整個 [`skills/geogebra-studio/`](skills/geogebra-studio/) 資料夾複製到客戶端的 Skills 目錄，不能只複製 `SKILL.md`。
+依照提示選擇客戶端和安裝範圍。也可以把整個 [`skills/geogebra-studio/`](skills/geogebra-studio/) 資料夾複製到客戶端的 Skills 目錄，保留其中的全部檔案。
 
 ### Codex 外掛安裝
 
@@ -48,14 +54,14 @@ npx @lydt/geogebra-studio@latest install
 
 ### DeepSeek Harness
 
-使用上面的通用安裝指令；加上 `-g` 可安裝到使用者目錄，讓各個工作區都能使用。保持預設安裝模式，不加 `--copy`。裝好後，在對話中輸入 `/geogebra-studio`。
+使用上面的通用安裝指令；加上 `-g` 可安裝到使用者目錄，讓各個工作區都能使用。選擇預設安裝模式。裝好後，在對話中輸入 `/geogebra-studio`。
 
-如果還想加入側邊欄按鈕，見[側邊欄外掛安裝說明](plugins/dsh-geogebra-studio/)。按鈕需要另外安裝，作圖仍需先安裝 Skill。
+如果還想加入側邊欄按鈕，見[側邊欄外掛安裝說明](plugins/dsh-geogebra-studio/)。先安裝 Skill 即可作圖，側邊欄按鈕可按需另行安裝。
 
 更多安裝細節見[安裝與疑難排解](skills/geogebra-studio/references/installation.md)。
 
-## 更多
+## 相關資料
 
 [範例](examples/README.md) · [教師指南](docs/TEACHER-QUICKSTART.zh-CN.md) · [開發與貢獻](CONTRIBUTING.md)
 
-本專案由社群獨立開發，與 GeoGebra 官方無隸屬關係。採用 [GPL-2.0-or-later](LICENSE) 授權，保留[原 MIT 授權](LICENSE-MIT)與[第三方聲明](THIRD_PARTY_NOTICES.md)。
+本專案由社群獨立開發。採用 [GPL-2.0-or-later](LICENSE) 授權，保留[原 MIT 授權](LICENSE-MIT)與[第三方聲明](THIRD_PARTY_NOTICES.md)。

@@ -8,7 +8,7 @@ Tell AI what you want to draw, or send it a document or reference image. GeoGebr
 
 <img src="docs/images/cover.png" alt="AI-generated 3D geometry with a movable cross-section" width="100%">
 
-## How to use it
+## Usage
 
 After installing, ask your AI to draw something:
 
@@ -16,7 +16,7 @@ After installing, ask your AI to draw something:
 
 You can also upload a problem document or reference image and ask AI to draw from it. Upload options depend on your AI client.
 
-Open the generated page to drag points and change values, or ask AI for further changes. Download **HTML, GGB, PNG, SVG, PDF, XML or TikZ** from the page. Ask AI to export Asymptote or mixed TSQX/Asymptote source separately; see [supported exports](skills/geogebra-studio/references/exports.md).
+Open the generated page to drag points and change values, or ask AI for further changes.
 
 **Download the current HTML or GGB before closing or refreshing to save your edits.**
 
@@ -24,7 +24,13 @@ Open the generated page to drag points and change values, or ask AI for further 
 | --- | --- | --- |
 | ![Generate an interactive figure](docs/images/generate.gif) | ![Change values and watch the figure update](docs/images/edit.gif) | ![Choose a format and download](docs/images/export.gif) |
 
-## Install
+## Features
+
+- 2D and 3D figures with draggable points and adjustable values.
+- Download **HTML, GGB, PNG, SVG, PDF, XML and TikZ** from the page.
+- Export Asymptote and mixed TSQX/Asymptote source through AI; see [export details](skills/geogebra-studio/references/exports.md).
+
+## Installation
 
 Use it on macOS, Windows or Linux with **Node.js 22.12 or later**. Your AI client needs file and shell access. Opening a generated page requires internet access to load GeoGebra.
 
@@ -48,14 +54,14 @@ npx @lydt/geogebra-studio@latest install
 
 ### DeepSeek Harness
 
-Use the Agent Skills command above. Add `-g` to install for all workspaces. Keep the default installation mode without `--copy`. Then type `/geogebra-studio` in chat.
+Use the Agent Skills command above. Add `-g` to install for all workspaces. Choose the default installation mode. Then type `/geogebra-studio` in chat.
 
-For an optional sidebar button, see the [sidebar plugin instructions](plugins/dsh-geogebra-studio/). Install the Skill first; the button is a separate install.
+For an optional sidebar button, see the [sidebar plugin instructions](plugins/dsh-geogebra-studio/). Install the Skill to draw figures, and add the sidebar button if needed.
 
 See [installation and troubleshooting](skills/geogebra-studio/references/installation.md) for more details.
 
-## More
+## Resources
 
 [Examples](examples/README.md) · [Teacher walkthrough](docs/TEACHER-QUICKSTART.md) · [Development and contributing](CONTRIBUTING.md)
 
-An independent community project, not affiliated with GeoGebra. Licensed under [GPL-2.0-or-later](LICENSE), with [prior MIT attributions](LICENSE-MIT) and [third-party notices](THIRD_PARTY_NOTICES.md) retained.
+An independent community project. Licensed under [GPL-2.0-or-later](LICENSE), with [prior MIT attributions](LICENSE-MIT) and [third-party notices](THIRD_PARTY_NOTICES.md) retained.
