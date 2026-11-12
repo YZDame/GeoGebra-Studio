@@ -54,9 +54,13 @@ npx @lydt/geogebra-studio@latest install
 
 ### DeepSeek Harness
 
-使用上面的通用安装命令；加上 `-g` 可安装到用户目录，让各个工作区都能使用。选择默认安装模式。装好后，在对话中输入 `/geogebra-studio`。
+安装插件后，重启 DeepSeek Harness。
 
-如果还想添加侧边栏按钮，见[侧边栏插件安装说明](plugins/dsh-geogebra-studio/)。先安装 Skill 即可作图，侧边栏按钮可按需另行安装。
+```sh
+dsh plugin --profile web add dsh-geogebra-studio
+```
+
+桌面应用请使用 `--profile desktop`。插件自带 `geogebra-studio` Skill，以及生成、预览和导出图形的工具。在对话中输入 `/geogebra-studio` 即可使用。详见[插件说明](plugins/dsh-geogebra-studio/)。
 
 更多安装细节见[安装与排障](skills/geogebra-studio/references/installation.md)。
 

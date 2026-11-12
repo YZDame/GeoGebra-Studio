@@ -54,9 +54,13 @@ npx @lydt/geogebra-studio@latest install
 
 ### DeepSeek Harness
 
-Use the Agent Skills command above. Add `-g` to install for all workspaces. Choose the default installation mode. Then type `/geogebra-studio` in chat.
+Install the plugin, then restart DeepSeek Harness.
 
-For an optional sidebar button, see the [sidebar plugin instructions](plugins/dsh-geogebra-studio/). Install the Skill to draw figures, and add the sidebar button if needed.
+```sh
+dsh plugin --profile web add dsh-geogebra-studio
+```
+
+Use `--profile desktop` for the Desktop app. The plugin includes the `geogebra-studio` Skill and tools to build, preview and export figures. Type `/geogebra-studio` in chat. See the [plugin instructions](plugins/dsh-geogebra-studio/) for details.
 
 See [installation and troubleshooting](skills/geogebra-studio/references/installation.md) for more details.
 

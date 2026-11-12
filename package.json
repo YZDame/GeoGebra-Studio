@@ -41,7 +41,7 @@
     "README.pt-BR.md"
   ],
   "scripts": {
-    "build": "npm run clean && tsc && node scripts/build-plugin.cjs",
+    "build": "npm run clean && tsc && node scripts/build-plugin.cjs && node scripts/build-dsh-plugin.cjs",
     "clean": "node -e \"require('node:fs').rmSync('dist', {recursive:true, force:true})\"",
     "verify": "npm run build && npm run verify:manifests && node scripts/verify-generator.cjs && node scripts/verify-skill.cjs && node scripts/verify-preview.cjs && node scripts/verify-exports.cjs && node plugins/dsh-geogebra-studio/scripts/verify.mjs",
     "verify:manifests": "node scripts/verify-manifests.cjs",

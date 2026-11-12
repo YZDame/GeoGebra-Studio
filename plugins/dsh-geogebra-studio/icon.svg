@@ -1,0 +1,7 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GeoGebra Studio">
+  <circle cx="18" cy="18" r="11.5" stroke="#4D6BFE" stroke-width="2.1" />
+  <path d="M10.8 22.6 18 9.4l7.2 13.2H10.8Z" stroke="#4D6BFE" stroke-width="2.1" stroke-linejoin="round" />
+  <circle cx="18" cy="9.4" r="2.6" fill="#E8A33D" />
+  <circle cx="10.8" cy="22.6" r="2.6" fill="#E8A33D" />
+  <circle cx="25.2" cy="22.6" r="2.6" fill="#E8A33D" />
+</svg>

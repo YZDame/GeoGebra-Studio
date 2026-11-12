@@ -53,13 +53,14 @@ jobs:
           package-manager-cache: false
       - run: npm ci
       - run: npm run build
-      - name: Commit reproducible portable runtime to the Skill source
+      - name: Commit reproducible runtimes to the Skill and plugin sources
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f skills/geogebra-studio/runtime/
+          git add -f plugins/dsh-geogebra-studio/runtime/
           if ! git diff --cached --quiet; then
-            git commit -m "build: sync portable Skill runtime [skip ci]"
+            git commit -m "build: sync portable Skill and DSH plugin runtimes [skip ci]"
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
           fi
 

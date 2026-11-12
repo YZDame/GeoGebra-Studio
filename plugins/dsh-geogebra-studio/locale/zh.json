@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "GeoGebra Studio",
+    "description": "在对话中创建、预览并导出可编辑的 GeoGebra 二维/三维图形。提供 geogebra_build、geogebra_preview 和 geogebra_export 三个工具，并内置 geogebra-studio Skill，可直接生成图形、在查看器中编辑，并导出 TSQX、Asymptote 或 TikZ。渲染需要联网加载 GeoGebra 官方引擎；插件只会在工作区中新建文件，不覆盖已有文件。"
+  }
+}
