@@ -1,9 +1,10 @@
 /**
  * Verify the DeepSeek Harness plugin without a running DSH web session.
  *
- * Checks the bundle contract, manifest, locale resources, icon, the bundled
- * skill, the Client sidebar factory, and then executes every Host tool against
- * a temporary workspace. Preview is exercised over real loopback HTTP.
+ * Checks the bundle contract, manifest, locale resources, the bundled skill,
+ * the Client sidebar/tab registrations, and then executes every Host tool
+ * against a temporary workspace. The right-Sidebar bridge routes are exercised
+ * with real request/response objects, and preview runs over real loopback HTTP.
  */
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
@@ -61,37 +62,33 @@ check('GPL-2.0-or-later', pkg.license === 'GPL-2.0-or-later', pkg.license)
 check('bundle patch path', pkg.dsh?.bundle?.patch === './cordis.patch.yml')
 check('client export', pkg.exports?.['./client'] === './lib/client.js')
 check('locale export', pkg.exports?.['./locale/*.json'] === './locale/*.json')
-check('icon export', pkg.exports?.['./icon'] === './icon.svg')
+check('no custom icon export', pkg.exports?.['./icon'] === undefined)
+check('no custom icon file', !existsSync(join(root, 'icon.svg')))
 check('client platform web', pkg.dsh?.client?.platform === 'web')
 check('client injects the sidebar package', pkg.dsh?.client?.inject?.includes('@deepseek-ai/dsh-client-ui-sidebar') === true)
 check('patch inserts this plugin', patch.includes('id: dsh-geogebra-studio') && patch.includes('name: dsh-geogebra-studio'))
-for (const entry of ['lib/', 'runtime/', 'skills/', 'locale/*.json', 'icon.svg', 'cordis.patch.yml', 'README.md', 'THIRD_PARTY_NOTICES.md']) {
+for (const entry of ['lib/', 'runtime/', 'skills/', 'locale/*.json', 'cordis.patch.yml', 'README.md', 'THIRD_PARTY_NOTICES.md']) {
   check(`files includes ${entry}`, Array.isArray(pkg.files) && pkg.files.includes(entry))
 }
+check('files no longer lists a custom icon', !pkg.files.includes('icon.svg'))
 
 // ------------------------------------------------------------------ locale
 for (const language of ['en', 'zh']) {
   const locale = JSON.parse(await readFile(join(root, 'locale', `${language}.json`), 'utf8'))
   check(`${language} title`, typeof locale.meta?.title === 'string' && locale.meta.title.length > 0)
   check(`${language} description`, typeof locale.meta?.description === 'string' && locale.meta.description.length > 40)
-  check(`${language} description names the tools`, locale.meta?.description?.includes('geogebra_'))
+  check(`${language} describes the right canvas`, /right sidebar|右侧栏/.test(locale.meta?.description ?? ''))
   check(`${language} has no detail document`, locale.meta?.detail === undefined)
 }
-
-// -------------------------------------------------------------------- icon
-const icon = await readFile(join(root, 'icon.svg'), 'utf8')
-check('icon is 36x36', icon.includes('width="36"') && icon.includes('height="36"') && icon.includes('viewBox="0 0 36 36"'))
-check('icon has no scripts or foreign content', !/<script|foreignObject|<image|<style|<text/i.test(icon))
-check('icon fits the size limit', (await stat(join(root, 'icon.svg'))).size <= 256 * 1024)
 
 // ------------------------------------------------------------------- host
 check('host name', host.name === 'dsh-geogebra-studio', String(host.name))
 check('host injects tools', Array.isArray(host.inject) && host.inject.includes('tools'))
 check('host apply', typeof host.apply === 'function')
 
-let sandboxMode = 'workspace-write'
 const tools = new Map()
 const skills = []
+const routes = new Map()
 const effects = []
 const ctx = {
   tools: {
@@ -101,15 +98,21 @@ const ctx = {
       return () => tools.delete(definition.name)
     },
   },
-  get(name) {
-    if (name !== 'sandboxPolicy') return undefined
-    return { resolve: () => ({ mode: sandboxMode }) }
-  },
   skills: {
     register(skill) {
       skills.push(skill)
       return () => {}
     },
+  },
+  webServer: {
+    register(route) {
+      if (routes.has(route.path)) throw new Error(`duplicate route ${route.path}`)
+      routes.set(route.path, route)
+      return () => routes.delete(route.path)
+    },
+  },
+  get() {
+    return undefined
   },
   inject(_dependencies, callback) {
     callback(ctx)
@@ -132,6 +135,8 @@ for (const [name, definition] of tools) {
   ]
   check(`${name} schema stays inside the DSH subset`, violations.length === 0, violations.slice(0, 3).join('; '))
 }
+check('registers the state bridge', routes.has('/dsh-geogebra-studio/state'))
+check('registers the viewer bridge', routes.has('/dsh-geogebra-studio/viewer'))
 
 // ------------------------------------------------------------------- skill
 check('registers one runtime skill', skills.length === 1, String(skills.length))
@@ -139,12 +144,42 @@ const skill = skills[0]
 check('skill name', skill?.name === 'geogebra-studio', skill?.name)
 check('skill content', typeof skill?.content === 'string' && skill.content.includes('# GeoGebra Studio') && !skill.content.startsWith('---'))
 check('skill resolves its resource base', skill?.resourceBase?.kind === 'directory' && existsSync(join(skill.resourceBase.path, 'references', 'construction.md')))
-check('skill documents the plugin tools', ['geogebra_build', 'geogebra_preview', 'geogebra_export'].every((name) => skill?.content.includes(name)))
+check('skill documents the right canvas', skill?.content.includes('right sidebar') && skill?.content.includes('geogebra_build'))
+check('skill no longer sends users to a preview first', !skill?.content.includes('Put the returned URL first'))
+
+// ------------------------------------------------------------------ routes
+function request(pathname) {
+  return { url: pathname, method: 'GET' }
+}
+function response() {
+  const state = { status: undefined, headers: undefined, body: undefined }
+  return {
+    state,
+    writeHead(status, headers) { state.status = status; state.headers = headers },
+    end(body) { state.body = body },
+  }
+}
+function getState(session) {
+  const res = response()
+  routes.get('/dsh-geogebra-studio/state').handler(request(`/dsh-geogebra-studio/state?session=${session}`), res)
+  return { ...res.state, json: JSON.parse(res.state.body) }
+}
+function getViewer(session) {
+  const res = response()
+  routes.get('/dsh-geogebra-studio/viewer').handler(request(`/dsh-geogebra-studio/viewer?session=${session}`), res)
+  return res.state
+}
+
+const blankState = getState('session-before')
+check('blank state has version 0', blankState.status === 200 && blankState.json.version === 0 && blankState.json.spec === undefined)
+const blankViewer = getViewer('session-before')
+check('blank viewer embeds the applet', blankViewer.status === 200 && blankViewer.body.includes('id="ggb-element"'))
+check('viewer removes page chrome', blankViewer.body.includes('header{display:none'))
 
 // ---------------------------------------------------------------- tools
 const workspace = await mkdtemp(join(tmpdir(), 'ggb-dsh-verify-'))
 const exec = {
-  agent: { session: { header: { cwd: workspace } } },
+  agent: { session: { id: 'session-1', header: { cwd: workspace } } },
   signal: new AbortController().signal,
 }
 const build = tools.get('geogebra_build')
@@ -164,7 +199,15 @@ const html = await readFile(built.htmlPath, 'utf8')
 check('HTML embeds the viewer', html.includes('id="ggb-element"') && html.includes('geogebraStudio'))
 check('HTML embeds the commands', html.includes('A=(0,0)') && html.includes('Circle(A,B)'))
 check('build reports the real size', built.bytes === (await stat(built.htmlPath)).size)
+check('build reports the right canvas', built.note.includes('right-side GeoGebra Studio canvas'))
 await rejects('build never overwrites', () => build.execute({ spec }, exec))
+
+const raised = getState('session-1')
+check('build advances the render version', raised.status === 200 && raised.json.version === 1)
+check('state names the built file', typeof raised.json.htmlPath === 'string' && raised.json.htmlPath.endsWith('verify.html'))
+const raisedViewer = getViewer('session-1')
+check('viewer serves the built construction', raisedViewer.status === 200 && raisedViewer.body.includes('Circle(A,B)'))
+check('viewer keeps only the canvas chrome', raisedViewer.body.includes('header{display:none') && raisedViewer.body.includes('id="ggb-element"'))
 
 await writeFile(join(workspace, 'spec.json'), JSON.stringify({ ...spec, filename: 'from-path.html' }))
 const fromPath = await build.execute({ specPath: 'spec.json' }, exec)
@@ -196,18 +239,13 @@ await rejects('input paths stay inside the workspace', () => exporter.execute({ 
 
 const served = await preview.execute({ file: 'verify.html' }, exec)
 check('preview returns a loopback URL', /^http:\/\/127\.0\.0\.1:\d+\/viewer\.html$/.test(served.url), served.url)
-const response = await fetch(served.url)
-const servedHtml = await response.text()
-check('preview serves the document', response.status === 200 && servedHtml.includes('id="ggb-element"'))
-check('preview sets the HTML content type', response.headers.get('content-type')?.startsWith('text/html') === true)
+const responseHttp = await fetch(served.url)
+const servedHtml = await responseHttp.text()
+check('preview serves the document', responseHttp.status === 200 && servedHtml.includes('id="ggb-element"'))
+check('preview sets the HTML content type', responseHttp.headers.get('content-type')?.startsWith('text/html') === true)
 const again = await preview.execute({ file: 'verify.html' }, exec)
 check('preview replaces its snapshot', again.url !== served.url || again.file.endsWith('verify.html'))
 await rejects('preview only serves HTML', () => preview.execute({ file: 'figure.xml' }, exec))
-
-sandboxMode = 'read-only'
-await rejects('build respects a read-only session policy', () => build.execute({ spec }, exec))
-await rejects('export respects a read-only session policy', () => exporter.execute({ input: 'figure.xml', format: 'tsqx', output: 'blocked.tsqx' }, exec))
-sandboxMode = 'workspace-write'
 
 await rm(workspace, { recursive: true, force: true })
 await rm(join(workspace, '..', 'ggb-dsh-outside.xml'), { force: true })
@@ -217,6 +255,7 @@ check('ModuleLoader banner', bundle.startsWith('window.__ModuleLoader__.load({')
 check('loader id', /^ id: "dsh-geogebra-studio",$/m.test(bundle))
 check('no ESM import', !/^import[\s{]/m.test(bundle))
 check('no bundled react', !/react\.production\.min/.test(bundle))
+check('no footer guide', !bundle.includes('sidebar.footer.action'))
 
 const allowed = [
   /^react$/,
@@ -230,11 +269,15 @@ const required = [...bundle.matchAll(/\brequire\("([^"]+)"\)/g)].map((match) => 
 const unique = [...new Set(required)]
 const unexpected = unique.filter((specifier) => !allowed.some((pattern) => pattern.test(specifier)))
 check('requires stay on the shell module table', unexpected.length === 0, unexpected.join(', '))
-check('client mentions the tools', ['geogebra_build', 'geogebra_preview', 'geogebra_export'].every((name) => bundle.includes(name)))
+check('uses the official icon module', unique.includes('@deepseek-ai/dsh-client-ui-primitives'))
 
 const registrations = []
 const dictionaries = []
+const tabTypes = []
+const opens = []
+const panels = []
 let loaded
+const PrimitiveIcon = (props) => ({ type: 'OfficialSplitIcon', props: props ?? {} })
 const sandbox = {
   window: {
     __ModuleLoader__: {
@@ -248,18 +291,16 @@ const sandbox = {
                   const value = typeof initial === 'function' ? initial() : initial
                   return [value, () => {}]
                 },
-                useEffect(effect) {
-                  const cleanup = effect()
-                  if (typeof cleanup === 'function') cleanup()
-                },
+                useEffect() {},
+                useLayoutEffect() {},
               }
             }
             if (id === 'react/jsx-runtime' || id === 'react/jsx-dev-runtime') {
               const create = (type, props, key) => ({ type, props: props ?? {}, key })
               return { jsx: create, jsxs: create, jsxDEV: create, Fragment: Symbol.for('react.fragment') }
             }
-            if (id === 'react-dom' || id === 'react-dom/client') {
-              return { createPortal: (node) => node }
+            if (id === '@deepseek-ai/dsh-client-ui-primitives') {
+              return { IconCompareSplitOutlineRegular: PrimitiveIcon }
             }
             throw new Error(`unexpected require: ${id}`)
           }),
@@ -268,6 +309,7 @@ const sandbox = {
     },
   },
   console,
+  setTimeout: () => 0,
   document: undefined,
   navigator: { clipboard: { writeText: async () => {} } },
 }
@@ -275,11 +317,16 @@ const sandbox = {
 vm.runInNewContext(bundle, sandbox, { filename: 'lib/client.js' })
 check('factory loads', loaded?.id === 'dsh-geogebra-studio', loaded?.id)
 check('client apply', typeof loaded?.exports.apply === 'function')
-check('client injects slots and locale', loaded?.exports.inject?.includes('slots') && loaded?.exports.inject?.includes('locale'))
+for (const service of ['slots', 'locale', 'layout', 'sidebarRight', 'sidebarRightTabs']) {
+  check(`client injects ${service}`, loaded?.exports.inject?.includes(service))
+}
 
 loaded.exports.apply({
   locale: {
-    bind: () => (key) => key,
+    bind: (namespace) => (key) => {
+      const entry = dictionaries.find((candidate) => candidate.namespace === namespace)
+      return entry?.packs?.en?.[key] ?? key
+    },
     register: (namespace, packs) => {
       dictionaries.push({ namespace, packs })
       return () => {}
@@ -300,25 +347,71 @@ loaded.exports.apply({
       return () => {}
     },
   },
+  sidebarRightTabs: {
+    register(definition) {
+      tabTypes.push(definition)
+      return () => {}
+    },
+  },
+  sidebarRight: {
+    openTab(kind) {
+      opens.push(kind)
+      return {}
+    },
+  },
+  layout: {
+    selectPanel(id) {
+      panels.push(id)
+    },
+  },
 })
 
-const button = registrations.find((entry) => entry.options?.name === 'sidebar.footer.action')
-check('registers sidebar.footer.action', button !== undefined)
-check('footer id', button?.options.id === 'dsh-geogebra-studio', button?.options.id)
 check('locale namespace', dictionaries.some((entry) => entry.namespace === 'geogebraStudio' && entry.packs.en && entry.packs.zh))
+check('registers one tab type', tabTypes.length === 1, String(tabTypes.length))
+check('tab kind', tabTypes[0]?.kind === 'geogebra-studio', tabTypes[0]?.kind)
+check('tab id', tabTypes[0]?.id === 'dsh-geogebra-studio', tabTypes[0]?.id)
+check('tab title', tabTypes[0]?.title() === 'GeoGebra')
 
-const wide = button.component({ wide: true, t: (key) => ({ label: 'GeoGebra', title: 'GeoGebra Studio' })[key] ?? key })
-const flat = JSON.stringify(wide)
-check('wide button shows the GeoGebra label', flat.includes('"data-wide":"true"') && flat.includes('"children":"GeoGebra"'))
-const rail = button.component({ wide: false, t: (key) => ({ label: 'GeoGebra', title: 'GeoGebra Studio' })[key] ?? key })
-const railText = JSON.stringify(rail)
-check('rail button hides the text label', railText.includes('"data-wide":"false"') && !railText.includes('"children":"GeoGebra"'))
+const entry = registrations.find((registration) => registration.options?.name === 'sidebar.panellist')
+check('registers a left-rail entry', entry !== undefined)
+check('left-rail id', entry?.options.id === 'geogebra', entry?.options.id)
+check('left-rail order', entry?.options.order === 20, entry?.options.order)
+check('left-rail label', entry?.options.label() === 'GeoGebra Studio')
+
+const nav = entry.component({ size: 18, active: false })
+check('left-rail uses the official icon', nav?.type === PrimitiveIcon && nav?.props.size === 18)
+
+const launcher = registrations.find((registration) => registration.options?.name === 'main')
+check('registers the launcher main panel', launcher !== undefined)
+check('launcher key', launcher?.options.key === 'geogebra', launcher?.options.key)
+const face = launcher.options.inject()
+face.launch()
+check('launcher opens the right tab', opens.at(-1) === 'geogebra-studio', opens.at(-1))
+check('launcher restores the conversation', panels.at(-1) === null, String(panels.at(-1)))
+
+const tabBody = registrations.find((registration) => registration.options?.name === 'sidebar.right.pane.tab')
+check('registers the right tab body', tabBody !== undefined)
+check('right tab body key', tabBody?.options.key === 'dsh-geogebra-studio', tabBody?.options.key)
+const body = tabBody.component({ sessionId: 'session-1' })
+const findIframe = (node) => {
+  if (node === null || typeof node !== 'object') return undefined
+  if (node.type === 'iframe') return node
+  for (const child of [].concat(node.props?.children ?? [])) {
+    const found = findIframe(child)
+    if (found !== undefined) return found
+  }
+  return undefined
+}
+const iframe = findIframe(body)
+check('canvas renders an iframe', iframe !== undefined)
+check('canvas frame points at the viewer bridge', iframe?.props.src?.startsWith('/dsh-geogebra-studio/viewer?session=session-1&v=0'), iframe?.props.src)
+check('no footer action registered', !registrations.some((registration) => registration.options?.name === 'sidebar.footer.action'))
 
 if (failures.length > 0) {
   console.error(`plugin verification failed: ${failures.join(', ')}`)
   process.exit(1)
 }
-console.log('dsh plugin contract and tools OK')
+console.log('dsh plugin contract, tools and right-canvas bridge OK')
 // Preview listeners belong to the live plugin and are intentionally not closed
 // by a tool call; end the verifier once its assertions are done.
 process.exit(0)

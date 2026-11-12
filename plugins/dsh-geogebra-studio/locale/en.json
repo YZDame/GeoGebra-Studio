@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "GeoGebra Studio",
-    "description": "Builds, previews and exports editable GeoGebra 2D/3D constructions from chat. Adds the geogebra_build, geogebra_preview and geogebra_export tools and ships the geogebra-studio skill, so figures can be created, edited in the viewer and exported as TSQX, Asymptote or TikZ. Rendering loads the official GeoGebra engine and needs network access; the plugin writes only new files in the workspace."
+    "description": "Adds a GeoGebra Studio entry to the left sidebar. Selecting it opens a live, editable GeoGebra canvas in the right sidebar while the conversation stays open; geogebra_build renders the figure into that canvas, and the geogebra_preview and geogebra_export tools remain available for standalone links and source export. Rendering loads the official GeoGebra engine and needs network access. The plugin writes only new files in the workspace."
   }
 }

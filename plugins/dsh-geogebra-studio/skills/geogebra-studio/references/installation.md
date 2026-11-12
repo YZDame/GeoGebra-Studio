@@ -6,11 +6,16 @@ Do not run `dsh plugin add` on the repository root, on `@lydt/geogebra-studio`, 
 
 ## Check the installation
 
-1. **Plugins** shows **GeoGebra Studio** with a geometry icon and a description that names the three tools. A disabled row, or a row from an older `dsh-geogebra-studio` version, means the profile still has the guide-only button; reinstall and restart.
+1. The left sidebar shows **GeoGebra Studio** beside Plugins, Automation and Tasks, using DSH's official split-view icon. Selecting it opens a blank canvas in the right sidebar while the conversation stays in the main column.
 2. A new session lists `geogebra_build`, `geogebra_preview` and `geogebra_export`, and its skill catalog contains `geogebra-studio`.
-3. Run `dsh --profile web --dump-config` and look for `# == dsh-geogebra-studio` with `name: dsh-geogebra-studio`. A missing row means the bundle patch did not load.
+3. **Plugins** lists the package with its title and description; the package ships no custom artwork, so DSH draws its official default plugin mark.
+4. Run `dsh --profile web --dump-config` and look for `# == dsh-geogebra-studio` with `name: dsh-geogebra-studio`. A missing row means the bundle patch did not load.
+
+A 0.2.0 install still shows the old footer guide; reinstall and restart to get the left-rail entry and right canvas.
 
 The composed row proves the bundle resolved; it does not prove the tools registered. If the session shows no tools, read the Host log for an activation error. This plugin imports only its own bundled runtime, so a module-resolution failure points to a damaged package rather than missing peer dependencies.
+
+If the left entry opens but the canvas stays blank after `geogebra_build`, the Host web server or its bridge routes are unavailable. The canvas reads `/dsh-geogebra-studio/state?session=<sessionId>` and embeds `/dsh-geogebra-studio/viewer?session=<sessionId>`; both are registered by the Host half when the profile mounts `webServer`. Check that the session id matches and restart after installing a new Host version.
 
 ## Tool errors
 
@@ -22,8 +27,8 @@ The composed row proves the bundle resolved; it does not prove the tools registe
 
 ## Rendering
 
-`geogebra_preview` serves one HTML snapshot on `127.0.0.1`. It does not proxy the GeoGebra engine: the browser needs internet access for the official CDN. `GeoGebra failed to load` means the engine bootstrap failed; inspect network and content-security-policy errors in the intended browser. A terminal CDN check does not prove client access. `Command N failed` means the engine loaded and the construction itself must be fixed.
+The right-side canvas embeds the same viewer HTML as `geogebra_preview`, with the page header removed. It does not proxy the GeoGebra engine: the browser needs internet access for the official CDN. `GeoGebra failed to load` means the engine bootstrap failed; inspect network and content-security-policy errors in the intended browser. A terminal CDN check does not prove client access. `Command N failed` means the engine loaded and the construction itself must be fixed.
 
-The preview server accepts only that one document and closes when the plugin unloads. Opening a static file-preview pane instead of the loopback URL can block the engine's scripts; it does not count as browser verification. Confirm `window.geogebraStudio.status === "ready"` and inspect the drawing before reporting rendering success.
+The canvas reloads whenever the Host records a new build for that Session; the previous figure is replaced. `geogebra_preview` remains available for a standalone loopback link and closes when the plugin unloads. Confirm `window.geogebraStudio.status === "ready"` in the canvas and inspect the drawing before reporting rendering success.
 
 GeoGebra Studio is an independent project and is not affiliated with GeoGebra.

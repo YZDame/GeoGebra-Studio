@@ -60,7 +60,7 @@ Install the plugin, then restart DeepSeek Harness.
 dsh plugin --profile web add dsh-geogebra-studio
 ```
 
-Use `--profile desktop` for the Desktop app. The plugin includes the `geogebra-studio` Skill and tools to build, preview and export figures. Type `/geogebra-studio` in chat. See the [plugin instructions](plugins/dsh-geogebra-studio/) for details.
+Use `--profile desktop` for the Desktop app. The plugin adds **GeoGebra Studio** to the left sidebar beside Plugins, Automation and Tasks; selecting it opens a live, editable canvas in the right sidebar while the conversation stays open. `geogebra_build` renders figures into that canvas, `geogebra_preview` is only for a standalone link, and `geogebra_export` handles TSQX, Asymptote and TikZ. It also includes the `geogebra-studio` Skill. See the [plugin instructions](plugins/dsh-geogebra-studio/) for details.
 
 See [installation and troubleshooting](skills/geogebra-studio/references/installation.md) for more details.
 
