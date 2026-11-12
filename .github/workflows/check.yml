@@ -81,6 +81,7 @@ jobs:
           echo "PUPPETEER_EXECUTABLE_PATH=$(node -p 'JSON.parse(require("fs").readFileSync("browser.json","utf8")).executablePath')" >> "$GITHUB_ENV"
       - run: node scripts/verify-artifact.cjs
       - run: STUDIO_HTML_FIXTURE=output/verification/studio/tangent-construction.html node scripts/verify-viewer.cjs
+      - run: node scripts/verify-slider-labels.cjs
       - run: node scripts/verify-viewer-3d.cjs
       - run: npm run verify:math
       - uses: actions/upload-artifact@v4

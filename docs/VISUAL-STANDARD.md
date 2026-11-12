@@ -13,6 +13,8 @@ and preview screenshots are optional; inspect the visible diagram for visual qua
   disabled breaks later editing in Classic.
 - Native LaTeX Text labels, fixed auxiliary helpers, normal native labels hidden.
   GeoGebra Text needs its fourth boolean. Its string escaping differs from JS.
+  Sliders are the exception: each keeps a native name or caption (Chinese included)
+  beside the control. Do not hide that label in the post-construction styling pass.
 - Shared buttons: 38px height, 9px radius; matching custom popovers, no native select.
   Header: native Algebra View toggle left; theme, separate light/dark icon and downloads right, all outside the canvas. Keep manual object definition/style editing.
 - Keep the canvas outer border in both light and dark modes, using the header
