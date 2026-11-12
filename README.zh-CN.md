@@ -64,17 +64,20 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ### 插件：工具、Skill 与侧边栏面板
 
-把插件安装到 web profile，然后重启 `dsh web`。GitHub 地址要加引号，pnpm 才会保留子目录：
+把插件安装到 profile，然后重启 `dsh web` 或 Desktop 应用。等 `dsh-geogebra-studio@0.2.0` 发布到 npm 后，安装规格很短，不需要引号，也不需要仓库路径：
 
 ```sh
-dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+dsh plugin --profile web add dsh-geogebra-studio
 ```
 
-在本仓库的检出目录中：
+Desktop 应用请用 `--profile desktop`。在 npm 发布之前，或测试某个分支时，从检出目录安装：
 
 ```sh
 dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 ```
+
+已推送的分支仍可用 GitHub 形式：
+`dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"`。
 
 现在这个包会直接完成工作，而不只是打开说明：
 

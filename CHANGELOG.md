@@ -8,6 +8,7 @@
 - Contribute the `geogebra-studio` skill from the plugin, so installing the plugin also installs the construction format, visual standards and export workflow.
 - Add localized plugin metadata and an original icon, keep the sidebar quick-start panel, and verify every tool against a temporary workspace including a real loopback preview.
 - Extract runtime asset resolution so the CLI build and the bundled plugin runtime load the same viewer, Gikz script and license.
+- Make `dsh-geogebra-studio` independently publishable so installation becomes `dsh plugin --profile web add dsh-geogebra-studio`; add a provenance-based release workflow and keep checkout/GitHub installs documented.
 
 ## [0.6.1] — 2026-11-12
 

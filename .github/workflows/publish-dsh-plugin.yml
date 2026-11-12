@@ -1,0 +1,56 @@
+name: Verify and publish the DSH plugin to npm
+
+# The first 0.2.0 publish is manual (`npm login && npm publish` in
+# plugins/dsh-geogebra-studio). After that, configure npm's trusted publisher for
+# dsh-geogebra-studio with this repository and workflow file, and future releases
+# can publish here without a long-lived token.
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish plugin/dsh-geogebra-studio to npm after verification
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'dsh-v*'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.10.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run build
+      - run: node plugins/dsh-geogebra-studio/scripts/build-client.mjs
+      - run: node plugins/dsh-geogebra-studio/scripts/verify.mjs
+      - name: Check the tag matches the plugin version
+        if: startsWith(github.ref, 'refs/tags/dsh-v')
+        run: node -e 'const v=require("./plugins/dsh-geogebra-studio/package.json").version;if(v!==process.env.GITHUB_REF_NAME.replace(/^dsh-v/,""))process.exit(1)'
+      - name: Check the committed plugin bundle is current
+        run: git diff --exit-code -- plugins/dsh-geogebra-studio/runtime plugins/dsh-geogebra-studio/lib/client.js
+
+  publish:
+    needs: verify
+    if: startsWith(github.ref, 'refs/tags/dsh-v') || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.10.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Publish the plugin package
+        run: npm publish ./plugins/dsh-geogebra-studio --provenance --access public

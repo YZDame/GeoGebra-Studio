@@ -18,16 +18,17 @@ The generated page keeps the full viewer: native algebra sidebar, nine theme fam
 
 ## Install
 
-From GitHub, quoting the spec so the subdirectory survives the shell:
+Once `dsh-geogebra-studio@0.2.0` is on npm, installation is one short spec with no quotes and no repository path:
 
 ```sh
-dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+dsh plugin --profile web add dsh-geogebra-studio
 ```
 
-From a checkout of this repository:
+Use `--profile desktop` for the Desktop app. Until that npm release exists, or when testing a branch, install from a checkout or from GitHub:
 
 ```sh
 dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
 ```
 
 Restart `dsh web` (or the Desktop app) after installing. **Plugins** lists the package with its title, description and icon; a new session can call the three tools and load the skill.
@@ -37,6 +38,17 @@ The plugin is self-contained: `runtime/` carries the bundled generator, viewer, 
 On Windows, an older `dsh` can pass the GitHub spec through `cmd.exe`, which treats `&` as a command separator and installs the repository root. Use the checkout path instead.
 
 Do not install the repository root, `@lydt/geogebra-studio`, or `skills/geogebra-studio/` with `dsh plugin add`; those are not this plugin.
+
+## Release
+
+The package publishes on its own; it has no runtime dependencies. For the first release, from this directory:
+
+```sh
+npm login
+npm publish --access public
+```
+
+After that, configure npm's trusted publisher for `dsh-geogebra-studio` (repository `YZDame/GeoGebra-Studio`, workflow `publish-dsh-plugin.yml`, environment `npm`). Future `dsh-v*` tags then publish with provenance through `.github/workflows/publish-dsh-plugin.yml`, without a long-lived token.
 
 ## Use
 
