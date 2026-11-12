@@ -65,7 +65,7 @@ check('icon export', pkg.exports?.['./icon'] === './icon.svg')
 check('client platform web', pkg.dsh?.client?.platform === 'web')
 check('client injects the sidebar package', pkg.dsh?.client?.inject?.includes('@deepseek-ai/dsh-client-ui-sidebar') === true)
 check('patch inserts this plugin', patch.includes('id: dsh-geogebra-studio') && patch.includes('name: dsh-geogebra-studio'))
-for (const entry of ['lib/', 'runtime/', 'skills/', 'locale/*.json', 'icon.svg', 'cordis.patch.yml', 'README.md']) {
+for (const entry of ['lib/', 'runtime/', 'skills/', 'locale/*.json', 'icon.svg', 'cordis.patch.yml', 'README.md', 'THIRD_PARTY_NOTICES.md']) {
   check(`files includes ${entry}`, Array.isArray(pkg.files) && pkg.files.includes(entry))
 }
 
