@@ -34,6 +34,7 @@ jobs:
           rm -rf _site/.taste-skill
           cp assets/geogebra-icon.png _site/
           cp examples/*.html _site/figures/
+          node scripts/stamp-figure-pages.cjs _site
           if stars=$(gh api "repos/$GITHUB_REPOSITORY" --jq .stargazers_count) && [[ "$stars" =~ ^[0-9]+$ ]]; then
             sed -i -e 's/data-stars hidden/data-stars/' -e "s/data-star-count><\/span>/data-star-count>$stars<\/span>/" _site/index.html
           fi
