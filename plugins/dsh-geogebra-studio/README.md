@@ -48,6 +48,8 @@ npm login
 npm publish --access public
 ```
 
+npm holds a brand-new package in **staged publishing**: after `npm publish`, the package page shows a **Staged packages** tab where a maintainer approves `0.2.0` with 2FA. Until then `latest` points at the `0.0.0-stage` placeholder and installing the name returns 404.
+
 After that, configure npm's trusted publisher for `dsh-geogebra-studio` (repository `YZDame/GeoGebra-Studio`, workflow `publish-dsh-plugin.yml`, environment `npm`). Future `dsh-v*` tags then publish with provenance through `.github/workflows/publish-dsh-plugin.yml`, without a long-lived token.
 
 ## Use
