@@ -82,10 +82,10 @@ dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 
 ## 可選的 Codex Plugin
 
-Codex Plugin 是額外的發佈方式，而不是使用 Skill 的必要條件。0.6.0 安裝指令：
+Codex Plugin 為選用。可透過 npm 安裝最新發布的版本：
 
 ```sh
-npx @lydt/geogebra-studio@0.6.0 install
+npx @lydt/geogebra-studio@latest install
 ```
 
 安裝後請重新開啟 Codex 工作階段。原始碼開發指令為 `npm ci && npm run build`，本地 Codex 安裝則使用 `node dist/cli.js install --local`。

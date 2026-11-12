@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "geogebra-studio",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Portable Agent Skill for editable GeoGebra HTML constructions and geometry source exports",
   "author": {
     "name": "YZDame"

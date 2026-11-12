@@ -82,10 +82,10 @@ dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 
 ## 可选 Codex Plugin
 
-Codex 的便捷安装命令（0.6.0）：
+可通过 npm 安装最新发布的 Codex Plugin：
 
 ```sh
-npx @lydt/geogebra-studio@0.6.0 install
+npx @lydt/geogebra-studio@latest install
 ```
 
 安装后重开 Codex 会话。源码开发用 `npm ci && npm run build`，再执行 `node dist/cli.js install --local`。

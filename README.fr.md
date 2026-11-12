@@ -75,10 +75,10 @@ Les exigences sont les mêmes : Node.js 22.12 ou supérieur, accès aux fichiers
 
 ## Plugin Codex facultatif
 
-Le Plugin Codex est un complément facultatif. La version **0.6.0** est publiée sur npm. Redémarrez Codex après installation.
+Le Plugin Codex est facultatif. Installez la dernière version publiée sur npm, puis redémarrez Codex.
 
 ```sh
-npx @lydt/geogebra-studio@0.6.0 install
+npx @lydt/geogebra-studio@latest install
 ```
 
 ## Démarrage rapide
