@@ -36,6 +36,48 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 Agent 需具有文件写入与命令执行权限。优先使用客户端内置浏览器，没有时使用普通浏览器。并非所有 Agent 客户端都提供侧边浏览器，也不代表它们的原生插件安装方式完全相同。
 
+## DeepSeek Harness
+
+DeepSeek Harness（`dsh`）可以用两种方式使用 GeoGebra Studio。Agent Skill 负责生成图形。已发布的 `SKILL.md` 已包含所需的 kebab-case `name` 和 `description`，因此 frontmatter 保持原样。未添加可选的 `whenToUse`：DeepSeek Harness 的技能目录按 `name` 和 `description` 路由，`whenToUse` 只是提供方元数据，不会展示给模型。侧边栏按钮是另一个包，[`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/)。请不要对仓库根目录、`@lydt/geogebra-studio` 或 `skills/geogebra-studio/` 执行 `dsh plugin add`。那些都不是侧边栏插件。
+
+推荐使用与其他 Agent Skills 客户端相同的安装命令。默认模式下，`skills` CLI 会把完整 Skill 写到 `.agents/skills/geogebra-studio`，DeepSeek Harness 已经扫描这个目录：
+
+- 不加 `-g` 时，命令把副本写到当前目录的 `./.agents/skills/geogebra-studio`。当该项目的 Git 根目录是工作区时，DeepSeek Harness 会发现它。如果安装程序询问范围，项目选项就是这条路径。
+- 加上 `-g`，或在询问时选择 Global，会写到 `~/.agents/skills/geogebra-studio`。DeepSeek Harness 会在每个工作区扫描这个目录。
+
+```sh
+npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
+```
+
+需要用户主目录中的副本时加上 `-g`。安装程序也可能把 Skill 链接到 `~/.claude/skills` 或 `~/.cursor/skills` 等客户端目录。DeepSeek Harness 扫描 `~/.dsh/skills`、`~/.agents/skills`，以及项目内的 `.dsh/skills` 和 `.agents/skills`。请保持默认安装模式，以便写入 `.agents/skills` 副本。`--copy` 会跳过该目录，只写到所选客户端自己的文件夹。
+
+也可以手动把**整个** `skills/geogebra-studio/` 目录（含 `SKILL.md`、`scripts/`、`references/` 和 `runtime/`）复制到以下任一位置：
+
+- `~/.dsh/skills/geogebra-studio`
+- `~/.agents/skills/geogebra-studio`
+
+在对话中用 `/geogebra-studio` 调用。
+
+把本仓库当作 DeepSeek Harness 工作区打开时，不会发现 `skills/geogebra-studio/`。发现范围只包括 `.dsh/skills` 和 `.agents/skills` 的直接子项。请把整个目录复制到工作区内的 `.dsh/skills/geogebra-studio` 或 `.agents/skills/geogebra-studio`。工作区副本优先放在 `.dsh/skills/geogebra-studio`：它只服务于 DeepSeek Harness，并把 `.agents/skills` 留给 `npx skills`。本仓库不提交这份副本或符号链接。Windows 上的 Git 经常把符号链接检出成纯文本文件，而 `.agents/skills` 已是 Codex、Cursor 和 `npx skills` 使用的安装目录。现有的 `.agents/plugins` 仍然只是可选 Codex 市场记录。
+
+### 侧边栏按钮
+
+把侧边栏插件安装到 web profile，然后重启 `dsh web`。GitHub 地址要加引号，pnpm 才会保留子目录：
+
+```sh
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+```
+
+在本仓库的检出目录中：
+
+```sh
+dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+```
+
+插件向官方的 `sidebar.footer.action` 列表注册一个入口，位于侧边栏底部、设置按钮上方。侧边栏展开时显示几何图标和 GeoGebra 标签；收成窄轨时只显示图标。点击后打开说明：如何调用 `/geogebra-studio`、Node.js 22.12+ 与 HTTP 预览要求、可复制的开头，以及非官方项目声明。这个按钮不会安装 Skill，也不会画出图形。在 Windows 上，较旧的 `dsh` 可能把 GitHub 地址交给 `cmd.exe`，`&` 会被当成命令分隔符，结果装上的是仓库根目录。遇到这种情况请改用检出目录。
+
+要求与其他客户端相同：Node.js 22.12+、文件写入和命令执行权限，并在客户端能够打开本机地址时使用 HTTP 预览。GeoGebra Studio 是独立社区项目，与 GeoGebra 官方无隶属关系。
+
 ## 可选 Codex Plugin
 
 Codex 的便捷安装命令（0.6.0）：

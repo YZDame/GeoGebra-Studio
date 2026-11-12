@@ -1,0 +1,52 @@
+{
+  "name": "dsh-geogebra-studio",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness sidebar button for GeoGebra Studio. Opens a guide to the separate geogebra-studio Agent Skill. Unofficial and not affiliated with GeoGebra.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "node scripts/build-client.mjs",
+    "verify": "node scripts/verify.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YZDame/GeoGebra-Studio.git",
+    "directory": "plugins/dsh-geogebra-studio"
+  },
+  "homepage": "https://github.com/YZDame/GeoGebra-Studio#readme",
+  "bugs": {
+    "url": "https://github.com/YZDame/GeoGebra-Studio/issues"
+  },
+  "author": "YZDame",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  }
+}

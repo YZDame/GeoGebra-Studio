@@ -33,6 +33,44 @@ Installez la Skill depuis GitHub dans un environnement compatible avec Agent Ski
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
+## DeepSeek Harness
+
+DeepSeek Harness (`dsh`) peut utiliser GeoGebra Studio de deux façons distinctes. L'Agent Skill produit les figures. Le `SKILL.md` publié a déjà le `name` en kebab-case et la `description` requis ; le frontmatter reste inchangé. `whenToUse` est omis, car le catalogue route selon `name` et `description`. Le bouton de barre latérale est un autre paquet, [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/). N'exécutez pas `dsh plugin add` sur la racine du dépôt, sur `@lydt/geogebra-studio` ni sur `skills/geogebra-studio/`. Ce ne sont pas le plugin de barre latérale.
+
+Utilisez le même installeur que les autres clients. Dans le mode par défaut, une copie complète est écrite dans `.agents/skills/geogebra-studio`, un dossier que DeepSeek Harness parcourt déjà :
+
+- Sans `-g` : `./.agents/skills/geogebra-studio` dans le répertoire courant. DeepSeek Harness la trouve lorsque la racine Git de ce projet est l'espace de travail. Si l'installeur demande la portée, le choix projet est ce chemin.
+- Avec `-g`, ou Global lorsqu'il demande : `~/.agents/skills/geogebra-studio`. DeepSeek Harness parcourt ce dossier dans chaque espace de travail.
+
+Ajoutez `-g` pour la copie dans le répertoire personnel. Des liens comme `~/.claude/skills` ou `~/.cursor/skills` concernent d'autres clients. DeepSeek Harness parcourt `~/.dsh/skills`, `~/.agents/skills`, ainsi que `.dsh/skills` et `.agents/skills` dans le projet. Conservez le mode par défaut afin d'écrire la copie `.agents/skills`. `--copy` ignore ce dossier.
+
+Pour une installation manuelle, copiez **tout** le dossier `skills/geogebra-studio/`, avec `SKILL.md`, `scripts/`, `references/` et `runtime/` :
+
+- `~/.dsh/skills/geogebra-studio`
+- `~/.agents/skills/geogebra-studio`
+
+Dans le chat, appelez-la avec `/geogebra-studio`.
+
+Ouvrir ce dépôt comme espace de travail DeepSeek Harness ne découvre pas `skills/geogebra-studio/`. La recherche ne lit que les enfants directs de `.dsh/skills` et `.agents/skills`. Copiez le dossier entier vers `.dsh/skills/geogebra-studio` ou `.agents/skills/geogebra-studio` dans l'espace de travail. Pour une copie limitée à cet espace, préférez `.dsh/skills/geogebra-studio`. Ce dépôt ne contient ni cette copie ni un lien symbolique : sous Windows, Git extrait souvent les liens symboliques comme de simples fichiers texte, et `.agents/skills` est déjà le dossier d'installation de Codex, Cursor et `npx skills`. `.agents/plugins` reste l'entrée facultative de la marketplace Codex.
+
+### Bouton de barre latérale
+
+Installez le plugin de barre latérale dans le profil web, puis redémarrez `dsh web`. Mettez la spécification GitHub entre guillemets pour que pnpm conserve le sous-dossier :
+
+```sh
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+```
+
+Depuis une copie de ce dépôt :
+
+```sh
+dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+```
+
+Le plugin enregistre une entrée dans la liste officielle `sidebar.footer.action`, dans le pied de la barre latérale, au-dessus de Réglages. Une barre large affiche une icône géométrique et le libellé GeoGebra. Le rail réduit n'affiche que l'icône. Un clic ouvre un guide : invoquer `/geogebra-studio`, les exigences Node.js 22.12+ et l'aperçu HTTP, un texte de départ à copier, et l'avis de projet indépendant. Le bouton n'installe pas la Skill et ne dessine pas de figure. Sous Windows, un ancien `dsh` peut transmettre cette spécification à `cmd.exe` ; `&` devient un séparateur de commandes et la racine du dépôt est installée. Utilisez alors le chemin de la copie locale.
+
+Les exigences sont les mêmes : Node.js 22.12 ou supérieur, accès aux fichiers et au shell, et l'aperçu HTTP lorsque le client peut ouvrir une URL de loopback. GeoGebra Studio est un projet indépendant, sans lien avec GeoGebra.
+
 ## Plugin Codex facultatif
 
 Le Plugin Codex est un complément facultatif. La version **0.6.0** est publiée sur npm. Redémarrez Codex après installation.

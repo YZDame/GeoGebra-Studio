@@ -33,6 +33,44 @@ Instala la Skill desde GitHub en un entorno compatible con Agent Skills. Como al
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
+## DeepSeek Harness
+
+DeepSeek Harness (`dsh`) puede usar GeoGebra Studio de dos maneras distintas. La Agent Skill genera las figuras. La `SKILL.md` publicada ya tiene el `name` en kebab-case y la `description` obligatorios; el frontmatter no cambia. `whenToUse` se omite porque el catálogo enruta por `name` y `description`. El botón de la barra lateral es otro paquete, [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/). No ejecutes `dsh plugin add` sobre la raíz del repositorio, sobre `@lydt/geogebra-studio` ni sobre `skills/geogebra-studio/`. Esos no son el plugin de la barra lateral.
+
+Usa el mismo instalador que los demás clientes. En el modo predeterminado escribe una copia completa en `.agents/skills/geogebra-studio`, un directorio que DeepSeek Harness ya explora:
+
+- Sin `-g`: `./.agents/skills/geogebra-studio` en el directorio actual. DeepSeek Harness lo descubre cuando la raíz Git de ese proyecto es el espacio de trabajo. Si el instalador pregunta el ámbito, la opción de proyecto es esta ruta.
+- Con `-g`, o Global cuando pregunta: `~/.agents/skills/geogebra-studio`. DeepSeek Harness examina ese directorio en cada espacio de trabajo.
+
+Añade `-g` para la copia en el directorio personal. Enlaces como `~/.claude/skills` o `~/.cursor/skills` son de otros clientes. DeepSeek Harness explora `~/.dsh/skills`, `~/.agents/skills` y, en el proyecto, `.dsh/skills` y `.agents/skills`. Conserva el modo predeterminado para que exista la copia en `.agents/skills`. `--copy` omite ese directorio.
+
+Para instalar a mano, copia **toda** la carpeta `skills/geogebra-studio/`, con `SKILL.md`, `scripts/`, `references/` y `runtime/`:
+
+- `~/.dsh/skills/geogebra-studio`
+- `~/.agents/skills/geogebra-studio`
+
+En el chat, invócala con `/geogebra-studio`.
+
+Abrir este repositorio como espacio de trabajo de DeepSeek Harness no descubre `skills/geogebra-studio/`. La búsqueda solo mira los hijos directos de `.dsh/skills` y `.agents/skills`. Copia la carpeta completa a `.dsh/skills/geogebra-studio` o `.agents/skills/geogebra-studio` dentro del espacio de trabajo. Para una copia solo de ese espacio, prefiere `.dsh/skills/geogebra-studio`. Este repositorio no incluye esa copia ni un enlace simbólico: en Windows, Git suele extraer los enlaces simbólicos como archivos de texto, y `.agents/skills` ya es el directorio de instalación de Codex, Cursor y `npx skills`. `.agents/plugins` sigue siendo el registro opcional del marketplace de Codex.
+
+### Botón de la barra lateral
+
+Instala el plugin de la barra lateral en el perfil web y reinicia `dsh web`. Pon la especificación de GitHub entre comillas para que pnpm conserve el subdirectorio:
+
+```sh
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+```
+
+Desde una copia de este repositorio:
+
+```sh
+dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+```
+
+El plugin registra una entrada en la lista oficial `sidebar.footer.action`, en el pie de la barra lateral, encima de Ajustes. Con la barra ancha se ve un icono geométrico y la etiqueta GeoGebra. En el raíl estrecho solo se ve el icono. Al pulsarlo se abre una guía: cómo invocar `/geogebra-studio`, los requisitos de Node.js 22.12+ y de la vista previa HTTP, un texto inicial que se puede copiar y el aviso de proyecto independiente. El botón no instala la Skill ni dibuja una figura. En Windows, un `dsh` antiguo puede pasar esa especificación a `cmd.exe`; `&` se interpreta como separador de comandos y se instala la raíz del repositorio. En ese caso usa la ruta de la copia local.
+
+Los requisitos son los mismos: Node.js 22.12 o superior, acceso a archivos y shell, y la vista previa HTTP cuando el cliente puede abrir una URL de loopback. GeoGebra Studio es un proyecto independiente y no está afiliado a GeoGebra.
+
 ## Codex Plugin opcional
 
 El Plugin es un envoltorio opcional. La versión **0.6.0** está publicada en npm. Reinicia Codex después de instalarla.
