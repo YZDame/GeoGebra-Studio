@@ -27,7 +27,8 @@
   },
   "scripts": {
     "build": "node scripts/build-client.mjs",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "prepack": "node scripts/clean-conflict-copies.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.25.11"
