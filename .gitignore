@@ -115,3 +115,8 @@ Thumbs.db /.env.example
 # Portable Skill runtime is distributed from GitHub as well as npm.
 !skills/geogebra-studio/runtime/dist/
 !skills/geogebra-studio/runtime/dist/**
+
+# Conflict copies produced by iCloud Drive / File Provider sync during builds
+# (for example "preview 2.js"); never distribute or commit them.
+* [0-9].*
+* [0-9]
