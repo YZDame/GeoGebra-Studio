@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### DeepSeek Harness plugin 0.3.1
+
+- Keep the generated viewer's template header in the right-Sidebar canvas: the objects/algebra toggle, theme, light/dark and all seven download formats return, matching the standalone HTML exactly.
+
 ### DeepSeek Harness plugin 0.3.0
 
 - Replace the footer guide with the real DSH surface: a **GeoGebra Studio** entry in the left rail beside Plugins/Automation/Tasks opens a live, editable GeoGebra canvas in the right sidebar while the conversation stays open.

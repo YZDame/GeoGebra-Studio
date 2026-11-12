@@ -31,7 +31,7 @@ Read [visual standards](references/visual-standard.md) before choosing widths, c
 
 ## Edit and export
 
-Free points can be dragged in the right canvas. The canvas hides the standalone viewer's page header; for the full toolbar, themes, algebra sidebar and downloads, open the generated HTML or call `geogebra_preview`. User edits are not written back to the JSON or HTML on disk: **download current HTML or GGB from the full viewer before leaving.**
+Free points can be dragged in the right canvas. The canvas is the full viewer with its template header: the left button opens the objects/algebra sidebar, the theme and light/dark controls sit beside it, and the download menu offers GGB, HTML, PNG, SVG, PDF, XML and TikZ. User edits are not written back to the JSON or HTML on disk: **download current HTML or GGB before leaving.**
 
 For source export, download the current XML, save it in the workspace, then call `geogebra_export` with `format` `tsqx` or `asymptote`. Strict export rejects unsupported relations instead of silently replacing them with fixed coordinates. TSQX output may contain injected Asymptote; do not call it pure TSQX.
 

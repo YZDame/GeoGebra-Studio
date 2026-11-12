@@ -1,6 +1,6 @@
 {
   "name": "dsh-geogebra-studio",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "DeepSeek Harness plugin with a left-rail GeoGebra Studio entry and a live right-side GeoGebra canvas, plus build, preview and export tools and the geogebra-studio skill. Unofficial and not affiliated with GeoGebra.",
   "license": "GPL-2.0-or-later",
   "type": "module",

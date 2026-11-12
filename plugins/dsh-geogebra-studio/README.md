@@ -16,7 +16,7 @@ GeoGebra Studio is an independent project and is not affiliated with GeoGebra. L
 | `geogebra-studio` skill | The construction format, visual standards, right-canvas workflow and export provenance. Registered by the plugin, so `npx skills add` is unnecessary in DeepSeek Harness. |
 | Plugin inventory | The package contributes no custom artwork; DSH renders its official default plugin mark. |
 
-The right canvas is the viewer with its page header hidden, giving the figure the whole panel. The generated HTML and the standalone `geogebra_preview` keep the full toolbar: native object editing, algebra sidebar, themes, light/dark, 2D/3D, and GGB, HTML, PNG, SVG, PDF, XML and TikZ downloads. Rendering loads the official GeoGebra engine from its CDN, so the browser needs internet access; generating the HTML does not.
+The right canvas is the full generated viewer, including its template header: the objects/algebra toggle on the left, theme and light/dark controls, and GGB, HTML, PNG, SVG, PDF, XML and TikZ downloads on the right. The generated HTML and the standalone `geogebra_preview` show the same page in a normal browser. Rendering loads the official GeoGebra engine from its CDN, so the browser needs internet access; generating the HTML does not.
 
 ## Install
 
@@ -61,7 +61,7 @@ Do not install the repository root, `@lydt/geogebra-studio`, or `skills/geogebra
 
 4. Generation does not execute the geometry: inspect the canvas for labels, branches, tangency, clipping and light/dark contrast. The plugin cannot watch the canvas itself, so it reports rendering as unverified unless you confirm it.
 
-Edits made in the canvas are not written back to disk. Open the generated HTML or the standalone preview to use the full toolbar; **download current HTML or GGB before leaving.** For TSQX, Asymptote or TikZ, download the current XML or native PGF there and pass the saved file to `geogebra_export`.
+Edits made in the canvas are not written back to disk: **download current HTML or GGB from the canvas header before leaving.** For TSQX, Asymptote or TikZ, download the current XML or native PGF from the same menu and pass the saved file to `geogebra_export`.
 
 `workspace` is an absolute directory and defaults to the session working directory. Inputs and outputs are confined to it; symlinked escapes are rejected. The plugin creates new files only.
 

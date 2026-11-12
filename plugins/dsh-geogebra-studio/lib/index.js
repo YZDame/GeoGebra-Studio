@@ -8,7 +8,8 @@
  *
  * - `/dsh-geogebra-studio/state` returns the Session's latest render version.
  * - `/dsh-geogebra-studio/viewer` returns the blank or populated viewer HTML
- *   that the right-Sidebar tab embeds.
+ *   that the right-Sidebar tab embeds, with the standard viewer header
+ *   (objects toggle, theme, light/dark and downloads).
  *
  * The Client half (`lib/client.js`) owns the sidebar entry, the right tab and
  * its canvas; this module never writes UI itself.
@@ -45,10 +46,6 @@ const VIEWER_PATH = '/dsh-geogebra-studio/viewer'
 
 /** A blank, axes-on construction for the right-side canvas before any build. */
 const BLANK_SPEC = { filename: 'geogebra-panel.html', commands: [], showAxes: true, mode: '2D' }
-
-/** Remove the standalone viewer's page chrome; the right tab owns the frame. */
-const PANEL_STYLE = '<style>header{display:none!important}main{padding:0!important}'
-  + '.stage{border:0!important;border-radius:0!important}body{overflow:hidden!important}</style>'
 
 const SPEC_OPTIONS = {
   filename: {
@@ -233,7 +230,7 @@ export function apply(ctx) {
       send(response, 500, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }, String(error))
       return
     }
-    const body = html.replace('</head>', `${PANEL_STYLE}</head>`)
+    const body = html
     send(response, 200, {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'no-store',
