@@ -14,15 +14,15 @@ const zh = {
   title: 'GeoGebra Studio',
   close: '关闭',
   unofficial: '独立项目，与 GeoGebra 官方无隶属关系。',
-  lead: '这个按钮只打开使用说明。它不会安装 Skill，也不会画出图形。',
-  invoke: '安装 Skill 之后，在对话里输入 /geogebra-studio。',
-  requirements: '需要 Node.js 22.12+、文件写入和命令执行权限。客户端能打开本机地址时，优先使用 HTTP 预览。',
+  lead: '这个插件提供三个工具，并内置 geogebra-studio Skill。在对话里描述图形，Agent 会写出可编辑的 HTML、启动本机预览并导出源码。',
+  toolsLabel: '插件提供的工具',
+  tools: 'geogebra_build — 从 JSON 规格生成新的 HTML 图形\ngeogebra_preview — 在本机地址预览图形\ngeogebra_export — 导出 TSQX、Asymptote 或 TikZ',
+  invoke: '直接说明要画的图形即可；需要固定格式时可以在消息里点名这些工具。',
+  requirements: '需要工作区写入权限。预览使用本机地址，渲染时浏览器要联网加载 GeoGebra 官方引擎；生成 HTML 本身不需要联网。',
   promptLabel: '可以复制给 Agent 的开头',
-  prompt: 'Use the geogebra-studio skill to create an editable GeoGebra HTML construction and open the HTTP preview.',
+  prompt: 'Use the GeoGebra Studio tools to draw a circle through three points. Open the preview, then export TikZ.',
   copy: '复制',
   copied: '已复制',
-  skillInstall: 'Skill 安装命令。不要对 Skill 目录执行 dsh plugin add。',
-  skillCommand: 'npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio',
 }
 
 const en = {
@@ -30,15 +30,15 @@ const en = {
   title: 'GeoGebra Studio',
   close: 'Close',
   unofficial: 'An independent project. Not affiliated with GeoGebra.',
-  lead: 'This button opens a guide. It does not install the Skill and it does not draw a figure.',
-  invoke: 'After the Skill is installed, type /geogebra-studio in chat.',
-  requirements: 'Requires Node.js 22.12+, plus file and shell access. Prefer the HTTP preview when the client can open a loopback URL.',
+  lead: 'This plugin adds three tools and ships the geogebra-studio skill. Describe a figure in chat and the agent writes an editable HTML file, serves a local preview and exports source.',
+  toolsLabel: 'Tools in this plugin',
+  tools: 'geogebra_build — generate a new HTML construction from a JSON spec\ngeogebra_preview — serve the figure on a loopback URL\ngeogebra_export — export TSQX, Asymptote or TikZ',
+  invoke: 'Ask for the figure directly; name a tool when you need a specific output.',
+  requirements: 'Requires workspace write access. Previews use a loopback URL and the browser needs internet access for the official GeoGebra engine; writing the HTML works offline.',
   promptLabel: 'Starter text you can copy to the agent',
-  prompt: 'Use the geogebra-studio skill to create an editable GeoGebra HTML construction and open the HTTP preview.',
+  prompt: 'Use the GeoGebra Studio tools to draw a circle through three points. Open the preview, then export TikZ.',
   copy: 'Copy',
   copied: 'Copied',
-  skillInstall: 'Skill install command. Do not run dsh plugin add on the Skill directory.',
-  skillCommand: 'npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio',
 }
 
 const css = `
@@ -133,13 +133,13 @@ function FooterButton(props) {
         <p className="ggs_text">{t('lead')}</p>
         <p className="ggs_text">{t('invoke')}</p>
         <p className="ggs_text">{t('requirements')}</p>
+        <div className="ggs_label">{t('toolsLabel')}</div>
+        <pre className="ggs_pre">{t('tools')}</pre>
         <div className="ggs_label">{t('promptLabel')}</div>
         <pre className="ggs_pre">{t('prompt')}</pre>
         <div className="ggs_actions">
           <button type="button" className="ggs_btn" onClick={copyPrompt}>{copied ? t('copied') : t('copy')}</button>
         </div>
-        <div className="ggs_label">{t('skillInstall')}</div>
-        <pre className="ggs_pre">{t('skillCommand')}</pre>
       </div>
     </div>
   ) : null

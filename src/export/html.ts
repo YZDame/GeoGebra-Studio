@@ -1,6 +1,6 @@
-import path from 'path';
 import { readFileSync } from 'fs';
 import { gikzBrowserScripts } from './gikz';
+import { runtimeAsset } from './runtime-assets';
 import { viewerThemes } from './viewer-themes';
 
 export interface HtmlOptions {
@@ -23,7 +23,7 @@ export interface HtmlOptions {
   captionOverrides?: Record<string, string>;
 }
 
-const viewerScript = () => readFileSync(path.join(__dirname, '../../dist/viewer.js'), 'utf8').replace(/<\/script/gi, '<\\/script');
+const viewerScript = () => readFileSync(runtimeAsset('viewer.js'), 'utf8').replace(/<\/script/gi, '<\\/script');
 
 const scriptJson = (value: unknown) => JSON.stringify(value)
   .replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');

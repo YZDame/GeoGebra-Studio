@@ -1,14 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.constructionHtml = constructionHtml;
-const path_1 = __importDefault(require("path"));
 const fs_1 = require("fs");
 const gikz_1 = require("./gikz");
+const runtime_assets_1 = require("./runtime-assets");
 const viewer_themes_1 = require("./viewer-themes");
-const viewerScript = () => (0, fs_1.readFileSync)(path_1.default.join(__dirname, '../../dist/viewer.js'), 'utf8').replace(/<\/script/gi, '<\\/script');
+const viewerScript = () => (0, fs_1.readFileSync)((0, runtime_assets_1.runtimeAsset)('viewer.js'), 'utf8').replace(/<\/script/gi, '<\\/script');
 const scriptJson = (value) => JSON.stringify(value)
     .replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 /** A responsive, title-free viewer for an embedded GGB or a semantic command construction. */

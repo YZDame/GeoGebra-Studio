@@ -1,6 +1,8 @@
-# Mounts this sidebar plugin when the package is installed with
-# `dsh plugin --profile web add`. A later profile patch can disable this
-# row by id. This file does not install the geogebra-studio Agent Skill.
+# Mounts the GeoGebra Studio plugin when this directory is installed with
+# `dsh plugin --profile <name> add`. A later profile patch can disable or
+# reconfigure this row by id. The same package contributes the
+# geogebra-studio skill and the geogebra_* tools; there is nothing else to
+# install.
 - insert:
     - id: dsh-geogebra-studio
       name: dsh-geogebra-studio

@@ -1,5 +1,5 @@
-import path from 'path';
 import { readFileSync } from 'fs';
+import { gikzLicensePath, runtimeAsset } from './runtime-assets';
 interface GikzOptions {standalone?:boolean;points?:boolean;labels?:boolean;round?:boolean}
 const core = require('../../gikz/core.cjs') as {
   cleanTikZCode(source:string,options:GikzOptions):string;
@@ -8,8 +8,8 @@ const core = require('../../gikz/core.cjs') as {
 };
 /** Source and GPL license travel with the viewer; no eval or external cleaner. */
 export function gikzBrowserScripts(): string {
-  const source=readFileSync(path.join(__dirname,'../../dist/gikz-browser.js'),'utf8').replace(/<\/script/gi,'<\\/script');
-  const license=JSON.stringify(readFileSync(path.join(__dirname,'../../gikz/LICENSE'),'utf8')).replace(/</g,'\\u003c');
+  const source=readFileSync(runtimeAsset('gikz-browser.js'),'utf8').replace(/<\/script/gi,'<\\/script');
+  const license=JSON.stringify(readFileSync(gikzLicensePath(),'utf8')).replace(/</g,'\\u003c');
   return `<script id="gikz-license" type="application/json">${license}</script>\n<script id="gikz-browser">${source}</script>`;
 }
 export async function cleanWithGikz(source:string,options:GikzOptions={}):Promise<string>{

@@ -1,7 +1,7 @@
 {
   "name": "dsh-geogebra-studio",
-  "version": "0.1.0",
-  "description": "DeepSeek Harness sidebar button for GeoGebra Studio. Opens a guide to the separate geogebra-studio Agent Skill. Unofficial and not affiliated with GeoGebra.",
+  "version": "0.2.0",
+  "description": "DeepSeek Harness plugin that builds, previews and exports editable GeoGebra constructions, and ships the geogebra-studio skill. Unofficial and not affiliated with GeoGebra.",
   "license": "GPL-2.0-or-later",
   "type": "module",
   "main": "./lib/index.js",
@@ -9,10 +9,16 @@
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
     "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
     "./package.json": "./package.json"
   },
   "files": [
     "lib/",
+    "runtime/",
+    "skills/",
+    "locale/*.json",
+    "icon.svg",
     "cordis.patch.yml",
     "README.md",
     "LICENSE"
@@ -37,6 +43,14 @@
     "url": "https://github.com/YZDame/GeoGebra-Studio/issues"
   },
   "author": "YZDame",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "geogebra",
+    "geometry",
+    "mathematics"
+  ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"

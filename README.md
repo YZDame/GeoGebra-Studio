@@ -36,11 +36,11 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 Alternatively, copy **the entire** `skills/geogebra-studio/` folder into your agent's skills directory. It must contain `SKILL.md`, `scripts/`, `references/`, and the bundled `runtime/`. The runtime is packaged with the Skill; do not copy only SKILL.md. The CLI uses Node.js built-ins and bundled code, without `npm install`.
 
-Agents need file-write/shell access. Open HTML in the client's built-in browser when available, or a normal browser. A built-in browser pane is **not** a universal Agent Skills feature. Native plugin installation has been developed for Codex; other clients require environment-specific verification.
+Agents need file-write/shell access. Open HTML in the client's built-in browser when available, or a normal browser. A built-in browser pane is **not** a universal Agent Skills feature. Native plugin installation is developed for Codex and DeepSeek Harness; other clients require environment-specific verification.
 
 ## DeepSeek Harness
 
-DeepSeek Harness (`dsh`) can use GeoGebra Studio in two separate ways. The Agent Skill is how figures are generated. The published `SKILL.md` already has the required kebab-case `name` and `description`, so that frontmatter stays as published. Optional `whenToUse` is left unset: the DeepSeek Harness catalog routes on `name` and `description`, and `whenToUse` is provider metadata that the catalog does not show to the model. The sidebar button is a different package, [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/). Do not run `dsh plugin add` on the repository root, on `@lydt/geogebra-studio`, or on `skills/geogebra-studio/`. Those packages are not the sidebar plugin.
+DeepSeek Harness (`dsh`) can use GeoGebra Studio in two separate ways: install the Agent Skill for other clients, or install the full plugin, which provides the tools and the Skill itself. The published `SKILL.md` already has the required kebab-case `name` and `description`, so that frontmatter stays as published. The plugin is a separate package at [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/); do not run `dsh plugin add` on the repository root, on `@lydt/geogebra-studio`, or on `skills/geogebra-studio/`.
 
 Use the same installer as the other Agent Skills clients. In its default mode it writes a full copy to `.agents/skills/geogebra-studio`, which DeepSeek Harness already scans:
 
@@ -62,9 +62,9 @@ In chat, invoke it with `/geogebra-studio`.
 
 Opening this repository as a DeepSeek Harness workspace does not discover `skills/geogebra-studio/`. Discovery reads only the immediate children of `.dsh/skills` and `.agents/skills`. Copy the whole folder into `.dsh/skills/geogebra-studio` or `.agents/skills/geogebra-studio` inside the workspace. Prefer `.dsh/skills/geogebra-studio` for that workspace copy: it is specific to DeepSeek Harness and leaves `.agents/skills` free for `npx skills`. This repository does not commit that copy or a symlink. Git on Windows often checks a symlink out as a plain text file, and `.agents/skills` is the install directory already used by Codex, Cursor, and `npx skills`. The existing `.agents/plugins` file remains the optional Codex marketplace record.
 
-### Sidebar button
+### Plugin: tools, skill and sidebar panel
 
-Install the sidebar plugin into the web profile, then restart `dsh web`. Quote the GitHub spec so pnpm keeps the subdirectory:
+Install the plugin into the web profile, then restart `dsh web`. Quote the GitHub spec so pnpm keeps the subdirectory:
 
 ```sh
 dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
@@ -76,9 +76,21 @@ From a checkout of this repository:
 dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 ```
 
-The plugin registers one entry on the official `sidebar.footer.action` list, in the sidebar foot above Settings. A wide sidebar shows a geometry icon and the label GeoGebra. The collapsed rail shows the icon only. Clicking it opens a guide: how to invoke `/geogebra-studio`, the Node.js 22.12+ and HTTP-preview requirements, a starter prompt you can copy, and the unofficial-project notice. The button does not install the Skill and does not draw a figure. On Windows, an older `dsh` can hand that GitHub spec to `cmd.exe`, which treats `&` as a command separator and installs the repository root instead. Use the checkout path in that case.
+The same package now does the work instead of opening a guide:
 
-Requirements match the other clients: Node.js 22.12+, file and shell access, and the HTTP preview when the client can open a loopback URL. GeoGebra Studio is an independent community project and is not affiliated with GeoGebra.
+- `geogebra_build` writes a new editable HTML construction from a JSON spec.
+- `geogebra_preview` serves that file on a loopback URL and returns the link for the reply.
+- `geogebra_export` produces strict TSQX/Asymptote from GeoGebra XML, or cleaned TikZ from native PGF.
+- It registers the `geogebra-studio` skill, so `npx skills add` is unnecessary in DeepSeek Harness.
+- **Plugins** shows its title, description and icon. The sidebar-foot **GeoGebra** button, above Settings, opens a quick-start panel with the tool list and a starter prompt.
+
+Ask for a figure in chat:
+
+> Draw a circle through three points, show the preview, then export TikZ.
+
+Generation is offline and writes new files only. Rendering loads the official GeoGebra engine, so the browser needs internet access; the plugin cannot watch the canvas and reports visual verification as not performed unless you confirm the drawing. Edits made in the viewer are not written back: download current HTML or GGB before leaving. The plugin is self-contained, with no MCP server, backend, Chrome setup or separate Skill copy.
+
+On Windows, an older `dsh` can hand the GitHub spec to `cmd.exe`, which treats `&` as a command separator and installs the repository root instead. Use the checkout path in that case. GeoGebra Studio is an independent community project and is not affiliated with GeoGebra.
 
 ## Optional Codex Plugin
 

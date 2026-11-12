@@ -41,30 +41,30 @@ var zh = {
   title: "GeoGebra Studio",
   close: "\u5173\u95ED",
   unofficial: "\u72EC\u7ACB\u9879\u76EE\uFF0C\u4E0E GeoGebra \u5B98\u65B9\u65E0\u96B6\u5C5E\u5173\u7CFB\u3002",
-  lead: "\u8FD9\u4E2A\u6309\u94AE\u53EA\u6253\u5F00\u4F7F\u7528\u8BF4\u660E\u3002\u5B83\u4E0D\u4F1A\u5B89\u88C5 Skill\uFF0C\u4E5F\u4E0D\u4F1A\u753B\u51FA\u56FE\u5F62\u3002",
-  invoke: "\u5B89\u88C5 Skill \u4E4B\u540E\uFF0C\u5728\u5BF9\u8BDD\u91CC\u8F93\u5165 /geogebra-studio\u3002",
-  requirements: "\u9700\u8981 Node.js 22.12+\u3001\u6587\u4EF6\u5199\u5165\u548C\u547D\u4EE4\u6267\u884C\u6743\u9650\u3002\u5BA2\u6237\u7AEF\u80FD\u6253\u5F00\u672C\u673A\u5730\u5740\u65F6\uFF0C\u4F18\u5148\u4F7F\u7528 HTTP \u9884\u89C8\u3002",
+  lead: "\u8FD9\u4E2A\u63D2\u4EF6\u63D0\u4F9B\u4E09\u4E2A\u5DE5\u5177\uFF0C\u5E76\u5185\u7F6E geogebra-studio Skill\u3002\u5728\u5BF9\u8BDD\u91CC\u63CF\u8FF0\u56FE\u5F62\uFF0CAgent \u4F1A\u5199\u51FA\u53EF\u7F16\u8F91\u7684 HTML\u3001\u542F\u52A8\u672C\u673A\u9884\u89C8\u5E76\u5BFC\u51FA\u6E90\u7801\u3002",
+  toolsLabel: "\u63D2\u4EF6\u63D0\u4F9B\u7684\u5DE5\u5177",
+  tools: "geogebra_build \u2014 \u4ECE JSON \u89C4\u683C\u751F\u6210\u65B0\u7684 HTML \u56FE\u5F62\ngeogebra_preview \u2014 \u5728\u672C\u673A\u5730\u5740\u9884\u89C8\u56FE\u5F62\ngeogebra_export \u2014 \u5BFC\u51FA TSQX\u3001Asymptote \u6216 TikZ",
+  invoke: "\u76F4\u63A5\u8BF4\u660E\u8981\u753B\u7684\u56FE\u5F62\u5373\u53EF\uFF1B\u9700\u8981\u56FA\u5B9A\u683C\u5F0F\u65F6\u53EF\u4EE5\u5728\u6D88\u606F\u91CC\u70B9\u540D\u8FD9\u4E9B\u5DE5\u5177\u3002",
+  requirements: "\u9700\u8981\u5DE5\u4F5C\u533A\u5199\u5165\u6743\u9650\u3002\u9884\u89C8\u4F7F\u7528\u672C\u673A\u5730\u5740\uFF0C\u6E32\u67D3\u65F6\u6D4F\u89C8\u5668\u8981\u8054\u7F51\u52A0\u8F7D GeoGebra \u5B98\u65B9\u5F15\u64CE\uFF1B\u751F\u6210 HTML \u672C\u8EAB\u4E0D\u9700\u8981\u8054\u7F51\u3002",
   promptLabel: "\u53EF\u4EE5\u590D\u5236\u7ED9 Agent \u7684\u5F00\u5934",
-  prompt: "Use the geogebra-studio skill to create an editable GeoGebra HTML construction and open the HTTP preview.",
+  prompt: "Use the GeoGebra Studio tools to draw a circle through three points. Open the preview, then export TikZ.",
   copy: "\u590D\u5236",
-  copied: "\u5DF2\u590D\u5236",
-  skillInstall: "Skill \u5B89\u88C5\u547D\u4EE4\u3002\u4E0D\u8981\u5BF9 Skill \u76EE\u5F55\u6267\u884C dsh plugin add\u3002",
-  skillCommand: "npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio"
+  copied: "\u5DF2\u590D\u5236"
 };
 var en = {
   label: "GeoGebra",
   title: "GeoGebra Studio",
   close: "Close",
   unofficial: "An independent project. Not affiliated with GeoGebra.",
-  lead: "This button opens a guide. It does not install the Skill and it does not draw a figure.",
-  invoke: "After the Skill is installed, type /geogebra-studio in chat.",
-  requirements: "Requires Node.js 22.12+, plus file and shell access. Prefer the HTTP preview when the client can open a loopback URL.",
+  lead: "This plugin adds three tools and ships the geogebra-studio skill. Describe a figure in chat and the agent writes an editable HTML file, serves a local preview and exports source.",
+  toolsLabel: "Tools in this plugin",
+  tools: "geogebra_build \u2014 generate a new HTML construction from a JSON spec\ngeogebra_preview \u2014 serve the figure on a loopback URL\ngeogebra_export \u2014 export TSQX, Asymptote or TikZ",
+  invoke: "Ask for the figure directly; name a tool when you need a specific output.",
+  requirements: "Requires workspace write access. Previews use a loopback URL and the browser needs internet access for the official GeoGebra engine; writing the HTML works offline.",
   promptLabel: "Starter text you can copy to the agent",
-  prompt: "Use the geogebra-studio skill to create an editable GeoGebra HTML construction and open the HTTP preview.",
+  prompt: "Use the GeoGebra Studio tools to draw a circle through three points. Open the preview, then export TikZ.",
   copy: "Copy",
-  copied: "Copied",
-  skillInstall: "Skill install command. Do not run dsh plugin add on the Skill directory.",
-  skillCommand: "npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio"
+  copied: "Copied"
 };
 var css = `
 .ggs_footBtn{box-sizing:border-box;display:flex;align-items:center;gap:8px;width:calc(100% + 8px);height:34px;margin:4px -4px;padding:6px 2px 6px 10px;cursor:pointer;border:none;background:transparent;color:var(--dsw-alias-label-primary);border-radius:12px;font-family:inherit;font-size:14px;line-height:22px;overflow:hidden}
@@ -152,11 +152,11 @@ function FooterButton(props) {
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ggs_text", children: t("lead") }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ggs_text", children: t("invoke") }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ggs_text", children: t("requirements") }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ggs_label", children: t("toolsLabel") }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { className: "ggs_pre", children: t("tools") }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ggs_label", children: t("promptLabel") }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { className: "ggs_pre", children: t("prompt") }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ggs_actions", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", className: "ggs_btn", onClick: copyPrompt, children: copied ? t("copied") : t("copy") }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ggs_label", children: t("skillInstall") }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { className: "ggs_pre", children: t("skillCommand") })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ggs_actions", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", className: "ggs_btn", onClick: copyPrompt, children: copied ? t("copied") : t("copy") }) })
           ]
         }
       )

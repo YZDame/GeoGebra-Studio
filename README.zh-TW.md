@@ -40,7 +40,7 @@ Agent 需要具備檔案寫入與終端機指令執行權限。優先使用客�
 
 ## DeepSeek Harness
 
-DeepSeek Harness（`dsh`）可以用兩種方式使用 GeoGebra Studio。Agent Skill 負責產生圖形。已發布的 `SKILL.md` 已包含必要的 kebab-case `name` 與 `description`，因此 frontmatter 維持原樣。未加入選用的 `whenToUse`：DeepSeek Harness 的技能目錄依 `name` 與 `description` 路由，`whenToUse` 只是提供者詮釋資料，不會顯示給模型。側邊欄按鈕是另一個套件，[`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/)。請不要對儲存庫根目錄、`@lydt/geogebra-studio` 或 `skills/geogebra-studio/` 執行 `dsh plugin add`。那些都不是側邊欄外掛。
+DeepSeek Harness（`dsh`）可以按兩種方式使用 GeoGebra Studio：其他客戶端安裝通用 Agent Skill；DeepSeek Harness 直接安裝完整外掛，外掛同時提供工具與 Skill。已發布的 `SKILL.md` 已包含必要的 kebab-case `name` 與 `description`，因此 frontmatter 維持原樣。外掛是獨立套件，位於 [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/)；請不要對儲存庫根目錄、`@lydt/geogebra-studio` 或 `skills/geogebra-studio/` 執行 `dsh plugin add`。
 
 建議使用與其他 Agent Skills 客戶端相同的安裝指令。預設模式下，`skills` CLI 會把完整 Skill 寫入 `.agents/skills/geogebra-studio`，DeepSeek Harness 已經掃描這個目錄：
 
@@ -62,9 +62,9 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 把本儲存庫當作 DeepSeek Harness 工作區開啟時，不會發現 `skills/geogebra-studio/`。發現範圍只包含 `.dsh/skills` 與 `.agents/skills` 的直接子項目。請把整個資料夾複製到工作區內的 `.dsh/skills/geogebra-studio` 或 `.agents/skills/geogebra-studio`。工作區複本優先放在 `.dsh/skills/geogebra-studio`：它只服務 DeepSeek Harness，並把 `.agents/skills` 留給 `npx skills`。本儲存庫不提交這份複本或符號連結。Windows 上的 Git 經常把符號連結取出成純文字檔，而 `.agents/skills` 已是 Codex、Cursor 與 `npx skills` 使用的安裝目錄。現有的 `.agents/plugins` 仍然只是可選的 Codex 市集記錄。
 
-### 側邊欄按鈕
+### 外掛：工具、Skill 與側邊欄面板
 
-把側邊欄外掛安裝到 web profile，然後重新啟動 `dsh web`。GitHub 位址要加引號，pnpm 才會保留子目錄：
+把外掛安裝到 web profile，然後重新啟動 `dsh web`。GitHub 位址要加引號，pnpm 才會保留子目錄：
 
 ```sh
 dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
@@ -76,9 +76,21 @@ dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/ds
 dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 ```
 
-外掛向官方的 `sidebar.footer.action` 清單註冊一個入口，位於側邊欄底部、設定按鈕上方。側邊欄展開時顯示幾何圖示和 GeoGebra 標籤；收成窄軌時只顯示圖示。點選後開啟說明：如何呼叫 `/geogebra-studio`、Node.js 22.12+ 與 HTTP 預覽需求、可複製的開頭，以及非官方專案聲明。這個按鈕不會安裝 Skill，也不會畫出圖形。在 Windows 上，較舊的 `dsh` 可能把 GitHub 位址交給 `cmd.exe`，`&` 會被當成命令分隔符，結果裝上的是儲存庫根目錄。遇到這種情況請改用取出目錄。
+現在這個套件會直接完成工作，而不只是開啟說明：
 
-需求與其他客戶端相同：Node.js 22.12+、檔案寫入與命令執行權限，並在客戶端能夠開啟本機網址時使用 HTTP 預覽。GeoGebra Studio 是獨立社群專案，與 GeoGebra 官方無隸屬關係。
+- `geogebra_build` 依 JSON 規格產生新的可編輯 HTML 圖形。
+- `geogebra_preview` 用本機網址提供該檔案，並傳回可放進回覆的連結。
+- `geogebra_export` 從 GeoGebra XML 匯出嚴格語意的 TSQX/Asymptote，或從原生 PGF 清理出 TikZ。
+- 自動註冊 `geogebra-studio` Skill，在 DeepSeek Harness 中不必再執行 `npx skills add`。
+- **Plugins** 頁面顯示外掛的標題、說明與圖示；側邊欄底部（設定上方）的 **GeoGebra** 按鈕會開啟快速開始面板，列出工具與可直接複製的開頭。
+
+在對話中直接提出需求：
+
+> 畫一個過三點的圓，開啟預覽，再匯出 TikZ。
+
+產生過程離線完成，且只新增檔案。繪製需連線載入 GeoGebra 官方引擎；外掛無法觀察畫布，除非使用者確認圖形，否則應回報未做視覺驗證。檢視器中的編輯不會寫回磁碟：**離開前下載目前 HTML 或 GGB。** 外掛自帶執行環境，不需要 MCP Server、後端、Chrome 設定或額外複製 Skill。
+
+在 Windows 上，較舊的 `dsh` 可能把 GitHub 位址交給 `cmd.exe`，`&` 會被當成命令分隔符，結果裝上的是儲存庫根目錄。遇到這種情況請改用取出目錄。GeoGebra Studio 是獨立社群專案，與 GeoGebra 官方無隸屬關係。
 
 ## 可選的 Codex Plugin
 
