@@ -75,10 +75,10 @@ Dieselben Voraussetzungen: Node.js 22.12+, Datei- und Shell-Zugriff, und die HTT
 
 ## Optionales Codex-Plugin
 
-Das Codex-Plugin ist optional. Version **0.6.0** ist auf npm veröffentlicht. Codex nach der Installation neu starten.
+Das Codex-Plugin ist optional. Installiere die neueste veröffentlichte Version von npm und starte Codex neu.
 
 ```sh
-npx @lydt/geogebra-studio@0.6.0 install
+npx @lydt/geogebra-studio@latest install
 ```
 
 ## Schnellstart

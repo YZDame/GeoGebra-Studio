@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.1] — 2026-11-12
+
+- Keep the viewer's outer canvas border visible and matched to the toolbar in dark mode.
+- Have the Skill start a local interactive preview by default when the client supports loopback URLs, with a separate HTML download.
+- Bundle four reusable showcase specifications in the Skill: Napoleon's theorem, the nine-point circle, a ruled hyperboloid, and a cycloid.
+
 ## [0.5.0] — 2026-10-29
 
 ### Breaking change: portable Agent Skill

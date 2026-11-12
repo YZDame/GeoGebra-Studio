@@ -82,10 +82,10 @@ Requirements match the other clients: Node.js 22.12+, file and shell access, and
 
 ## Optional Codex Plugin
 
-The Codex distribution is only a convenience wrapper around the same Skill. Install version 0.6.0:
+The Codex distribution is a convenience wrapper around the same Skill. Install the latest published version from npm:
 
 ```sh
-npx @lydt/geogebra-studio@0.6.0 install
+npx @lydt/geogebra-studio@latest install
 ```
 
 Restart the Codex session so installed Skills are reloaded. For source development, run `npm ci && npm run build`, then `node dist/cli.js install --local`.

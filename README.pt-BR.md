@@ -75,10 +75,10 @@ Os requisitos são os mesmos: Node.js 22.12 ou superior, acesso a arquivos e she
 
 ## Plugin opcional para Codex
 
-A integração com Codex é opcional. A versão **0.6.0** está publicada no npm. Reinicie a sessão do Codex após a instalação.
+A integração com o Codex é opcional. Instale a versão mais recente publicada no npm e reinicie a sessão do Codex.
 
 ```sh
-npx @lydt/geogebra-studio@0.6.0 install
+npx @lydt/geogebra-studio@latest install
 ```
 
 ## Início rápido

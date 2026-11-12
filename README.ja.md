@@ -75,10 +75,10 @@ dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 
 ## Codex Plugin（任意）
 
-Codex 用ラッパーは任意です。**0.6.0** は npm で公開済みです。インストール後は Codex セッションを再起動します。
+Codex 用ラッパーは任意です。npm で公開されている最新版をインストールし、Codex セッションを再起動してください。
 
 ```sh
-npx @lydt/geogebra-studio@0.6.0 install
+npx @lydt/geogebra-studio@latest install
 ```
 
 ## クイックスタート
