@@ -38,7 +38,7 @@ Agent 需要具備檔案寫入與終端機指令執行權限。優先使用客�
 
 ## DeepSeek Harness
 
-DeepSeek Harness（`dsh`）把本專案當作 Agent Skill 載入。已發布的 `SKILL.md` 已包含必要的 kebab-case `name` 與 `description`，因此 frontmatter 維持原樣。未加入選用的 `whenToUse`：DeepSeek Harness 的技能目錄依 `name` 與 `description` 路由，`whenToUse` 只是提供者詮釋資料，不會顯示給模型。請不要對本儲存庫執行 `dsh plugin add`。該指令安裝的是介面外掛，本專案不提供 DeepSeek Harness 側邊欄外掛。
+DeepSeek Harness（`dsh`）可以用兩種方式使用 GeoGebra Studio。Agent Skill 負責產生圖形。已發布的 `SKILL.md` 已包含必要的 kebab-case `name` 與 `description`，因此 frontmatter 維持原樣。未加入選用的 `whenToUse`：DeepSeek Harness 的技能目錄依 `name` 與 `description` 路由，`whenToUse` 只是提供者詮釋資料，不會顯示給模型。側邊欄按鈕是另一個套件，[`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/)。請不要對儲存庫根目錄、`@lydt/geogebra-studio` 或 `skills/geogebra-studio/` 執行 `dsh plugin add`。那些都不是側邊欄外掛。
 
 建議使用與其他 Agent Skills 客戶端相同的安裝指令。預設模式下，`skills` CLI 會把完整 Skill 寫入 `.agents/skills/geogebra-studio`，DeepSeek Harness 已經掃描這個目錄：
 
@@ -59,6 +59,22 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 在對話中用 `/geogebra-studio` 呼叫。
 
 把本儲存庫當作 DeepSeek Harness 工作區開啟時，不會發現 `skills/geogebra-studio/`。發現範圍只包含 `.dsh/skills` 與 `.agents/skills` 的直接子項目。請把整個資料夾複製到工作區內的 `.dsh/skills/geogebra-studio` 或 `.agents/skills/geogebra-studio`。工作區複本優先放在 `.dsh/skills/geogebra-studio`：它只服務 DeepSeek Harness，並把 `.agents/skills` 留給 `npx skills`。本儲存庫不提交這份複本或符號連結。Windows 上的 Git 經常把符號連結取出成純文字檔，而 `.agents/skills` 已是 Codex、Cursor 與 `npx skills` 使用的安裝目錄。現有的 `.agents/plugins` 仍然只是可選的 Codex 市集記錄。
+
+### 側邊欄按鈕
+
+把側邊欄外掛安裝到 web profile，然後重新啟動 `dsh web`。GitHub 位址要加引號，pnpm 才會保留子目錄：
+
+```sh
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+```
+
+在本儲存庫的取出目錄中：
+
+```sh
+dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+```
+
+外掛向官方的 `sidebar.footer.action` 清單註冊一個入口，位於側邊欄底部、設定按鈕上方。側邊欄展開時顯示幾何圖示和 GeoGebra 標籤；收成窄軌時只顯示圖示。點選後開啟說明：如何呼叫 `/geogebra-studio`、Node.js 22.12+ 與 HTTP 預覽需求、可複製的開頭，以及非官方專案聲明。這個按鈕不會安裝 Skill，也不會畫出圖形。在 Windows 上，較舊的 `dsh` 可能把 GitHub 位址交給 `cmd.exe`，`&` 會被當成命令分隔符，結果裝上的是儲存庫根目錄。遇到這種情況請改用取出目錄。
 
 需求與其他客戶端相同：Node.js 22.12+、檔案寫入與命令執行權限，並在客戶端能夠開啟本機網址時使用 HTTP 預覽。GeoGebra Studio 是獨立社群專案，與 GeoGebra 官方無隸屬關係。
 

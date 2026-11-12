@@ -35,7 +35,7 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ## DeepSeek Harness
 
-DeepSeek Harness(`dsh`)는 이 프로젝트를 Agent Skill로 불러옵니다. 게시된 `SKILL.md`에는 필요한 kebab-case `name`과 `description`이 이미 있으므로 frontmatter는 그대로 둡니다. 카탈로그는 `name`과 `description`으로 라우팅하므로 선택 항목 `whenToUse`는 넣지 않습니다. 이 저장소를 `dsh plugin add`로 설치하지 마세요. 그 명령은 UI 플러그인을 추가하며, 이 프로젝트에는 DeepSeek Harness 사이드바 플러그인이 없습니다.
+DeepSeek Harness(`dsh`)에서는 GeoGebra Studio를 두 가지로 나뉘어 쓸 수 있습니다. 도형을 만드는 쪽은 Agent Skill입니다. 게시된 `SKILL.md`에는 필요한 kebab-case `name`과 `description`이 이미 있으므로 frontmatter는 그대로 둡니다. 카탈로그는 `name`과 `description`으로 라우팅하므로 선택 항목 `whenToUse`는 넣지 않습니다. 사이드바 버튼은 다른 패키지인 [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/)입니다. 저장소 루트, `@lydt/geogebra-studio`, `skills/geogebra-studio/`에 `dsh plugin add`를 실행하지 마세요. 그것들은 사이드바 플러그인이 아닙니다.
 
 다른 클라이언트와 같은 설치 명령을 사용합니다. 기본 모드에서는 전체 사본을 `.agents/skills/geogebra-studio`에 쓰며, DeepSeek Harness는 이 디렉터리를 이미 탐색합니다.
 
@@ -52,6 +52,22 @@ DeepSeek Harness(`dsh`)는 이 프로젝트를 Agent Skill로 불러옵니다. �
 채팅에서는 `/geogebra-studio`로 호출합니다.
 
 이 저장소를 DeepSeek Harness 작업 공간으로 열면 `skills/geogebra-studio/`는 자동으로 발견되지 않습니다. 탐색은 `.dsh/skills`와 `.agents/skills`의 바로 아래 항목만 봅니다. 폴더 전체를 작업 공간의 `.dsh/skills/geogebra-studio` 또는 `.agents/skills/geogebra-studio`에 복사하세요. 작업 공간 전용 사본은 `.dsh/skills/geogebra-studio`를 우선합니다. 이 저장소는 그 사본이나 심볼릭 링크를 포함하지 않습니다. Windows의 Git은 심볼릭 링크를 종종 일반 텍스트 파일로 받고, `.agents/skills`는 Codex, Cursor, `npx skills`가 이미 쓰는 설치 경로입니다. `.agents/plugins`는 선택적 Codex 마켓플레이스 기록으로 남습니다.
+
+### 사이드바 버튼
+
+사이드바 플러그인을 web 프로필에 설치한 뒤 `dsh web`을 다시 시작합니다. 하위 디렉터리가 유지되도록 GitHub 지정은 따옴표로 감쌉니다.
+
+```sh
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+```
+
+이 저장소를 받아 둔 디렉터리에서:
+
+```sh
+dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+```
+
+플러그인은 공식 `sidebar.footer.action` 목록에 항목 하나를 등록합니다. 위치는 사이드바 하단, 설정 위입니다. 사이드바가 넓으면 기하 아이콘과 GeoGebra 레이블이 보이고, 좁은 레일에서는 아이콘만 보입니다. 누르면 안내가 열립니다. `/geogebra-studio` 호출 방법, Node.js 22.12 이상과 HTTP 미리보기 요구 사항, 복사할 수 있는 시작 문장, 그리고 비공식 프로젝트라는 안내입니다. 이 버튼은 Skill을 설치하지 않고 도형도 그리지 않습니다. Windows에서 오래된 `dsh`는 그 GitHub 지정을 `cmd.exe`에 넘길 수 있고, `&`가 명령 구분 기호가 되어 저장소 루트가 설치됩니다. 그때는 체크아웃 경로를 사용하세요.
 
 요구 사항은 다른 클라이언트와 같습니다. Node.js 22.12 이상, 파일 및 셸 접근, 그리고 클라이언트가 루프백 URL을 열 수 있을 때는 HTTP 미리보기입니다. GeoGebra Studio는 독립 프로젝트이며 GeoGebra와 제휴하지 않습니다.
 

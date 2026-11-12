@@ -35,7 +35,7 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ## DeepSeek Harness
 
-DeepSeek Harness（`dsh`）はこのプロジェクトを Agent Skill として読み込みます。公開済みの `SKILL.md` は必要な kebab-case の `name` と `description` をすでに持っているため、frontmatter はそのままです。カタログは `name` と `description` で振り分けるので、任意の `whenToUse` は付けていません。このリポジトリを `dsh plugin add` でインストールしないでください。そのコマンドは UI プラグインを追加し、このプロジェクトに DeepSeek Harness のサイドバープラグインはありません。
+DeepSeek Harness（`dsh`）では GeoGebra Studio を二つの別々の方法で使えます。図を作るのは Agent Skill です。公開済みの `SKILL.md` は必要な kebab-case の `name` と `description` をすでに持っているため、frontmatter はそのままです。カタログは `name` と `description` で振り分けるので、任意の `whenToUse` は付けていません。サイドバーのボタンは別パッケージの [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/) です。リポジトリのルート、`@lydt/geogebra-studio`、`skills/geogebra-studio/` に対して `dsh plugin add` を実行しないでください。これらはサイドバープラグインではありません。
 
 他のクライアントと同じインストーラを使います。既定モードでは完全なコピーが `.agents/skills/geogebra-studio` に書き込まれ、DeepSeek Harness はこのディレクトリをすでに走査します。
 
@@ -52,6 +52,22 @@ DeepSeek Harness（`dsh`）はこのプロジェクトを Agent Skill として�
 チャットでは `/geogebra-studio` で呼び出します。
 
 このリポジトリを DeepSeek Harness のワークスペースとして開いても、`skills/geogebra-studio/` は自動では見つかりません。探索は `.dsh/skills` と `.agents/skills` の直下だけです。フォルダー全体をワークスペース内の `.dsh/skills/geogebra-studio` または `.agents/skills/geogebra-studio` にコピーしてください。ワークスペース専用なら `.dsh/skills/geogebra-studio` を優先します。このリポジトリはそのコピーもシンボリックリンクも同梱しません。Windows の Git はシンボリックリンクをしばしばテキストファイルとして展開し、`.agents/skills` は Codex、Cursor、`npx skills` がすでに使うインストール先です。`.agents/plugins` は任意の Codex マーケットプレイス記録のままです。
+
+### サイドバーのボタン
+
+サイドバープラグインを web プロファイルに入れ、その後 `dsh web` を再起動します。サブディレクトリが残るよう、GitHub の指定は引用符で囲みます。
+
+```sh
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+```
+
+このリポジトリのチェックアウトから:
+
+```sh
+dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+```
+
+プラグインは公式の `sidebar.footer.action` リストに一つ登録されます。場所はサイドバー下部で、設定の上です。サイドバーが広いときは幾何アイコンと GeoGebra のラベルが表示され、折りたたんだレールではアイコンだけです。クリックすると案内が開きます。`/geogebra-studio` の呼び出し方、Node.js 22.12 以降と HTTP プレビューの要件、コピーできる開始文、そして非公式プロジェクトである旨です。このボタンは Skill をインストールせず、図も描きません。Windows では古い `dsh` がその GitHub 指定を `cmd.exe` に渡すことがあり、`&` がコマンド区切りになってリポジトリのルートがインストールされます。その場合はチェックアウトのパスを使います。
 
 要件は他のクライアントと同じです。Node.js 22.12 以降、ファイルとシェルへのアクセス、そしてクライアントがループバック URL を開けるときは HTTP プレビューを使います。GeoGebra Studio は独立したプロジェクトであり、GeoGebra とは無関係です。
 

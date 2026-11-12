@@ -35,7 +35,7 @@ npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 
 ## DeepSeek Harness
 
-DeepSeek Harness (`dsh`) lädt dieses Projekt als Agent Skill. Die veröffentlichte `SKILL.md` hat bereits den erforderlichen kebab-case `name` und `description`; das Frontmatter bleibt unverändert. Optionales `whenToUse` fehlt absichtlich, weil der Katalog über `name` und `description` routet. Dieses Repository nicht mit `dsh plugin add` installieren. Dieser Befehl fügt ein UI-Plugin hinzu, und dieses Projekt liefert kein DeepSeek-Harness-Seitenleisten-Plugin.
+DeepSeek Harness (`dsh`) kann GeoGebra Studio auf zwei getrennten Wegen verwenden. Der Agent Skill erzeugt die Figuren. Die veröffentlichte `SKILL.md` hat bereits den erforderlichen kebab-case `name` und `description`; das Frontmatter bleibt unverändert. Optionales `whenToUse` fehlt absichtlich, weil der Katalog über `name` und `description` routet. Die Seitenleisten-Schaltfläche ist ein anderes Paket, [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/). `dsh plugin add` nicht auf das Repository-Wurzelverzeichnis, auf `@lydt/geogebra-studio` oder auf `skills/geogebra-studio/` anwenden. Das sind nicht die Seitenleisten-Plugins.
 
 Derselbe Installer wie bei den anderen Clients. Im Standardmodus liegt eine vollständige Kopie unter `.agents/skills/geogebra-studio`, und DeepSeek Harness durchsucht dieses Verzeichnis bereits:
 
@@ -52,6 +52,22 @@ Manuell den **gesamten** Ordner `skills/geogebra-studio/` kopieren, einschließl
 Im Chat mit `/geogebra-studio` aufrufen.
 
 Als DeepSeek-Harness-Workspace geöffnet, wird `skills/geogebra-studio/` nicht automatisch gefunden. Die Suche umfasst nur die direkten Kinder von `.dsh/skills` und `.agents/skills`. Den ganzen Ordner nach `.dsh/skills/geogebra-studio` oder `.agents/skills/geogebra-studio` im Workspace kopieren. Für eine reine Workspace-Kopie `.dsh/skills/geogebra-studio` bevorzugen. Dieses Repository committet weder diese Kopie noch einen Symlink: Git unter Windows schreibt Symlinks oft als Textdateien, und `.agents/skills` ist bereits das Installationsverzeichnis von Codex, Cursor und `npx skills`. `.agents/plugins` bleibt der optionale Codex-Marktplatz-Eintrag.
+
+### Seitenleisten-Schaltfläche
+
+Das Seitenleisten-Plugin in das Web-Profil installieren und danach `dsh web` neu starten. Die GitHub-Adresse in Anführungszeichen setzen, damit pnpm das Unterverzeichnis behält:
+
+```sh
+dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
+```
+
+Aus einem Checkout dieses Repositorys:
+
+```sh
+dsh plugin --profile web add ./plugins/dsh-geogebra-studio
+```
+
+Das Plugin trägt einen Eintrag in die offizielle Liste `sidebar.footer.action` ein, im Seitenleistenfuß über den Einstellungen. Eine breite Seitenleiste zeigt ein Geometrie-Symbol und die Beschriftung GeoGebra. Die schmale Leiste zeigt nur das Symbol. Ein Klick öffnet eine Anleitung: `/geogebra-studio` aufrufen, Node.js 22.12+ und die HTTP-Vorschau, ein kopierbarer Starttext und der Hinweis auf das unabhängige Projekt. Die Schaltfläche installiert den Skill nicht und zeichnet keine Figur. Unter Windows kann ein älteres `dsh` die GitHub-Adresse an `cmd.exe` geben; `&` wird dann zum Befehlstrennzeichen und es wird das Repository-Wurzelverzeichnis installiert. In dem Fall den Checkout-Pfad verwenden.
 
 Dieselben Voraussetzungen: Node.js 22.12+, Datei- und Shell-Zugriff, und die HTTP-Vorschau, wenn der Client Loopback-URLs öffnen kann. GeoGebra Studio ist ein unabhängiges Projekt und nicht mit GeoGebra verbunden.
 
