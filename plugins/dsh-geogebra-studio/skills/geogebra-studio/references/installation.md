@@ -1,6 +1,6 @@
 # Installation and troubleshooting
 
-The DeepSeek Harness plugin is self-contained. Once published to npm, `dsh plugin --profile web add dsh-geogebra-studio` installs the Host tools, the bundled runtime and the `geogebra-studio` skill together. Before that release, use `dsh plugin --profile web add ./plugins/dsh-geogebra-studio` or the quoted GitHub path. Restart `dsh web` or the Desktop app afterwards.
+The DeepSeek Harness plugin is self-contained and published as `dsh-geogebra-studio`. `dsh plugin --profile web add dsh-geogebra-studio` installs the Host tools, the bundled runtime and the `geogebra-studio` skill together. When testing a branch, use `dsh plugin --profile web add ./plugins/dsh-geogebra-studio` or the quoted GitHub path. Restart `dsh web` or the Desktop app afterwards.
 
 Do not run `dsh plugin add` on the repository root, on `@lydt/geogebra-studio`, or on a skill directory. Do not copy `runtime/` or `skills/` out of the plugin; the `files` list already packages them.
 

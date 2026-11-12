@@ -64,13 +64,13 @@ Opening this repository as a DeepSeek Harness workspace does not discover `skill
 
 ### Plugin: tools, skill and sidebar panel
 
-Install the plugin into the profile, then restart `dsh web` or the Desktop app. Once `dsh-geogebra-studio@0.2.0` is on npm, the spec is short — no quotes, no repository path:
+Install the plugin into the profile, then restart `dsh web` or the Desktop app. The npm spec is short — no quotes, no repository path:
 
 ```sh
 dsh plugin --profile web add dsh-geogebra-studio
 ```
 
-Use `--profile desktop` for the Desktop app. Until that npm release exists, or when testing a branch, install from a checkout:
+Use `--profile desktop` for the Desktop app. When testing a branch, install from a checkout:
 
 ```sh
 dsh plugin --profile web add ./plugins/dsh-geogebra-studio
