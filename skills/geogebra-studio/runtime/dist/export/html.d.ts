@@ -1,3 +1,4 @@
+import type { LabelOffset } from './label-offsets';
 export interface HtmlOptions {
     /** Compact chrome for a viewer inside a host application's panel. */
     layout?: 'panel';
@@ -8,8 +9,8 @@ export interface HtmlOptions {
         bounds?: [number, number, number, number, number, number];
         direction?: [number, number, number];
     };
-    /** World-coordinate offsets for native LaTeX labels in 3D. */
-    labelOffsets?: Record<string, [number, number, number]>;
+    /** World-coordinate label offsets: [dx,dy] in 2D, [dx,dy,dz] in 3D. */
+    labelOffsets?: Record<string, LabelOffset>;
     /** Kept for API compatibility; the viewer itself intentionally has no title. */
     title?: string;
     commands?: string[];

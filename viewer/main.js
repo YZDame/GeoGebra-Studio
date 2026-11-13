@@ -1,4 +1,5 @@
-import { objectXmlIsSlider, showSliderLabels } from '../src/export/slider-labels';
+import { isSliderType, objectXmlIsSlider, showSliderLabels } from '../src/export/slider-labels';
+import { labelOffset2D, labelOffset3D } from '../src/export/label-offsets';
 import { executeViewerActionCommand } from '../src/export/viewer-action-commands';
 import { executeViewerCommand } from '../src/export/viewer-command-executor';
 import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/export/viewer-style-commands';
@@ -269,7 +270,7 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
           const type = api.getObjectType(name);
           // A screen slider is not a path, so the LaTeX stand-in below cannot be
           // anchored to it, and that pass would hide the native caption.
-          if (type === "numeric") {
+          if (isSliderType(type)) {
             try { if (objectXmlIsSlider(api.getXML(name))) continue; } catch (_) {}
           }
           const show = visible.size ? visible.has(name) : type === "point";
@@ -283,10 +284,14 @@ import { executeViewerStyleCommand, executeViewerViewportCommand } from '../src/
             const anchor = type === "point" ? name : "Point(" + name + ",0.38)";
             let label = "mcpLabel" + name;
             while (api.exists(label)) label += "x";
-            const offset = is3D ? (specification.labelOffsets?.[name] || [api.getXcoord(name), api.getYcoord(name), api.getZcoord(name)].map((v,i) => {
-              const delta = v - center[i];
-              return Math.abs(delta) > 1e-8 ? Math.sign(delta) * extent * 0.07 : extent * 0.035;
-            })) : [dx,dy];
+            // 3D keeps the radial default from the point centroid; 2D keeps the
+            // 10 px nudge unless the spec authors an offset for this object.
+            const offset = is3D
+              ? labelOffset3D(specification.labelOffsets, name, [api.getXcoord(name), api.getYcoord(name), api.getZcoord(name)].map((v,i) => {
+                const delta = v - center[i];
+                return Math.abs(delta) > 1e-8 ? Math.sign(delta) * extent * 0.07 : extent * 0.035;
+              }))
+              : labelOffset2D(specification.labelOffsets, name, dx, dy);
             if (!api.evalCommand(label + " = Text(" + JSON.stringify(math).replaceAll(String.fromCharCode(92, 92), String.fromCharCode(92)) + ", " + anchor + " + (" + offset.join(",") + "), true, true)")) throw new Error("Failed to create LaTeX label " + name);
             if (is3D) api.evalCommand("SetFontSize(" + label + ",18)");
             api.setLabelVisible(label, false);

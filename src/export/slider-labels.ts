@@ -24,6 +24,14 @@ export function objectXmlIsSlider(xml: string): boolean {
 }
 
 /**
+ * A slider is a numeric object, but an angle slider reports type `angle`.
+ * Both carry a `<slider>` element and both must keep their visible label.
+ */
+export function isSliderType(type: string): boolean {
+  return type === 'numeric' || type === 'angle';
+}
+
+/**
  * A caption that differs from the object name is shown in caption mode, which
  * paints Chinese and other Unicode beside the slider. Otherwise name mode
  * paints the object name. Both modes are applied after construction styling.
@@ -44,7 +52,7 @@ export function showSliderLabels(api: SliderLabelApi, captionOverrides: Record<s
   const failed: string[] = [];
   for (const name of api.getAllObjectNames() || []) {
     try {
-      if (api.getObjectType(name) !== 'numeric' || !objectXmlIsSlider(api.getXML(name))) continue;
+      if (!isSliderType(api.getObjectType(name)) || !objectXmlIsSlider(api.getXML(name))) continue;
       const override = Object.prototype.hasOwnProperty.call(captionOverrides, name) ? captionOverrides[name] : undefined;
       let existing = '';
       try {

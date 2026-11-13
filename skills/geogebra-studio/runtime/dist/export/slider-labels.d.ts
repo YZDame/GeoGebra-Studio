@@ -18,6 +18,11 @@ export interface SliderLabelApi {
 /** Object XML from getXML(name), not the whole construction. */
 export declare function objectXmlIsSlider(xml: string): boolean;
 /**
+ * A slider is a numeric object, but an angle slider reports type `angle`.
+ * Both carry a `<slider>` element and both must keep their visible label.
+ */
+export declare function isSliderType(type: string): boolean;
+/**
  * A caption that differs from the object name is shown in caption mode, which
  * paints Chinese and other Unicode beside the slider. Otherwise name mode
  * paints the object name. Both modes are applied after construction styling.

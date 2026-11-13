@@ -6,6 +6,7 @@
  * against a temporary workspace. The right-Sidebar bridge routes are exercised
  * with real request/response objects, and preview runs over real loopback HTTP.
  */
+import { Readable } from 'node:stream'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -125,7 +126,7 @@ const ctx = {
 }
 host.apply(ctx)
 
-check('registers three tools', [...tools.keys()].join(',') === 'geogebra_build,geogebra_preview,geogebra_export', [...tools.keys()].join(','))
+check('registers four tools', [...tools.keys()].join(',') === 'geogebra_build,geogebra_status,geogebra_preview,geogebra_export', [...tools.keys()].join(','))
 for (const [name, definition] of tools) {
   check(`${name} has a description`, typeof definition.description === 'string' && definition.description.length > 40)
   check(`${name} renders output`, definition.output !== undefined && typeof definition.output.render === 'function')
@@ -137,6 +138,7 @@ for (const [name, definition] of tools) {
 }
 check('registers the state bridge', routes.has('/dsh-geogebra-studio/state'))
 check('registers the viewer bridge', routes.has('/dsh-geogebra-studio/viewer'))
+check('registers the report bridge', routes.has('/dsh-geogebra-studio/report'))
 
 // ------------------------------------------------------------------- skill
 check('registers one runtime skill', skills.length === 1, String(skills.length))
@@ -211,6 +213,40 @@ const raisedViewer = getViewer('session-1')
 check('viewer serves the built construction', raisedViewer.status === 200 && raisedViewer.body.includes('Circle(A,B)'))
 check('built viewer keeps the template header', raisedViewer.body.includes('id="sidebar-toggle"') && raisedViewer.body.includes('id="download-toggle"') && raisedViewer.body.includes('id="ggb-element"'))
 check('built viewer uses the panel layout', raisedViewer.body.includes('<body data-viewer-panel="">'))
+check('panel viewer embeds the canvas reporter', raisedViewer.body.includes('/dsh-geogebra-studio/report'))
+check('saved HTML has no canvas reporter', !html.includes('/dsh-geogebra-studio/report'))
+
+function postReport(session, payload) {
+  const body = Readable.from([JSON.stringify(payload)])
+  body.url = `/dsh-geogebra-studio/report?session=${session}`
+  body.method = 'POST'
+  const res = response()
+  return Promise.resolve(routes.get('/dsh-geogebra-studio/report').handler(body, res)).then(() => res.state)
+}
+const statusTool = tools.get('geogebra_status')
+const reportRoute = routes.get('/dsh-geogebra-studio/report')
+const notPost = response()
+await reportRoute.handler({ url: '/dsh-geogebra-studio/report?session=session-1', method: 'GET' }, notPost)
+check('report route accepts POST only', notPost.state.status === 405)
+const pending = await statusTool.execute({}, exec)
+check('status is pending before the canvas reports', pending.canvas === 'pending' && pending.renderVersion === 1, JSON.stringify(pending))
+const readyPost = await postReport('session-1', {
+  version: 1, status: 'ready', completedCommands: 4, warnings: [],
+  checks: { objectCount: 4, undefinedVisibleObjects: [], equalAxes: true },
+})
+check('report accepts a canvas POST', readyPost.status === 204, String(readyPost.status))
+const readyStatus = await statusTool.execute({}, exec)
+check('status reads the canvas report', readyStatus.canvas === 'ready' && readyStatus.objectCount === 4 && readyStatus.equalAxes === true, JSON.stringify(readyStatus))
+await postReport('session-1', {
+  version: 1, status: 'error', completedCommands: 2, failedCommand: 'A=1/0', error: 'Command 3 failed: A=1/0',
+})
+const errorStatus = await statusTool.execute({}, exec)
+check('status surfaces a failed command', errorStatus.canvas === 'error' && errorStatus.failedCommand === 'A=1/0', JSON.stringify(errorStatus))
+await postReport('session-1', { version: 0, status: 'ready', checks: { objectCount: 1, undefinedVisibleObjects: [], equalAxes: true } })
+const staleStatus = await statusTool.execute({}, exec)
+check('status detects a stale canvas', staleStatus.canvas === 'stale', JSON.stringify(staleStatus))
+const emptyStatus = await statusTool.execute({}, { agent: { session: { id: 'session-empty', header: { cwd: workspace } } } })
+check('status without a build is unavailable', emptyStatus.canvas === 'unavailable', JSON.stringify(emptyStatus))
 
 await writeFile(join(workspace, 'spec.json'), JSON.stringify({ ...spec, filename: 'from-path.html' }))
 const fromPath = await build.execute({ specPath: 'spec.json' }, exec)

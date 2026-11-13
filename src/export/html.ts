@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import type { LabelOffset } from './label-offsets';
 import { gikzBrowserScripts } from './gikz';
 import { runtimeAsset } from './runtime-assets';
 import { viewerThemes } from './viewer-themes';
@@ -10,8 +11,8 @@ export interface HtmlOptions {
   mode?: '2D' | '3D';
   /** Native 3D camera bounds and direction; omitted bounds fit visible points. */
   view3D?: { bounds?: [number, number, number, number, number, number]; direction?: [number, number, number] };
-  /** World-coordinate offsets for native LaTeX labels in 3D. */
-  labelOffsets?: Record<string, [number, number, number]>;
+  /** World-coordinate label offsets: [dx,dy] in 2D, [dx,dy,dz] in 3D. */
+  labelOffsets?: Record<string, LabelOffset>;
   /** Kept for API compatibility; the viewer itself intentionally has no title. */
   title?: string;
   commands?: string[];

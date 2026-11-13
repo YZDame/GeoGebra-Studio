@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SLIDER_LABEL_CAPTION = exports.SLIDER_LABEL_NAME = void 0;
 exports.objectXmlIsSlider = objectXmlIsSlider;
+exports.isSliderType = isSliderType;
 exports.planSliderLabel = planSliderLabel;
 exports.showSliderLabels = showSliderLabels;
 /** Web-engine label styles. Caption paints Unicode; name paints the object name. */
@@ -10,6 +11,13 @@ exports.SLIDER_LABEL_CAPTION = 3;
 /** Object XML from getXML(name), not the whole construction. */
 function objectXmlIsSlider(xml) {
     return /<slider\b/.test(xml);
+}
+/**
+ * A slider is a numeric object, but an angle slider reports type `angle`.
+ * Both carry a `<slider>` element and both must keep their visible label.
+ */
+function isSliderType(type) {
+    return type === 'numeric' || type === 'angle';
 }
 /**
  * A caption that differs from the object name is shown in caption mode, which
@@ -32,7 +40,7 @@ function showSliderLabels(api, captionOverrides = {}) {
     const failed = [];
     for (const name of api.getAllObjectNames() || []) {
         try {
-            if (api.getObjectType(name) !== 'numeric' || !objectXmlIsSlider(api.getXML(name)))
+            if (!isSliderType(api.getObjectType(name)) || !objectXmlIsSlider(api.getXML(name)))
                 continue;
             const override = Object.prototype.hasOwnProperty.call(captionOverrides, name) ? captionOverrides[name] : undefined;
             let existing = '';

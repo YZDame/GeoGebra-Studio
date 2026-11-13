@@ -38,3 +38,21 @@ For 3D, optional `view3D` takes `bounds:[xmin,xmax,ymin,ymax,zmin,zmax]` and `di
 For geometry fidelity compare incidences, branches, labels, tangencies and responsive resizing against the actual applet, not its JSON alone. Use existing examples in the repository for patterns; keep the generated HTML self-contained apart from GeoGebra's remotely loaded engine. For visually rich demos (Napoleon, nine-point circle, ruled hyperboloid, cycloid), see [showcase templates](showcase.md).
 
 Use descriptive names such as `triangle=Polygon(A,B,C)` and `circumcircle=Circle(A,B,C)`. A polygon also creates side objects (often `a`, `b`, `c`); reusing a side label for a circle can redefine or remove dependent objects before later styling commands run.
+
+## Fast path
+
+Start from `examples/*.json` when the figure resembles one; the templates already carry the color hierarchy and label conventions. Build once, then read the result instead of guessing: a live host canvas reports its own status, failed command, undefined visible objects and equal-axis check. Do not rebuild for speculative cosmetic changes and do not start a browser per iteration; one visual confirmation at the end is enough.
+
+## Names GeoGebra reserves
+
+`deg`, `pi`, `e` and `i` are built-in constants. `deg=Slider(...)` is silently renamed (`a_1`), and the next `SetValue(deg,...)` then fails with "Action target does not exist". Use `ang`, `theta`, `k` or another free name. Angle sliders report object type `angle`, not `numeric`; they still keep their caption.
+
+## Label collisions
+
+GeoGebra nudges every label about 10 px right and above its object. A line or chord through a labelled point therefore crosses that label: a focal chord through a focus, a tangent through its contact point, a chord through a vertex. Move that single label with `labelOffsets` rather than drawing a text object:
+
+```json
+{ "labelOffsets": { "F_2": [0.05, -0.45] } }
+```
+
+2D offsets are world units added to the label anchor; 3D offsets use all three components. The label stays attached to the object and follows it when it moves.

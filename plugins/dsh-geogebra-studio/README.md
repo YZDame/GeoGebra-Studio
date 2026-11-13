@@ -11,6 +11,7 @@ GeoGebra Studio is an independent project and is not affiliated with GeoGebra. L
 | Left-rail entry | **GeoGebra Studio** sits beside Plugins, Automation and Tasks. It uses DSH's official split-view icon, not a custom mark. |
 | Right-side canvas | Selecting the entry opens a blank GeoGebra canvas in the right sidebar. The conversation stays in the main column, so you can keep typing. |
 | `geogebra_build` | Validates a JSON construction spec, writes a new editable HTML file in the workspace, and pushes the same construction into the right canvas. Never overwrites. |
+| `geogebra_status` | Reads what the right canvas actually rendered for this session — status, failed command, undefined visible objects and the equal-axis check — with an optional wait. No second browser, no headless Chrome. |
 | `geogebra_export` | Strict semantic TSQX or Asymptote from GeoGebra XML, or cleaned TikZ from native PGF. Rejects unsupported relations instead of freezing coordinates. |
 | `geogebra_preview` | Optional standalone loopback link. The right canvas already updates after a build. |
 | `geogebra-studio` skill | The construction format, visual standards, right-canvas workflow and export provenance. Registered by the plugin, so `npx skills add` is unnecessary in DeepSeek Harness. |
@@ -31,7 +32,7 @@ dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
 ```
 
-Restart `dsh web` or the Desktop app after installing. A left-rail **GeoGebra Studio** entry appears beside Plugins, Automation and Tasks; a new session can call the three tools and load the skill. The right-side canvas needs the Host web server (the normal Web and Desktop composition), and its routes live under `/dsh-geogebra-studio/`.
+Restart `dsh web` or the Desktop app after installing. A left-rail **GeoGebra Studio** entry appears beside Plugins, Automation and Tasks; a new session can call the four tools and load the skill. The right-side canvas needs the Host web server (the normal Web and Desktop composition), and its routes live under `/dsh-geogebra-studio/`.
 
 The plugin is self-contained: `runtime/` carries the bundled generator, viewer, Gikz cleaner and license. There is no `npm install`, MCP server, Chrome setup or separate Skill copy in the installed directory, and no dependency on the root package.
 
@@ -59,7 +60,9 @@ Do not install the repository root, `@lydt/geogebra-studio`, or `skills/geogebra
 
    The right canvas reloads with that construction. The agent can keep iterating in the same conversation; each successful build replaces the canvas contents. The generated HTML is still written to the workspace, so the figure survives after the session.
 
-4. Generation does not execute the geometry: inspect the canvas for labels, branches, tangency, clipping and light/dark contrast. The plugin cannot watch the canvas itself, so it reports rendering as unverified unless you confirm it.
+4. Generation does not execute the geometry by itself: the right canvas does, and `geogebra_status` reports what it saw (status, failed command, undefined objects, equal axes). The agent calls it after a build instead of starting a browser. Labels, tangency, clipping and light/dark contrast remain visual checks — look at the canvas, or ask the agent to adjust.
+
+   Open the saved HTML only in a regular browser. Agent-client file previews — including DSH's — usually sandbox scripts, so the same file shows an empty canvas and dead buttons there; the right-side canvas is the in-client viewer.
 
 Edits made in the canvas are not written back to disk: **download current HTML or GGB from the canvas header before leaving.** For TSQX, Asymptote or TikZ, download the current XML or native PGF from the same menu and pass the saved file to `geogebra_export`.
 

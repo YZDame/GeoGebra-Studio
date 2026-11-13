@@ -60,7 +60,7 @@ npx @lydt/geogebra-studio@latest install
 dsh plugin --profile web add dsh-geogebra-studio
 ```
 
-桌面應用程式請使用 `--profile desktop`。外掛會在左側邊欄（外掛、自動化、任務旁）加入 **GeoGebra Studio**；點開後右側欄展開可即時編輯的畫布，對話保持開啟。`geogebra_build` 會把圖形渲染到畫布，`geogebra_preview` 僅用於獨立連結，`geogebra_export` 匯出 TSQX、Asymptote 與 TikZ。外掛同時內含 `geogebra-studio` Skill。詳見[外掛說明](plugins/dsh-geogebra-studio/)。
+桌面應用程式請使用 `--profile desktop`。外掛會在左側邊欄（外掛、自動化、任務旁）加入 **GeoGebra Studio**；點開後右側欄展開可即時編輯的畫布，對話保持開啟。`geogebra_build` 會把圖形渲染到畫布，`geogebra_status` 讀回畫布的真實渲染結果（無需另開瀏覽器），`geogebra_preview` 僅用於獨立連結，`geogebra_export` 匯出 TSQX、Asymptote 與 TikZ。外掛同時內含 `geogebra-studio` Skill。詳見[外掛說明](plugins/dsh-geogebra-studio/)。
 <img src="docs/images/dsh-right-canvas.png" alt="GeoGebra Studio 在右側欄展開即時畫布，對話保持開啟" width="100%">
 
 

@@ -1,15 +1,17 @@
 /**
  * Host half of the GeoGebra Studio plugin for DeepSeek Harness.
  *
- * Registers three model-facing tools (`geogebra_build`, `geogebra_preview`,
- * `geogebra_export`) over the bundled generator runtime, contributes the
- * `geogebra-studio` skill, and bridges the latest construction of each Session
- * to the right-Sidebar canvas through two loopback routes:
+ * Registers four model-facing tools (`geogebra_build`, `geogebra_status`,
+ * `geogebra_preview`, `geogebra_export`) over the bundled generator runtime,
+ * contributes the `geogebra-studio` skill, and bridges the latest construction
+ * of each Session to the right-Sidebar canvas through three loopback routes:
  *
  * - `/dsh-geogebra-studio/state` returns the Session's latest render version.
  * - `/dsh-geogebra-studio/viewer` returns the blank or populated viewer HTML
  *   that the right-Sidebar tab embeds, with a compact viewer header
  *   (objects toggle, theme, light/dark and downloads).
+ * - `/dsh-geogebra-studio/report` receives what that canvas actually rendered,
+ *   so `geogebra_status` can verify a build without a second browser.
  *
  * The Client half (`lib/client.js`) owns the sidebar entry, the right tab and
  * its canvas; this module never writes UI itself.
@@ -43,6 +45,10 @@ const PREVIEW_LIMIT = 4
 const RENDER_LIMIT = 32
 const STATE_PATH = '/dsh-geogebra-studio/state'
 const VIEWER_PATH = '/dsh-geogebra-studio/viewer'
+const REPORT_PATH = '/dsh-geogebra-studio/report'
+const REPORT_BYTES = 64 * 1024
+const REPORT_SESSIONS = 32
+const STATUS_WAIT_MAX = 15000
 
 /** A blank, axes-on construction for the right-side canvas before any build. */
 const BLANK_SPEC = { filename: 'geogebra-panel.html', commands: [], showAxes: true, mode: '2D' }
@@ -69,7 +75,10 @@ const SPEC_OPTIONS = {
   captionOverrides: { type: 'object' },
   mode: { type: 'string', enum: ['2D', '3D'] },
   view3D: { type: 'object' },
-  labelOffsets: { type: 'object' },
+  labelOffsets: {
+    type: 'object',
+    description: 'Per-object label offsets in world units: [dx,dy] in 2D, [dx,dy,dz] in 3D. Use it when a line through a labelled point covers that label.',
+  },
 }
 
 const BUILD_OUTPUT = {
@@ -95,6 +104,30 @@ const EXPORT_OUTPUT = {
     outputPath: { type: 'string' },
     bytes: { type: 'integer' },
     complete: { type: 'boolean' },
+  },
+}
+
+const STATUS_OUTPUT = {
+  type: 'object',
+  additionalProperties: false,
+  required: [
+    'canvas', 'reportVersion', 'renderVersion', 'error', 'failedCommand',
+    'warnings', 'objectCount', 'undefinedVisibleObjects', 'equalAxes',
+    'ageMs', 'waitedMs', 'note',
+  ],
+  properties: {
+    canvas: { type: 'string', enum: ['ready', 'error', 'stale', 'pending', 'unavailable'] },
+    reportVersion: { type: 'integer' },
+    renderVersion: { type: 'integer' },
+    error: { type: 'string' },
+    failedCommand: { type: 'string' },
+    warnings: { type: 'array', items: { type: 'string' } },
+    objectCount: { type: 'integer' },
+    undefinedVisibleObjects: { type: 'array', items: { type: 'string' } },
+    equalAxes: { type: 'boolean' },
+    ageMs: { type: 'integer' },
+    waitedMs: { type: 'integer' },
+    note: { type: 'string' },
   },
 }
 
@@ -166,6 +199,42 @@ function send(response, status, headers, body) {
   response.end(body)
 }
 
+/** Read a bounded JSON request body from the canvas reporter. */
+async function readJsonBody(request, limit) {
+  const chunks = []
+  let size = 0
+  for await (const chunk of request) {
+    size += chunk.length
+    if (size > limit) throw new Error('report body is too large')
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+  }
+  if (size === 0) throw new Error('empty report body')
+  return JSON.parse(Buffer.concat(chunks).toString('utf8'))
+}
+
+/**
+ * Append a reporter to the panel viewer. The canvas iframe runs the official
+ * engine, so it can say what it rendered; the agent reads that report through
+ * `geogebra_status` instead of starting a headless browser per iteration.
+ */
+function withStatusReporter(html, session, version) {
+  const payload = JSON.stringify({
+    endpoint: `${REPORT_PATH}?session=${encodeURIComponent(session)}`,
+    version: Number(version) || 0,
+  })
+  const script = `<script>(function(){var spec=${payload};var sent='';`
+    + `function report(){var s=window.geogebraStudio;`
+    + `if(!s||(s.status!=='ready'&&s.status!=='error'))return;`
+    + `var body=JSON.stringify({version:spec.version,status:s.status,`
+    + `completedCommands:s.completedCommands,failedCommand:s.failedCommand||null,`
+    + `warnings:(s.warnings||[]).slice(0,20),checks:s.checks||null,`
+    + `error:window.ggbError||null});if(body===sent)return;sent=body;`
+    + `fetch(spec.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},`
+    + `body:body,keepalive:true}).catch(function(){sent=''})}`
+    + `setInterval(report,400);report()})();<\/script>`
+  return html.includes('</body>') ? html.replace('</body>', `${script}</body>`) : html + script
+}
+
 /**
  * Register the GeoGebra tools, the bundled skill and the right-Sidebar bridge.
  * @param ctx - the plugin context.
@@ -173,6 +242,7 @@ function send(response, status, headers, body) {
 export function apply(ctx) {
   const previews = new Map()
   const renders = new Map()
+  const reports = new Map()
   let sequence = 0
   let panelAvailable = false
 
@@ -180,7 +250,10 @@ export function apply(ctx) {
     for (const entry of previews.values()) entry.server.close()
     previews.clear()
   }
-  ctx.effect(() => closePreviews)
+  ctx.effect(() => () => {
+    closePreviews()
+    reports.clear()
+  })
 
   const recordRender = (sessionId, spec, htmlPath) => {
     renders.delete(sessionId)
@@ -225,7 +298,11 @@ export function apply(ctx) {
     const render = renders.get(requestSession(request))
     let body
     try {
-      body = constructionHtml({ ...(render?.spec ?? BLANK_SPEC), layout: 'panel' })
+      body = withStatusReporter(
+        constructionHtml({ ...(render?.spec ?? BLANK_SPEC), layout: 'panel' }),
+        requestSession(request),
+        render?.version ?? 0,
+      )
     } catch (error) {
       send(response, 500, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }, String(error))
       return
@@ -237,10 +314,47 @@ export function apply(ctx) {
     }, request.method === 'HEAD' ? '' : body)
   }
 
+  const reportHandler = async (request, response) => {
+    if (request.method !== 'POST') {
+      send(response, 405, { Allow: 'POST' }, '')
+      return
+    }
+    const session = requestSession(request)
+    if (session === '') {
+      send(response, 400, { 'Content-Type': 'text/plain; charset=utf-8' }, 'session is required')
+      return
+    }
+    let payload
+    try {
+      payload = await readJsonBody(request, REPORT_BYTES)
+    } catch (error) {
+      send(response, 400, { 'Content-Type': 'text/plain; charset=utf-8' }, String(error))
+      return
+    }
+    if (!payload || (payload.status !== 'ready' && payload.status !== 'error')) {
+      send(response, 400, { 'Content-Type': 'text/plain; charset=utf-8' }, 'status must be ready or error')
+      return
+    }
+    const checks = payload.checks && typeof payload.checks === 'object' ? payload.checks : null
+    reports.set(session, {
+      version: Number(payload.version) || 0,
+      status: payload.status,
+      completedCommands: Number(payload.completedCommands) || 0,
+      failedCommand: typeof payload.failedCommand === 'string' ? payload.failedCommand : '',
+      warnings: Array.isArray(payload.warnings) ? payload.warnings.slice(0, 20).map(String) : [],
+      checks,
+      error: typeof payload.error === 'string' ? payload.error : '',
+      receivedAt: Date.now(),
+    })
+    while (reports.size > REPORT_SESSIONS) reports.delete(reports.keys().next().value)
+    send(response, 204, { 'Cache-Control': 'no-store' }, '')
+  }
+
   ctx.inject(['webServer'], (webCtx) => {
     panelAvailable = true
     webCtx.effect(() => webCtx.webServer.register({ kind: 'exact', path: STATE_PATH, handler: stateHandler }), 'geogebra-studio: state route')
     webCtx.effect(() => webCtx.webServer.register({ kind: 'exact', path: VIEWER_PATH, handler: viewerHandler }), 'geogebra-studio: viewer route')
+    webCtx.effect(() => webCtx.webServer.register({ kind: 'exact', path: REPORT_PATH, handler: reportHandler }), 'geogebra-studio: report route')
   })
 
   contributeSkill(ctx)
@@ -295,9 +409,80 @@ export function apply(ctx) {
         filename: path.basename(htmlPath),
         bytes: (await stat(htmlPath)).size,
         note: panelAvailable
-          ? 'The right-side GeoGebra Studio canvas now shows this construction. Rendering there loads the official engine and needs network access.'
+          ? 'The right-side GeoGebra Studio canvas now shows this construction. Call geogebra_status to read what that canvas rendered instead of opening a browser. Rendering there loads the official engine and needs network access.'
           : result.note,
       }
+    },
+  })
+
+  ctx.tools.register({
+    name: 'geogebra_status',
+    description: 'Read what the right-side GeoGebra Studio canvas actually rendered for this session: status, failed command, undefined visible objects, equal-axis check and warnings. Call it after geogebra_build instead of opening a browser; it reflects the canvas the user is already watching.',
+    parameters: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        waitMs: {
+          type: 'integer',
+          description: 'How long to wait for the canvas to report this build, 0..15000. Defaults to 0.',
+        },
+      },
+    },
+    output: {
+      schema: STATUS_OUTPUT,
+      render: (_args, value) => [{
+        type: 'text',
+        text: value.canvas === 'ready'
+          ? `Canvas ready: ${value.objectCount} objects, no undefined visible objects.`
+          : `Canvas ${value.canvas}: ${value.note}`,
+      }],
+    },
+    async execute(args, exec) {
+      const session = exec?.agent?.session?.id
+      if (session === undefined) throw new Error('geogebra_status needs an active session')
+      const id = String(session)
+      const render = renders.get(id)
+      const requested = Number.isFinite(args.waitMs) ? Number(args.waitMs) : 0
+      const waitMs = Math.min(Math.max(Math.trunc(requested), 0), STATUS_WAIT_MAX)
+      const started = Date.now()
+      const matches = () => reports.has(id) && render !== undefined && reports.get(id).version === render.version
+      while (!matches() && Date.now() - started < waitMs) {
+        await new Promise(resolve => setTimeout(resolve, 200))
+      }
+      const waitedMs = Date.now() - started
+      const report = reports.get(id)
+      const checks = report?.checks ?? null
+      const base = {
+        reportVersion: report?.version ?? -1,
+        renderVersion: render?.version ?? -1,
+        error: report?.error ?? '',
+        failedCommand: report?.failedCommand ?? '',
+        warnings: report?.warnings ?? [],
+        objectCount: Number.isFinite(checks?.objectCount) ? Number(checks.objectCount) : -1,
+        undefinedVisibleObjects: Array.isArray(checks?.undefinedVisibleObjects)
+          ? checks.undefinedVisibleObjects.map(String).slice(0, 20)
+          : [],
+        equalAxes: checks?.equalAxes === true,
+        ageMs: report ? Math.max(0, Date.now() - report.receivedAt) : -1,
+        waitedMs,
+      }
+      if (render === undefined) {
+        return { canvas: 'unavailable', ...base, note: 'No construction has been built in this session yet.' }
+      }
+      if (report === undefined) {
+        return { canvas: 'pending', ...base, note: 'The canvas has not reported yet. Open the GeoGebra Studio tab in the left sidebar and let it render.' }
+      }
+      if (report.version !== render.version) {
+        return { canvas: 'stale', ...base, note: `The canvas last rendered version ${report.version}; the latest build is ${render.version}. Keep the GeoGebra tab open so it reloads.` }
+      }
+      if (report.status === 'error') {
+        return {
+          canvas: 'error',
+          ...base,
+          note: report.error || (report.failedCommand ? `Command failed: ${report.failedCommand}` : 'The canvas reported an error.'),
+        }
+      }
+      return { canvas: 'ready', ...base, note: 'The right canvas rendered this build; no browser was opened.' }
     },
   })
 
