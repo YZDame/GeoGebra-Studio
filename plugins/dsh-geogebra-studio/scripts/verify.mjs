@@ -175,7 +175,7 @@ check('blank state has version 0', blankState.status === 200 && blankState.json.
 const blankViewer = getViewer('session-before')
 check('blank viewer embeds the applet', blankViewer.status === 200 && blankViewer.body.includes('id="ggb-element"'))
 check('blank viewer keeps the template header', blankViewer.body.includes('id="sidebar-toggle"') && blankViewer.body.includes('id="download-toggle"') && blankViewer.body.includes('id="theme-toggle"'))
-check('viewer does not hide its header', !blankViewer.body.includes('header{display:none!important'))
+check('blank viewer uses the panel layout', blankViewer.body.includes('<body data-viewer-panel="">'))
 
 // ---------------------------------------------------------------- tools
 const workspace = await mkdtemp(join(tmpdir(), 'ggb-dsh-verify-'))
@@ -198,6 +198,7 @@ check('build returns the HTML path', typeof built.htmlPath === 'string' && built
 check('build wrote the HTML', existsSync(built.htmlPath))
 const html = await readFile(built.htmlPath, 'utf8')
 check('HTML embeds the viewer', html.includes('id="ggb-element"') && html.includes('geogebraStudio'))
+check('saved HTML uses the standalone layout', html.includes('<body><main>'))
 check('HTML embeds the commands', html.includes('A=(0,0)') && html.includes('Circle(A,B)'))
 check('build reports the real size', built.bytes === (await stat(built.htmlPath)).size)
 check('build reports the right canvas', built.note.includes('right-side GeoGebra Studio canvas'))
@@ -209,6 +210,7 @@ check('state names the built file', typeof raised.json.htmlPath === 'string' && 
 const raisedViewer = getViewer('session-1')
 check('viewer serves the built construction', raisedViewer.status === 200 && raisedViewer.body.includes('Circle(A,B)'))
 check('built viewer keeps the template header', raisedViewer.body.includes('id="sidebar-toggle"') && raisedViewer.body.includes('id="download-toggle"') && raisedViewer.body.includes('id="ggb-element"'))
+check('built viewer uses the panel layout', raisedViewer.body.includes('<body data-viewer-panel="">'))
 
 await writeFile(join(workspace, 'spec.json'), JSON.stringify({ ...spec, filename: 'from-path.html' }))
 const fromPath = await build.execute({ specPath: 'spec.json' }, exec)
@@ -372,6 +374,9 @@ check('registers one tab type', tabTypes.length === 1, String(tabTypes.length))
 check('tab kind', tabTypes[0]?.kind === 'geogebra-studio', tabTypes[0]?.kind)
 check('tab id', tabTypes[0]?.id === 'dsh-geogebra-studio', tabTypes[0]?.id)
 check('tab title', tabTypes[0]?.title() === 'GeoGebra')
+const tabTitle = registrations.find((registration) => registration.options?.name === 'sidebar.right.pane.tab.title')
+check('the GeoGebra tab title marks its docked strip', tabTitle?.options.key === tabTypes[0]?.id
+  && tabTitle.component(tabTitle.options.inject()).props['data-geogebra-tab-title'] === true)
 
 const entry = registrations.find((registration) => registration.options?.name === 'sidebar.panellist')
 check('registers a left-rail entry', entry !== undefined)

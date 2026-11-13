@@ -22,7 +22,7 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// plugins/dsh-geogebra-studio/src/client.jsx
+// src/client.jsx
 var client_exports = {};
 __export(client_exports, {
   GeoGebraCanvas: () => GeoGebraCanvas,
@@ -40,6 +40,13 @@ var TAB_KIND = "geogebra-studio";
 var TAB_ID = "dsh-geogebra-studio";
 var STATE_PATH = "/dsh-geogebra-studio/state";
 var VIEWER_PATH = "/dsh-geogebra-studio/viewer";
+var DOCKED_TAB_STYLE = `
+  [data-dockkit-strip]:has([role="tab"][aria-selected="true"] [data-geogebra-tab-title]) {
+    box-sizing: border-box;
+    height: 50px;
+    padding-block: 10px;
+  }
+`;
 var name = "dsh-geogebra-studio";
 var inject = ["slots", "locale", "layout", "sidebarRight", "sidebarRightTabs"];
 var zh = {
@@ -52,6 +59,9 @@ var en = {
 };
 function GeoGebraPanelIcon({ size }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_dsh_client_ui_primitives.IconCompareSplitOutlineRegular, { size });
+}
+function GeoGebraTabTitle({ t }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "data-geogebra-tab-title": true, children: t("tab") });
 }
 function GeoGebraCanvas({ sessionId }) {
   const [version, setVersion] = (0, import_react.useState)(0);
@@ -85,7 +95,7 @@ function GeoGebraCanvas({ sessionId }) {
   }, [sessionId]);
   if (sessionId === void 0) return null;
   const src = `${VIEWER_PATH}?session=${encodeURIComponent(sessionId)}&v=${version}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
     "div",
     {
       "data-geogebra-canvas": true,
@@ -96,23 +106,26 @@ function GeoGebraCanvas({ sessionId }) {
         minHeight: 0,
         background: "var(--dsw-alias-bg-layer-1)"
       },
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "iframe",
-        {
-          src,
-          title: "GeoGebra Studio",
-          allow: "clipboard-write; fullscreen",
-          style: {
-            position: "absolute",
-            inset: 0,
-            display: "block",
-            width: "100%",
-            height: "100%",
-            border: 0
-          }
-        },
-        src
-      )
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: DOCKED_TAB_STYLE }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "iframe",
+          {
+            src,
+            title: "GeoGebra Studio",
+            allow: "clipboard-write; fullscreen",
+            style: {
+              position: "absolute",
+              inset: 0,
+              display: "block",
+              width: "100%",
+              height: "100%",
+              border: 0
+            }
+          },
+          src
+        )
+      ]
     }
   );
 }
@@ -143,6 +156,14 @@ function apply(ctx) {
       locale: NS
     }, GeoGebraCanvas)),
     "geogebra-studio: right tab body"
+  );
+  ctx.effect(
+    () => ctx.slots.inject("sidebar.right.pane.tab.title", () => ctx.slots.register({
+      name: "sidebar.right.pane.tab.title",
+      key: TAB_ID,
+      inject: () => ({ t })
+    }, GeoGebraTabTitle)),
+    "geogebra-studio: right tab title"
   );
   ctx.effect(
     () => ctx.slots.inject("main", () => ctx.slots.register({
