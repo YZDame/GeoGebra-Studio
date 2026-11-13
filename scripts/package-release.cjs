@@ -22,6 +22,10 @@ const {execFileSync}=require('node:child_process');
    }
    packed=JSON.parse(execFileSync('npm',['pack','--ignore-scripts','--json','--pack-destination',out],{cwd:staging,encoding:'utf8',env:{...process.env,npm_config_cache:path.join(os.tmpdir(),'geogebra-studio-release-npm-cache')}}))[0];
   }
+  // iCloud/File Provider conflict copies are gitignored and filtered from the
+  // npm `files` list, but a release must never carry one of them.
+  const conflictCopies=packed.files.map(f=>f.path).filter(file=>/ \d+(?:\.[^/\\]*)?$/.test(path.basename(file)));
+  if(conflictCopies.length>0)throw Error('Conflict copies in release tarball: '+conflictCopies.slice(0,5).join(', '));
   for(const file of ['dist/cli.js','dist/gikz-browser.js','dist/viewer.js','dist/studio/generate.js','gikz/core.cjs','gikz/cli.cjs','gikz/LICENSE','LICENSE','LICENSE-MIT','skills/geogebra-studio/SKILL.md','skills/geogebra-studio/runtime/dist/cli.js'])await fs.access(path.join(staging,file));
   for(const file of ['dist/studio/preview.js','skills/geogebra-studio/runtime/dist/studio/preview.js'])await fs.access(path.join(staging,file));
   const configs=await Promise.all(['plugin.json','.codex-plugin/plugin.json'].map(f=>fs.readFile(path.join(staging,f),'utf8')));

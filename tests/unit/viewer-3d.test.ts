@@ -9,11 +9,17 @@ describe('3D viewer specifications', () => {
     const spec = validateViewerSpec({ ...base, mode: '3D', view3D: { bounds: [-2,2,-2,2,-2,2], direction: [1,-2,1] }, labelOffsets: { A: [.1,.2,.3] }, captionOverrides: { A: '</script>' } });
     expect(payload(spec)).toMatchObject({ mode: '3D', view3D: spec.view3D, labelOffsets: spec.labelOffsets, captionOverrides: { A: '</script>' } });
   });
+  test('accepts a 2D label offset and keeps it in the payload', () => {
+    const payload = (options: any) => JSON.parse(constructionHtml(options).match(/<script id="construction-data" type="application\/json">([\s\S]*?)<\/script>/)![1]!);
+    const spec = validateViewerSpec({ ...base, labelOffsets: { A: [0.05, -0.45] } });
+    expect(payload(spec).labelOffsets).toEqual({ A: [0.05, -0.45] });
+  });
+
   test.each([
     { mode: '4D' }, { view3D: [] }, { view3D: { unknown: true } },
     { view3D: { bounds: [2,-2,-2,2,-2,2] } }, { view3D: { bounds: [-2,2,-2,2] } },
     { view3D: { direction: [0,0,0] } }, { view3D: { direction: [1,Infinity,1] } },
-    { labelOffsets: { A: [1,2] } }, { labelOffsets: { A: [1,2,NaN] } },
+    { labelOffsets: { A: [1] } }, { labelOffsets: { A: [1,2,NaN] } }, { labelOffsets: { A: [1,2,3,4] } },
   ])('rejects malformed camera or label options: %j', options => {
     expect(() => validateViewerSpec({ ...base, ...options })).toThrow();
   });

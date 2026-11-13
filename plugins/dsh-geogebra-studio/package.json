@@ -20,7 +20,9 @@
     "cordis.patch.yml",
     "README.md",
     "LICENSE",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "!**/* [0-9].*",
+    "!**/* [0-9]"
   ],
   "engines": {
     "node": ">=22.12"

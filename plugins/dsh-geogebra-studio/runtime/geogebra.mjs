@@ -1067,6 +1067,11 @@ async function saveFile(filename, content) {
 }
 var saveText = (filename, content) => saveFile(filename, content);
 
+// src/export/label-offsets.ts
+function isLabelOffset(value) {
+  return Array.isArray(value) && (value.length === 2 || value.length === 3) && value.every((component) => typeof component === "number" && Number.isFinite(component));
+}
+
 // src/studio/generate.ts
 function validateViewerSpec(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Expected a construction JSON object");
@@ -1086,7 +1091,7 @@ function validateViewerSpec(value) {
   }
   if (p["labelOffsets"] !== void 0) {
     const offsets = p["labelOffsets"];
-    if (!offsets || typeof offsets !== "object" || Array.isArray(offsets) || Object.values(offsets).some((v) => !tuple(v, 3))) throw new Error("labelOffsets must map object names to finite 3D vectors");
+    if (!offsets || typeof offsets !== "object" || Array.isArray(offsets) || Object.values(offsets).some((v) => !isLabelOffset(v))) throw new Error("labelOffsets must map object names to a finite [dx,dy] (2D) or [dx,dy,dz] (3D) offset");
   }
   if (typeof p["filename"] !== "string" || !p["filename"].trim() || !/\.html$/i.test(p["filename"])) throw new Error("filename must end in .html");
   const commands = p["commands"];

@@ -5,6 +5,7 @@ exports.generateViewer = generateViewer;
 const html_1 = require("../export/html");
 const files_1 = require("../export/files");
 const workspace_1 = require("../export/workspace");
+const label_offsets_1 = require("../export/label-offsets");
 /** Validate without importing the MCP registry, Puppeteer, or GeoGebra runtime. */
 function validateViewerSpec(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -32,8 +33,8 @@ function validateViewerSpec(value) {
     }
     if (p['labelOffsets'] !== undefined) {
         const offsets = p['labelOffsets'];
-        if (!offsets || typeof offsets !== 'object' || Array.isArray(offsets) || Object.values(offsets).some(v => !tuple(v, 3)))
-            throw new Error('labelOffsets must map object names to finite 3D vectors');
+        if (!offsets || typeof offsets !== 'object' || Array.isArray(offsets) || Object.values(offsets).some(v => !(0, label_offsets_1.isLabelOffset)(v)))
+            throw new Error('labelOffsets must map object names to a finite [dx,dy] (2D) or [dx,dy,dz] (3D) offset');
     }
     if (typeof p['filename'] !== 'string' || !p['filename'].trim() || !/\.html$/i.test(p['filename']))
         throw new Error('filename must end in .html');

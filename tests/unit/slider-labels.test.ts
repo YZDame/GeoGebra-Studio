@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import {
   SLIDER_LABEL_CAPTION,
   SLIDER_LABEL_NAME,
+  isSliderType,
   objectXmlIsSlider,
   planSliderLabel,
   showSliderLabels,
@@ -10,12 +11,20 @@ import {
 
 const sliderXml = '<element type="numeric" label="a"><slider min="3" max="6" absoluteScreenLocation="true" width="180"/></element>';
 const numberXml = '<element type="numeric" label="bb"><value val="3"/></element>';
+const angleSliderXml = '<element type="angle" label="ang"><angleStyle val="3"/><slider min="10°" max="170°" absoluteScreenLocation="true" width="170"/></element>';
 
 describe('slider label plan', () => {
   test('detects a slider element and ignores other numerics', () => {
     expect(objectXmlIsSlider(sliderXml)).toBe(true);
     expect(objectXmlIsSlider(numberXml)).toBe(false);
     expect(objectXmlIsSlider('<element type="point"/>')).toBe(false);
+  });
+
+  test('a slider can be numeric or an angle', () => {
+    expect(isSliderType('numeric')).toBe(true);
+    expect(isSliderType('angle')).toBe(true);
+    expect(isSliderType('point')).toBe(false);
+    expect(isSliderType('text')).toBe(false);
   });
 
   test.each([
@@ -65,6 +74,18 @@ describe('showSliderLabels', () => {
     ]);
   });
 
+  test('keeps the caption of an angle slider, whose object type is not numeric', () => {
+    const { api, calls } = apiFor({
+      ang: { type: 'angle', xml: angleSliderXml, caption: '焦点弦的方向角 θ' },
+    });
+    expect(showSliderLabels(api)).toEqual([]);
+    expect(calls).toEqual([
+      ['caption', 'ang', '焦点弦的方向角 θ'],
+      ['style', 'ang', SLIDER_LABEL_CAPTION],
+      ['visible', 'ang', true],
+    ]);
+  });
+
   test('records a slider whose label API fails and still updates the next slider', () => {
     const { api, calls } = apiFor({
       a: { type: 'numeric', xml: sliderXml, caption: '半长轴 a' },
@@ -88,6 +109,8 @@ describe('viewer wiring', () => {
     const restore = source.indexOf('showSliderLabels(api, captions)');
     expect(source.indexOf('objectXmlIsSlider')).toBeGreaterThan(-1);
     expect(source.indexOf('objectXmlIsSlider')).toBeLessThan(hide);
+    expect(source.indexOf('isSliderType(type)')).toBeGreaterThan(-1);
+    expect(source.indexOf('isSliderType(type)')).toBeLessThan(hide);
     expect(restore).toBeGreaterThan(hide);
   });
 });

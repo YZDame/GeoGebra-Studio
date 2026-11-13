@@ -38,14 +38,17 @@
     "README.de.md",
     "README.ja.md",
     "README.ko.md",
-    "README.pt-BR.md"
+    "README.pt-BR.md",
+    "!**/* [0-9].*",
+    "!**/* [0-9]"
   ],
   "scripts": {
-    "build": "npm run clean && tsc && node scripts/build-plugin.cjs && node scripts/build-dsh-plugin.cjs",
+    "build": "npm run clean && tsc && node scripts/build-plugin.cjs && node scripts/build-dsh-plugin.cjs && npm run clean:conflicts",
     "clean": "node -e \"require('node:fs').rmSync('dist', {recursive:true, force:true})\"",
+    "clean:conflicts": "node scripts/clean-conflict-copies.cjs",
     "verify": "npm run build && npm run verify:manifests && node scripts/verify-generator.cjs && node scripts/verify-skill.cjs && node scripts/verify-preview.cjs && node scripts/verify-exports.cjs && node plugins/dsh-geogebra-studio/scripts/verify.mjs",
     "verify:manifests": "node scripts/verify-manifests.cjs",
-    "test:unit": "jest --runInBand --runTestsByPath tests/unit/semantic-export.test.ts tests/unit/studio-artifact.test.ts tests/unit/viewer-3d.test.ts tests/unit/viewer-action-commands.test.ts tests/unit/viewer-command-executor.test.ts tests/unit/viewer-style-commands.test.ts tests/unit/geogebra-instance.test.ts tests/unit/slider-labels.test.ts",
+    "test:unit": "jest --runInBand --runTestsByPath tests/unit/semantic-export.test.ts tests/unit/studio-artifact.test.ts tests/unit/viewer-3d.test.ts tests/unit/viewer-action-commands.test.ts tests/unit/viewer-command-executor.test.ts tests/unit/viewer-style-commands.test.ts tests/unit/geogebra-instance.test.ts tests/unit/slider-labels.test.ts tests/unit/label-offsets.test.ts",
     "verify:sliders": "node scripts/verify-slider-labels.cjs",
     "verify:math": "node scripts/verify-math.cjs",
     "verify:3d": "node scripts/verify-viewer-3d.cjs",

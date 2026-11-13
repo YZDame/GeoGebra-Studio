@@ -1,6 +1,7 @@
 import { constructionHtml, HtmlOptions } from '../export/html';
 import { saveText } from '../export/files';
 import { inWorkspace } from '../export/workspace';
+import { isLabelOffset } from '../export/label-offsets';
 
 export interface ViewerSpec extends HtmlOptions { filename: string }
 
@@ -23,7 +24,7 @@ export function validateViewerSpec(value: unknown): ViewerSpec {
   }
   if (p['labelOffsets'] !== undefined) {
     const offsets = p['labelOffsets'];
-    if (!offsets || typeof offsets !== 'object' || Array.isArray(offsets) || Object.values(offsets).some(v => !tuple(v, 3))) throw new Error('labelOffsets must map object names to finite 3D vectors');
+    if (!offsets || typeof offsets !== 'object' || Array.isArray(offsets) || Object.values(offsets).some(v => !isLabelOffset(v))) throw new Error('labelOffsets must map object names to a finite [dx,dy] (2D) or [dx,dy,dz] (3D) offset');
   }
   if (typeof p['filename'] !== 'string' || !p['filename'].trim() || !/\.html$/i.test(p['filename'])) throw new Error('filename must end in .html');
   const commands = p['commands'];

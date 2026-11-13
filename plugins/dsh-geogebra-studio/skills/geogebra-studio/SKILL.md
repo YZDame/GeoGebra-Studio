@@ -22,10 +22,10 @@ This skill ships with the GeoGebra Studio plugin for DeepSeek Harness. The plugi
    ```
 
    The spec needs a new `filename` ending in `.html` and a nonempty `commands` array (or `ggbBase64`). Optional fields: `mode` (`"2D"` or `"3D"`), `view3D`, `labelOffsets`, `width`, `height`, `showAxes`, `visibleLabels`, `captionOverrides`, `title`. Files are never overwritten: choose a new filename instead of retrying an existing path.
-3. On success the right-side canvas reloads with the new construction. Do not call `geogebra_preview` for the right panel; it is only for a separate loopback link or a full browser tab. Tell the user the canvas was updated and keep the conversation going for follow-up edits.
-4. Rendering needs network access to the official GeoGebra engine; generating the HTML does not. The plugin cannot watch the canvas. Wait for `window.geogebraStudio.status` in the opened page to become `ready` or `error`, and ask the user to confirm labels, branches, tangency, incidence, clipping, moving free points and light/dark contrast. A written file or reachable CDN is not proof of rendering. Report visual verification as not performed when you cannot inspect the page.
+3. On success the right-side canvas reloads with the new construction. Call `geogebra_status` to read what that canvas rendered: status, failed command, undefined visible objects, equal-axis check and warnings. Use its optional `waitMs` (up to 15000) instead of polling yourself. Do not call `geogebra_preview` for the right panel; it is only for a separate loopback link or a full browser tab. Do not start Chrome or a headless browser to check a build: the canvas already runs the official engine, and a background browser only adds minutes.
+4. Rendering needs network access to the official GeoGebra engine; generating the HTML does not. `geogebra_status` covers command execution and object checks but not aesthetics, so inspect the canvas or ask the user once about labels, tangency, clipping and light/dark contrast. Do not open the saved HTML in the client's own file preview: those panes usually sandbox scripts, so the figure and its buttons stay dead. The canvas is the viewer; the saved HTML is for a real browser or download.
 
-If the user has not opened the right canvas yet, mention the **GeoGebra Studio** entry in the left sidebar. The canvas shows the latest construction after it opens.
+If the user has not opened the right canvas yet, mention the **GeoGebra Studio** entry in the left sidebar. The canvas shows the latest construction after it opens, and only then can `geogebra_status` report it (otherwise it returns `pending`).
 
 Read [visual standards](references/visual-standard.md) before choosing widths, colors, label placement and 2D/3D camera settings.
 

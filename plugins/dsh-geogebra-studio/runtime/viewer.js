@@ -6,6 +6,9 @@
   function objectXmlIsSlider(xml) {
     return /<slider\b/.test(xml);
   }
+  function isSliderType(type) {
+    return type === "numeric" || type === "angle";
+  }
   function planSliderLabel(name, caption, override) {
     const authored = override !== void 0 ? override : caption;
     const text = (authored ?? "").trim();
@@ -16,7 +19,7 @@
     const failed = [];
     for (const name of api.getAllObjectNames() || []) {
       try {
-        if (api.getObjectType(name) !== "numeric" || !objectXmlIsSlider(api.getXML(name))) continue;
+        if (!isSliderType(api.getObjectType(name)) || !objectXmlIsSlider(api.getXML(name))) continue;
         const override = Object.prototype.hasOwnProperty.call(captionOverrides, name) ? captionOverrides[name] : void 0;
         let existing = "";
         try {
@@ -33,6 +36,17 @@
       }
     }
     return failed;
+  }
+
+  // src/export/label-offsets.ts
+  function labelOffset2D(offsets, name, dx, dy) {
+    const custom = offsets?.[name];
+    return custom ? [custom[0], custom[1]] : [dx, dy];
+  }
+  function labelOffset3D(offsets, name, fallback) {
+    const custom = offsets?.[name];
+    if (!custom) return fallback;
+    return [custom[0], custom[1], custom[2] ?? 0];
   }
 
   // src/export/viewer-action-commands.ts
@@ -512,7 +526,7 @@
         for (const name of names) {
           try {
             const type = api.getObjectType(name);
-            if (type === "numeric") {
+            if (isSliderType(type)) {
               try {
                 if (objectXmlIsSlider(api.getXML(name))) continue;
               } catch (_) {
@@ -529,10 +543,10 @@
               const anchor = type === "point" ? name : "Point(" + name + ",0.38)";
               let label = "mcpLabel" + name;
               while (api.exists(label)) label += "x";
-              const offset = is3D ? specification.labelOffsets?.[name] || [api.getXcoord(name), api.getYcoord(name), api.getZcoord(name)].map((v, i) => {
+              const offset = is3D ? labelOffset3D(specification.labelOffsets, name, [api.getXcoord(name), api.getYcoord(name), api.getZcoord(name)].map((v, i) => {
                 const delta = v - center[i];
                 return Math.abs(delta) > 1e-8 ? Math.sign(delta) * extent * 0.07 : extent * 0.035;
-              }) : [dx, dy];
+              })) : labelOffset2D(specification.labelOffsets, name, dx, dy);
               if (!api.evalCommand(label + " = Text(" + JSON.stringify(math).replaceAll(String.fromCharCode(92, 92), String.fromCharCode(92)) + ", " + anchor + " + (" + offset.join(",") + "), true, true)")) throw new Error("Failed to create LaTeX label " + name);
               if (is3D) api.evalCommand("SetFontSize(" + label + ",18)");
               api.setLabelVisible(label, false);

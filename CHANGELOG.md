@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Packaging
+
+- Keep iCloud Drive / File Provider conflict copies out of shipped files: they are gitignored, but npm's `files` whitelist still packed 181 of them into the tarball. `package.json` now excludes `* [0-9]` copies, `npm run build` ends with `clean:conflicts` (`scripts/clean-conflict-copies.cjs`), and `package-release.cjs` refuses a tarball that contains one.
+
+### Viewer, skill and DeepSeek Harness plugin
+
+- Keep angle-slider captions visible: angle sliders report object type `angle`, so the slider-label pass skipped them and the viewer then hid their labels.
+- Support `labelOffsets` in 2D (`[dx,dy]` world units, `[dx,dy,dz]` in 3D) so one label can move off a line through its own point — a focal chord through a focus, a tangent through its contact point — without a hand-placed text object.
+- Add `geogebra_status` to the DeepSeek Harness plugin: the right-side canvas posts what it actually rendered (status, failed command, undefined visible objects, equal-axis check), so the agent verifies a build without launching a headless browser.
+- Document reserved GeoGebra names (`deg`, `pi`, `e`, `i`), label collisions and a single-build fast path; ask for one visual confirmation instead of rendering per iteration.
+
 ### DeepSeek Harness plugin 0.3.1
 
 - Keep the generated viewer's template header in the right-Sidebar canvas: the objects/algebra toggle, theme, light/dark and all seven download formats return, matching the standalone HTML exactly.
