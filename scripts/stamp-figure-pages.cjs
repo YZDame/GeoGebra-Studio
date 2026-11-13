@@ -178,8 +178,7 @@ function assertHomepage(dir, { requireBrandIcon = false } = {}) {
     '<link rel="canonical" href="https://yzdame.github.io/GeoGebra-Studio/">',
     '<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">',
     '<meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">',
-    'href="favicon.ico"',
-    'href="favicon.svg"',
+    '<link rel="icon" href="geogebra-icon.png" type="image/png">',
     'href="apple-touch-icon.png"',
     '<meta property="og:site_name" content="GeoGebra Studio">',
     '<meta property="og:locale" content="zh_CN">',
@@ -254,8 +253,7 @@ function stampHtml(html, figure) {
     expectedTitle,
     `<meta name="description" content="${description}">`,
     expectedCanonical,
-    `<link rel="icon" href="${ORIGIN}/favicon.ico" sizes="16x16 32x32 48x48">`,
-    `<link rel="icon" href="${ORIGIN}/favicon.svg" type="image/svg+xml">`,
+    `<link rel="icon" href="${ORIGIN}/geogebra-icon.png" type="image/png">`,
     ''
   ].join('\n');
   const next = html.replace(marker, block);

@@ -80,16 +80,18 @@ button { font: inherit; }
 }
 .language:hover { text-decoration: underline; text-underline-offset: .22em; }
 
-.hero { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(2.75rem, 7vw, 4.75rem); }
+.hero { padding-block: clamp(3rem, 8vw, 5.5rem) clamp(1.75rem, 5vw, 2.75rem); }
 h1, h2, h3 { font-family: "Source Serif 4", "Studio Han Serif", "Songti SC", Georgia, serif; font-weight: 600; }
 h1 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.18; letter-spacing: -.025em; text-wrap: balance; }
 .lead { margin-top: .9rem; color: var(--muted); }
+.install-option { margin-top: 1rem; }
+.install-option h3 { font-size: 1rem; }
 .command {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: .65rem 1rem;
-  margin-top: 1.65rem;
+  margin-top: .55rem;
   padding: .55rem .65rem .55rem .95rem;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -109,10 +111,12 @@ h1 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.18; letter-spacing: -.
 }
 .command button:not([hidden]) { display: grid; place-items: center; }
 .command button:hover { background: var(--hover); }
-.requirements { margin-top: .6rem; color: var(--muted); font-size: .875rem; }
+.requirements { margin-top: .2rem; color: var(--muted); font-size: .875rem; }
 
-.examples { padding-block: 1.35rem 1.75rem; border-top: 1px solid var(--line); }
-.examples h2 { font-size: 1.15rem; }
+.install, .demo, .examples { padding-block: 1.35rem 1.75rem; border-top: 1px solid var(--line); }
+.install h2, .demo h2, .examples h2 { font-size: 1.15rem; }
+.demo-player { display: block; width: 100%; aspect-ratio: 16 / 9; margin-block: .9rem .55rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.demo a { color: var(--muted); font-size: .875rem; }
 .example-groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

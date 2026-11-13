@@ -1,14 +1,20 @@
-# GeoGebra Studio
+<p align="center"><img src="assets/geogebra-icon.png" width="80" height="80" alt=""></p>
+<h1 align="center">GeoGebra Studio</h1>
 
-[![CI](https://github.com/YZDame/GeoGebra-Studio/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/YZDame/GeoGebra-Studio/actions/workflows/check.yml) [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](LICENSE) [![Node.js](https://img.shields.io/badge/Node.js-%E2%89%A522.12-339933?logo=node.js)](https://nodejs.org/) [![GitHub stars](https://img.shields.io/github/stars/YZDame/GeoGebra-Studio?style=flat)](https://github.com/YZDame/GeoGebra-Studio/stargazers)
+<p align="center">
+  <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/v/@lydt/geogebra-studio?label=Studio%20npm" alt="GeoGebra Studio npm version"></a>
+  <a href="https://www.npmjs.com/package/dsh-geogebra-studio"><img src="https://img.shields.io/npm/v/dsh-geogebra-studio?label=DSH%20npm" alt="DeepSeek Harness plugin npm version"></a>
+  <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/dm/@lydt/geogebra-studio?label=Studio%20downloads" alt="GeoGebra Studio monthly npm downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg" alt="License: GPL-2.0-or-later"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%E2%89%A522.12-339933?logo=node.js" alt="Node.js 22.12 or later"></a>
+  <a href="https://github.com/YZDame/GeoGebra-Studio/stargazers"><img src="https://img.shields.io/github/stars/YZDame/GeoGebra-Studio?style=flat" alt="GitHub stars"></a>
+</p>
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md)
 
 **Une Agent Skill portable pour créer, modifier et exporter des constructions mathématiques interactives avec GeoGebra.**
 
 ## Comment ça marche
-
-<img src="docs/images/cover.png" alt="Codex sous macOS : une question en chinois demandant si GeoGebra Studio peut tracer la géométrie dans l’espace du lycée, à côté d’un quart de cylindre avec une section mobile à la hauteur h." width="100%">
 
 | Générer | Modifier | Exporter |
 | --- | --- | --- |
@@ -27,59 +33,37 @@
 
 Node.js **22.12 ou supérieur**. L'ouverture du HTML généré nécessite Internet pour charger le moteur officiel GeoGebra.
 
-## Installation recommandée
+## Installation
 
-Installez la Skill depuis GitHub dans un environnement compatible avec Agent Skills. Vous pouvez également copier **tout** le dossier `skills/geogebra-studio/`, avec `SKILL.md`, `scripts/`, `references/` et `runtime/`. Le fichier `SKILL.md` seul ne suffit pas. L'agent doit pouvoir écrire des fichiers et exécuter des commandes.
+### 1. Installation générale
+
+Pour Codex, Claude Code, Cursor et les autres clients compatibles avec Agent Skills. Suivez les indications pour choisir le client et la portée de l’installation.
 
 ```sh
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
-## DeepSeek Harness
+### 2. Installation dans Codex
 
-DeepSeek Harness (`dsh`) peut utiliser GeoGebra Studio de deux façons distinctes. L'Agent Skill produit les figures. Le `SKILL.md` publié a déjà le `name` en kebab-case et la `description` requis ; le frontmatter reste inchangé. `whenToUse` est omis, car le catalogue route selon `name` et `description`. Le bouton de barre latérale est un autre paquet, [`plugins/dsh-geogebra-studio/`](plugins/dsh-geogebra-studio/). N'exécutez pas `dsh plugin add` sur la racine du dépôt, sur `@lydt/geogebra-studio` ni sur `skills/geogebra-studio/`. Ce ne sont pas le plugin de barre latérale.
-
-Utilisez le même installeur que les autres clients. Dans le mode par défaut, une copie complète est écrite dans `.agents/skills/geogebra-studio`, un dossier que DeepSeek Harness parcourt déjà :
-
-- Sans `-g` : `./.agents/skills/geogebra-studio` dans le répertoire courant. DeepSeek Harness la trouve lorsque la racine Git de ce projet est l'espace de travail. Si l'installeur demande la portée, le choix projet est ce chemin.
-- Avec `-g`, ou Global lorsqu'il demande : `~/.agents/skills/geogebra-studio`. DeepSeek Harness parcourt ce dossier dans chaque espace de travail.
-
-Ajoutez `-g` pour la copie dans le répertoire personnel. Des liens comme `~/.claude/skills` ou `~/.cursor/skills` concernent d'autres clients. DeepSeek Harness parcourt `~/.dsh/skills`, `~/.agents/skills`, ainsi que `.dsh/skills` et `.agents/skills` dans le projet. Conservez le mode par défaut afin d'écrire la copie `.agents/skills`. `--copy` ignore ce dossier.
-
-Pour une installation manuelle, copiez **tout** le dossier `skills/geogebra-studio/`, avec `SKILL.md`, `scripts/`, `references/` et `runtime/` :
-
-- `~/.dsh/skills/geogebra-studio`
-- `~/.agents/skills/geogebra-studio`
-
-Dans le chat, appelez-la avec `/geogebra-studio`.
-
-Ouvrir ce dépôt comme espace de travail DeepSeek Harness ne découvre pas `skills/geogebra-studio/`. La recherche ne lit que les enfants directs de `.dsh/skills` et `.agents/skills`. Copiez le dossier entier vers `.dsh/skills/geogebra-studio` ou `.agents/skills/geogebra-studio` dans l'espace de travail. Pour une copie limitée à cet espace, préférez `.dsh/skills/geogebra-studio`. Ce dépôt ne contient ni cette copie ni un lien symbolique : sous Windows, Git extrait souvent les liens symboliques comme de simples fichiers texte, et `.agents/skills` est déjà le dossier d'installation de Codex, Cursor et `npx skills`. `.agents/plugins` reste l'entrée facultative de la marketplace Codex.
-
-### Bouton de barre latérale
-
-Installez le plugin de barre latérale dans le profil web, puis redémarrez `dsh web`. Mettez la spécification GitHub entre guillemets pour que pnpm conserve le sous-dossier :
-
-```sh
-dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
-```
-
-Depuis une copie de ce dépôt :
-
-```sh
-dsh plugin --profile web add ./plugins/dsh-geogebra-studio
-```
-
-Le plugin enregistre une entrée dans la liste officielle `sidebar.footer.action`, dans le pied de la barre latérale, au-dessus de Réglages. Une barre large affiche une icône géométrique et le libellé GeoGebra. Le rail réduit n'affiche que l'icône. Un clic ouvre un guide : invoquer `/geogebra-studio`, les exigences Node.js 22.12+ et l'aperçu HTTP, un texte de départ à copier, et l'avis de projet indépendant. Le bouton n'installe pas la Skill et ne dessine pas de figure. Sous Windows, un ancien `dsh` peut transmettre cette spécification à `cmd.exe` ; `&` devient un séparateur de commandes et la racine du dépôt est installée. Utilisez alors le chemin de la copie locale.
-
-Les exigences sont les mêmes : Node.js 22.12 ou supérieur, accès aux fichiers et au shell, et l'aperçu HTTP lorsque le client peut ouvrir une URL de loopback. GeoGebra Studio est un projet indépendant, sans lien avec GeoGebra.
-
-## Plugin Codex facultatif
-
-Le Plugin Codex est facultatif. Installez la dernière version publiée sur npm, puis redémarrez Codex.
+Lancez l’installation puis ouvrez une nouvelle session Codex.
 
 ```sh
 npx @lydt/geogebra-studio@latest install
 ```
+
+<img src="docs/images/cover.png" alt="Codex sous macOS : une question en chinois demandant si GeoGebra Studio peut tracer la géométrie dans l’espace du lycée, à côté d’un quart de cylindre avec une section mobile à la hauteur h." width="100%">
+
+### 3. Installation dans DeepSeek Harness
+
+Dans l’application de bureau, ouvrez **Plugins → Add Plugin**, collez le nom du paquet et installez-le.
+
+```text
+dsh-geogebra-studio
+```
+
+Ouvrez **GeoGebra Studio** dans la barre latérale gauche. Le [guide du plugin](plugins/dsh-geogebra-studio/) décrit aussi l’installation en ligne de commande.
+
+<img src="docs/images/dsh-right-canvas.png" alt="Ellipse avec une corde focale réglable dans DeepSeek Harness" width="100%">
 
 ## Démarrage rapide
 
@@ -120,6 +104,6 @@ npm run test:unit
 
 Les tests facultatifs en navigateur réel requièrent Chrome et Internet. La génération locale normale ne requiert ni Chrome ni serveur MCP.
 
-Ressources : [guide enseignant](docs/TEACHER-QUICKSTART.md), [exemples](examples/), [architecture](docs/MODERNIZATION.md) et [contributions](CONTRIBUTING.md).
+Ressources : [Galerie interactive](https://yzdame.github.io/GeoGebra-Studio/), [exemples](examples/README.md), [architecture](docs/MODERNIZATION.md) et [contributions](CONTRIBUTING.md).
 
 Projet communautaire indépendant, sans affiliation avec GeoGebra. Licence combinée **GPL-2.0-or-later**. Voir [LICENSE](LICENSE), [LICENSE-MIT](LICENSE-MIT) et les [mentions tierces](THIRD_PARTY_NOTICES.md).

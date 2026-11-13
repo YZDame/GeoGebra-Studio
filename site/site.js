@@ -54,11 +54,11 @@ for (const button of document.querySelectorAll("[data-copy]")) {
     try {
       await navigator.clipboard.writeText(command.textContent);
       glyph.setAttribute("href", "icons.svg#check-lg");
-      copyStatus.textContent = english ? "Command copied." : "已复制命令。";
+      copyStatus.textContent = english ? "Copied." : "已复制。";
     } catch {
       const selection = window.getSelection();
       selection.selectAllChildren(command);
-      copyStatus.textContent = english ? "Command selected. Copy it using your keyboard or menu." : "命令已选中，请用键盘或菜单复制。";
+      copyStatus.textContent = english ? "Text selected. Copy it using your keyboard or menu." : "文本已选中，请用键盘或菜单复制。";
     }
 
     reset = setTimeout(() => {
