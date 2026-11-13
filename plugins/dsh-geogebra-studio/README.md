@@ -19,20 +19,30 @@ GeoGebra Studio is an independent project and is not affiliated with GeoGebra. L
 
 The right canvas is the full generated viewer, including its template header: the objects/algebra toggle on the left, theme and light/dark controls, and GGB, HTML, PNG, SVG, PDF, XML and TikZ downloads on the right. The generated HTML and the standalone `geogebra_preview` show the same page in a normal browser. Rendering loads the official GeoGebra engine from its CDN, so the browser needs internet access; generating the HTML does not.
 
-## Install
+## Install on desktop
+
+In DeepSeek Harness, open **Plugins → Add Plugin**, paste the package name below, and install it.
+
+```text
+dsh-geogebra-studio
+```
+
+Open **GeoGebra Studio** from the left sidebar to use the canvas beside your chat. Start a new session to use the plugin tools and the bundled skill.
+
+## Install from the command line
 
 ```sh
 dsh plugin --profile web add dsh-geogebra-studio
 ```
 
-Use `--profile desktop` for the Desktop app. Before a release, or when testing a branch, install from a checkout or from GitHub:
+Use `--profile desktop` to install for the desktop app from the command line. Before a release, or when testing a branch, install from a checkout or from GitHub:
 
 ```sh
 dsh plugin --profile web add ./plugins/dsh-geogebra-studio
 dsh plugin --profile web add "github:YZDame/GeoGebra-Studio#main&path:plugins/dsh-geogebra-studio"
 ```
 
-Restart `dsh web` or the Desktop app after installing. A left-rail **GeoGebra Studio** entry appears beside Plugins, Automation and Tasks; a new session can call the four tools and load the skill. The right-side canvas needs the Host web server (the normal Web and Desktop composition), and its routes live under `/dsh-geogebra-studio/`.
+Restart the corresponding app after a command-line install. The right-side canvas needs the Host web server (the normal Web and Desktop composition), and its routes live under `/dsh-geogebra-studio/`.
 
 The plugin is self-contained: `runtime/` carries the bundled generator, viewer, Gikz cleaner and license. There is no `npm install`, MCP server, Chrome setup or separate Skill copy in the installed directory, and no dependency on the root package.
 

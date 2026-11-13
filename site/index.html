@@ -9,8 +9,7 @@
   <link rel="canonical" href="https://yzdame.github.io/GeoGebra-Studio/">
   <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">
-  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="geogebra-icon.png" type="image/png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GeoGebra Studio">
@@ -85,18 +84,52 @@
   </header>
 
   <main class="wrap" id="top">
-    <section class="hero" id="install" aria-labelledby="hero-title">
+    <section class="hero" aria-labelledby="hero-title">
       <h1 id="hero-title">AI Agent + GeoGebra = ？</h1>
       <p class="lead" data-en="Create interactive GeoGebra figures with an Agent Skill and export GGB, PNG, PDF, TikZ, HTML, and more.">用 Agent Skill 生成可交互的 GeoGebra 图形，并导出为 GGB、PNG、PDF、TikZ、HTML 等格式。</p>
-      <div class="command">
-        <code id="cmd-install">npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code>
-        <button type="button" data-copy="cmd-install" aria-label="复制安装命令" data-en-label="Copy install command" hidden>
-          <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
-        </button>
+    </section>
+
+    <section class="install" id="install" aria-labelledby="install-title">
+      <h2 id="install-title" data-en="Installation">安装</h2>
+      <div class="install-option">
+        <h3 data-en="1. General installation">1. 通用安装</h3>
+        <p class="requirements" data-en="For clients that support Agent Skills. Requires Node.js 22.12 or later.">适用于支持 Agent Skills 的客户端，需要 Node.js 22.12 或更高版本。</p>
+        <div class="command">
+          <code id="cmd-install">npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code>
+          <button type="button" data-copy="cmd-install" aria-label="复制通用安装命令" data-en-label="Copy general install command" hidden>
+            <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+          </button>
+        </div>
       </div>
-      <p class="requirements" data-en="Requires Node.js 22.12+ and a client that supports Agent Skills.">需要 Node.js 22.12+ 和支持 Agent Skills 的客户端。</p>
-      <p class="requirements" data-en="DeepSeek Harness loads the Skill with the command above. The sidebar button is a separate plugin; see the README.">DeepSeek Harness 用上面的命令安装 Skill。侧边栏按钮是另一个插件，见 README。</p>
+      <div class="install-option">
+        <h3 data-en="2. Install in Codex">2. 在 Codex 当中安装</h3>
+        <p class="requirements" data-en="Run this command and open a new Codex session. Requires Node.js 22.12 or later.">运行命令，然后新开一个 Codex 会话。需要 Node.js 22.12 或更高版本。</p>
+        <div class="command">
+          <code id="cmd-codex">npx @lydt/geogebra-studio@latest install</code>
+          <button type="button" data-copy="cmd-codex" aria-label="复制 Codex 安装命令" data-en-label="Copy Codex install command" hidden>
+            <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+          </button>
+        </div>
+      </div>
+      <div class="install-option">
+        <h3 data-en="3. Install in DeepSeek Harness">3. 在 DeepSeek Harness 当中安装</h3>
+        <p class="requirements" data-en="In the desktop app, open Plugins → Add Plugin and paste this package name.">在桌面端打开「插件 → 添加插件」，粘贴下面的包名即可安装。</p>
+        <div class="command">
+          <code id="pkg-dsh">dsh-geogebra-studio</code>
+          <button type="button" data-copy="pkg-dsh" aria-label="复制插件包名" data-en-label="Copy plugin package name" hidden>
+            <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+          </button>
+        </div>
+      </div>
       <p class="sr-only" role="status" id="copy-status"></p>
+    </section>
+
+    <section class="demo" aria-labelledby="demo-title">
+      <h2 id="demo-title" data-en="Video demo">视频演示</h2>
+      <iframe class="demo-player" src="https://www.youtube-nocookie.com/embed/3-r2BwuJ3X8"
+        title="GeoGebra Studio demo on YouTube" loading="lazy"
+        allow="encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>
+      <a href="https://youtu.be/3-r2BwuJ3X8" data-en="Watch on YouTube">在 YouTube 上观看</a>
     </section>
 
     <section class="examples" id="examples" aria-labelledby="examples-title">
