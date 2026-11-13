@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Packaging
+
+- Keep iCloud Drive / File Provider conflict copies out of shipped files: they are gitignored, but npm's `files` whitelist still packed 181 of them into the tarball. `package.json` now excludes `* [0-9]` copies, `npm run build` ends with `clean:conflicts` (`scripts/clean-conflict-copies.cjs`), and `package-release.cjs` refuses a tarball that contains one.
+
 ### Viewer, skill and DeepSeek Harness plugin
 
 - Keep angle-slider captions visible: angle sliders report object type `angle`, so the slider-label pass skipped them and the viewer then hid their labels.
