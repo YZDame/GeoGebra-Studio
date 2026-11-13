@@ -2,11 +2,13 @@
 
 ## [Unreleased]
 
+## [0.6.2] — 2026-11-13
+
 ### Packaging
 
 - Keep iCloud Drive / File Provider conflict copies out of shipped files: they are gitignored, but npm's `files` whitelist still packed 181 of them into the tarball. `package.json` now excludes `* [0-9]` copies, `npm run build` ends with `clean:conflicts` (`scripts/clean-conflict-copies.cjs`), and `package-release.cjs` refuses a tarball that contains one.
 
-### Viewer, skill and DeepSeek Harness plugin
+### Viewer, skill and DeepSeek Harness plugin 0.3.2
 
 - Keep angle-slider captions visible: angle sliders report object type `angle`, so the slider-label pass skipped them and the viewer then hid their labels.
 - Support `labelOffsets` in 2D (`[dx,dy]` world units, `[dx,dy,dz]` in 3D) so one label can move off a line through its own point — a focal chord through a focus, a tangent through its contact point — without a hand-placed text object.
