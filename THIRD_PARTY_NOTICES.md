@@ -27,7 +27,7 @@ SOFTWARE.
 ## Built-in Gikz
 Gikz is now part of this GPL-2.0-or-later distribution. See gikz/LICENSE and
 gikz/PROVENANCE.md for its imported revision and upstream By990920 attribution.
-The same source core is used by MCP, CLI and the browser bundle. Generated HTML
+The same source core is used by the Skill/plugin CLI and the browser bundle. Generated HTML
 includes executable cleaner source and its full GPL license; preserve these notices.
 
 ## Original MCP

@@ -12,6 +12,8 @@ Open a figure below or browse the [live gallery](https://yzdame.github.io/GeoGeb
 | [Pascal’s theorem](https://yzdame.github.io/GeoGebra-Studio/figures/pascal-theorem.html) | [pascal-theorem.json](pascal-theorem.json) | Drag the six vertices along the ellipse and watch the three opposite-side intersections stay collinear. Parallel opposite sides have no finite intersection. |
 | [Mandelbrot set](https://yzdame.github.io/GeoGebra-Studio/figures/mandelbrot.html) | [mandelbrot.json](mandelbrot.json) | Drag the red parameter point to change the first twelve iterates of z ↦ z² + c. The blue region is a finite-resolution escape-time approximation with 60 iterations. |
 | [Golden spiral and sunflower](https://yzdame.github.io/GeoGebra-Studio/figures/golden-spiral-sunflower.html) | [golden-spiral-sunflower.json](golden-spiral-sunflower.json) | Compare growth by the golden ratio each quarter turn with seed placement at the golden angle. Use the slider to change the number of seeds. |
+| [Triangle, median and circumcircle](https://yzdame.github.io/GeoGebra-Studio/figures/triangle.html) | [triangle.json](triangle.json) | Inspect a triangle with its median to side AB and its circumcircle. |
+| [Two circles, tangents and polar](https://yzdame.github.io/GeoGebra-Studio/figures/circle-tangency.html) | [circle-tangency.json](circle-tangency.json) | Move point A along the outer circle to update both tangent lines to the inner circle and their chord of contact. |
 
 | 3D | Specification | What to explore |
 | --- | --- | --- |
@@ -21,10 +23,19 @@ Open a figure below or browse the [live gallery](https://yzdame.github.io/GeoGeb
 | [Torus knot](https://yzdame.github.io/GeoGebra-Studio/figures/torus-knot.html) | [torus-knot.json](torus-knot.json) | The default (2, 3) is a trefoil. Open the object sidebar to change p and q. When they share a divisor, the curve shows one component of the corresponding torus link. |
 | [Helicoid](https://yzdame.github.io/GeoGebra-Studio/figures/helicoid.html) | [helicoid.json](helicoid.json) | Rotate the minimal surface traced by a straight line that turns while rising along the z-axis. |
 | [Lorenz attractor](https://yzdame.github.io/GeoGebra-Studio/figures/lorenz-attractor.html) | [lorenz-attractor.json](lorenz-attractor.json) | Rotate the numerically integrated trajectory for σ = 10, ρ = 28 and β = 8/3. |
+| [Line-plane angle in a cube](https://yzdame.github.io/GeoGebra-Studio/figures/cube-3d.html) | [cube-3d.json](cube-3d.json) | Rotate the cube to inspect the space diagonal and the angle it makes with the base plane. |
 
 ## Prompts to try
 
-- **[Right triangle and circumcircle](right-triangle.json):** 画一个直角三角形 ABC，直角在 A。让两条直角边长可以调整，标出斜边 BC 的中点，并以它为圆心画出外接圆。
-- **[Nine-point circle](nine-point-circle.json):** 画一个顶点可拖动的三角形，标出三边中点、三条高的垂足和顶点到垂心的三段中点，再画出九点圆。
-- **[Cycloid](cycloid.json):** 让一个圆沿 x 轴无滑动地滚动，用滑块控制滚动距离，并画出圆周上一点的轨迹。
-- **[Ruled hyperboloid](hyperboloid-ruled.json):** 画单叶双曲面 x² + y² − z² = 1，并用两种颜色标出经过同一点的两条直母线。
+- **[Right triangle and circumcircle](right-triangle.json):**
+  - EN: Draw a right triangle ABC with the right angle at A. Make both legs adjustable with sliders, mark the midpoint of hypotenuse BC, and draw the circumcircle centered at that midpoint.
+  - 中文: 画一个直角三角形 ABC，直角在 A。让两条直角边长可以调整，标出斜边 BC 的中点，并以它为圆心画出外接圆。
+- **[Nine-point circle](nine-point-circle.json):**
+  - EN: Draw a triangle with draggable vertices, mark the midpoints of all three sides, the feet of the three altitudes, and the midpoints from each vertex to the orthocenter, then draw the nine-point circle.
+  - 中文: 画一个顶点可拖动的三角形，标出三边中点、三条高的垂足和顶点到垂心的三段中点，再画出九点圆。
+- **[Cycloid](cycloid.json):**
+  - EN: Roll a circle along the x-axis without slipping, control the rolling distance with a slider, and trace the locus of a point on the circle’s rim.
+  - 中文: 让一个圆沿 x 轴无滑动地滚动，用滑块控制滚动距离，并画出圆周上一点的轨迹。
+- **[Ruled hyperboloid](hyperboloid-ruled.json):**
+  - EN: Draw the one-sheet hyperboloid x² + y² − z² = 1 and highlight the two straight rulings passing through a common point in two different colors.
+  - 中文: 画单叶双曲面 x² + y² − z² = 1，并用两种颜色标出经过同一点的两条直母线。

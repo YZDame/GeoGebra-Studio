@@ -7,7 +7,7 @@ Do not run `dsh plugin add` on the repository root, on `@lydt/geogebra-studio`, 
 ## Check the installation
 
 1. The left sidebar shows **GeoGebra Studio** beside Plugins, Automation and Tasks, using DSH's official split-view icon. Selecting it opens a blank canvas in the right sidebar while the conversation stays in the main column.
-2. A new session lists `geogebra_build`, `geogebra_preview` and `geogebra_export`, and its skill catalog contains `geogebra-studio`.
+2. A new session lists `geogebra_build`, `geogebra_status`, `geogebra_preview` and `geogebra_export`, and its skill catalog contains `geogebra-studio`.
 3. **Plugins** lists the package with its title and description; the package ships no custom artwork, so DSH draws its official default plugin mark.
 4. Run `dsh --profile web --dump-config` and look for `# == dsh-geogebra-studio` with `name: dsh-geogebra-studio`. A missing row means the bundle patch did not load.
 

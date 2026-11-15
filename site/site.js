@@ -15,6 +15,9 @@ let english = false;
 function setLanguage(value) {
   english = value;
   document.documentElement.lang = english ? "en" : "zh-CN";
+  document.title = english
+    ? "GeoGebra Studio: Turn math problems into interactive figures with an Agent Skill"
+    : "GeoGebra Studio：用 Agent Skill 把题目做成可拖动图形";
 
   for (const { element, text, label, href } of translations) {
     if (element.dataset.en) element.textContent = english ? element.dataset.en : text;

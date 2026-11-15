@@ -2,6 +2,8 @@
 <h1 align="center">GeoGebra Studio</h1>
 
 <p align="center">
+  <a href="skills/geogebra-studio/SKILL.md"><img src="https://img.shields.io/badge/Agent_Skill-geogebra--studio-0F766E" alt="Agent Skill: geogebra-studio"></a>
+  <a href="https://yzdame.github.io/GeoGebra-Studio/"><img src="https://img.shields.io/badge/demo-GitHub_Pages-2563EB" alt="Interactive gallery on GitHub Pages"></a>
   <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/v/@lydt/geogebra-studio?label=Studio%20npm" alt="GeoGebra Studio npm version"></a>
   <a href="https://www.npmjs.com/package/dsh-geogebra-studio"><img src="https://img.shields.io/npm/v/dsh-geogebra-studio?label=DSH%20npm" alt="DeepSeek Harness plugin npm version"></a>
   <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/dm/@lydt/geogebra-studio?label=Studio%20downloads" alt="GeoGebra Studio monthly npm downloads"></a>
@@ -10,100 +12,77 @@
   <a href="https://github.com/YZDame/GeoGebra-Studio/stargazers"><img src="https://img.shields.io/github/stars/YZDame/GeoGebra-Studio?style=flat" alt="GitHub stars"></a>
 </p>
 
+**GeoGebra Studio** は標準的な **Agent Skill** です（Codex や DeepSeek Harness 向けのプラグインも用意しています）。Claude Code、Codex、Cursor、DeepSeek Harness などの AI クライアントで、描きたい図形を文章で伝えたり、問題文書や参考画像を送ったりするだけで、ドラッグ・編集・書き出しが可能な 2D/3D GeoGebra ページを生成できます。まずは雰囲気を試したい場合は、インストール不要でブラウザーから使える[インタラクティブギャラリー（GitHub Pages）](https://yzdame.github.io/GeoGebra-Studio/)をご覧ください。
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md)
 
-**GeoGebra の編集可能な数学図形を生成・編集・書き出しするための、移植可能な Agent Skill です。**
+## クイックスタート
 
-## 使い方
+1. **Agent Skill をインストール**（Node.js 22.12 以降が必要です。Codex や DeepSeek Harness プラグインについては下の[インストール](#インストール)をご覧ください）：
+
+   ```sh
+   npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
+   ```
+
+2. **AI に作図を依頼する**（問題文書や参考画像をアップロードして依頼することもできます。アップロード方法はご利用の AI クライアントに準じます）：
+
+   > 三角形とその外接円を描いて。頂点はドラッグできるようにしてください。
+
+3. **操作・編集・書き出し**：生成されたページを開いて点をドラッグしたり数値を調整したりできます。AI に追加の変更を頼むことも可能です。**編集内容を保存するには、ページを閉じる・再読み込みする前に現在の HTML または GGB をダウンロードしてください。**
 
 | 生成 | 編集 | 書き出し |
 | --- | --- | --- |
-| ![端末で generate / preview（ZoomIn を含む）を実行し、外接円全体が見える直角三角形をローカルビューアに読み込む。](docs/images/generate.gif) | ![代数ビューで b を 4→3、続いて h を 3→4 に変えると、三角形と外接円全体がすぐに更新される。](docs/images/edit.gif) | ![Download メニューに GGB、PNG、SVG、TikZ、PDF、XML、HTML が表示され、SVG と TikZ をクリックしたあと、書き出された TikZ ソースが表示される。](docs/images/export.gif) |
-| コマンド JSON から、あらかじめ配置したローカルの対話ビューアへ。 | 自由な値を変えても、依存オブジェクトは関係を保つ。 | 一つの作図。実際の Download メニューから七つの形式。 |
+| ![インタラクティブ図形の生成](docs/images/generate.gif) | ![数値を変えて図形を更新](docs/images/edit.gif) | ![形式を選んでダウンロード](docs/images/export.gif) |
 
 ## 主な機能
 
-- GeoGebra 標準エンジンによる編集可能な 2D／3D 図形、依存オブジェクト、代数ビュー。
-- 画面サイズに対応したビューア、9 種類のテーマとライト／ダークモード。
-- ビューアから **GGB・HTML・PNG・SVG・PDF・XML・TikZ** の 7 形式をダウンロード。
-- XML から **Asymptote** および **TSQX/Asymptote 混合形式**へのローカル変換。
-- 通常の作業に MCP サーバー、バックエンド、データベースは不要。
-
-## 動作要件
-
-Node.js **22.12 以降**。生成された HTML を開くときは、GeoGebra 公式エンジンをオンラインで読み込むため、インターネット接続が必要です。
+- 自由点のドラッグや数値調整に対応した 2D／3D GeoGebra 図形、9 種類のテーマ、ライト／ダークモード。
+- ページ上から **HTML、GGB、PNG、SVG、PDF、XML、TikZ** を直接ダウンロード。
+- AI を通じて **Asymptote** および **TSQX/Asymptote 混合形式**のソースコードを書き出し可能（詳細は[書き出しガイド](skills/geogebra-studio/references/exports.md)を参照）。
+- [`SKILL.md`](skills/geogebra-studio/SKILL.md) に基づくポータブルなワークフロー。MCP サーバー、バックエンド、データベースは不要です。
 
 ## インストール
 
-### 1. 汎用インストール
+macOS、Windows、Linux 上で **Node.js 22.12 以降**が必要です。AI クライアントにはファイル操作とコマンド実行の権限が必要です。生成したページを開く際は、GeoGebra 公式エンジンを読み込むためインターネット接続が必要です。
 
-Codex、Claude Code、Cursor など、Agent Skills に対応するクライアントで使えます。案内に従ってクライアントとインストール範囲を選びます。
+**ご利用の AI クライアントに合わせて、以下のいずれか 1 つの方法を選択してください：**
+
+### 1. 汎用 Agent Skill インストール（推奨）
+
+Claude Code、Cursor、Codex など、Agent Skills に対応するクライアント向けです。画面の案内に従ってクライアントとインストール範囲を選択してください。
 
 ```sh
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
-### 2. Codex にインストール
+また、[`skills/geogebra-studio/`](skills/geogebra-studio/) フォルダー一式（`SKILL.md` と同階層のすべてのファイルを含む）をクライアントの Skills ディレクトリへそのままコピーする方法でも利用できます。
 
-インストーラーを実行し、新しい Codex セッションを開きます。
+### 2. Codex にインストール（オプションのプラグイン）
+
+Codex プラグインインストーラーを実行し、新しい Codex セッションを開きます。
 
 ```sh
 npx @lydt/geogebra-studio@latest install
 ```
 
-<img src="docs/images/cover.png" alt="macOS の Codex。中国語で GeoGebra Studio が高校の立体幾何を 3D で描けるか尋ね、右側に高さ h の可動断面を持つ四分の一円柱の立体がある。" width="100%">
+<img src="docs/images/cover.png" alt="可動断面を持つ 3D 立体幾何図形の AI 生成例" width="100%">
 
-### 3. DeepSeek Harness にインストール
+### 3. DeepSeek Harness にインストール（右側インタラクティブキャンバス付き）
 
-デスクトップアプリで **Plugins → Add Plugin** を開き、以下のパッケージ名を貼り付けてインストールします。
+デスクトップアプリで **Plugins → Add Plugin** を開き、以下のパッケージ名を貼り付けてインストールしてください。このプラグインには `geogebra-studio` スキルが同梱されているため、汎用インストールを別途行う必要はありません。
 
 ```text
 dsh-geogebra-studio
 ```
 
-左側のサイドバーから **GeoGebra Studio** を開きます。コマンドラインでのインストールは[プラグインガイド](plugins/dsh-geogebra-studio/)を参照してください。
+左側のサイドバーから **GeoGebra Studio** を開くと、会話の横にインタラクティブなキャンバスが表示されます。コマンドラインでのインストールは[プラグインガイド](plugins/dsh-geogebra-studio/)をご覧ください。
 
-<img src="docs/images/dsh-right-canvas.png" alt="DeepSeek Harness で表示した楕円と調整可能な焦点弦" width="100%">
+<img src="docs/images/dsh-right-canvas.png" alt="DeepSeek Harness のキャンバスに表示した楕円・焦点・準線・調整可能な焦点弦" width="100%">
 
-## クイックスタート
+詳しい設定やトラブルシューティングは[インストールとトラブルシューティング](skills/geogebra-studio/references/installation.md)を参照してください。
 
-`diagram.json` を作成し、Agent に Skill の実行を依頼するか、ローカルの生成コマンドを実行します：
+## 関連資料
 
-```json
-{
-  "filename": "circle.html",
-  "commands": ["A=(0,0)", "B=(4,0)", "c=Circle(A,B)"],
-  "visibleLabels": ["A", "B"]
-}
-```
+[サンプル集](examples/README.md) · [インタラクティブギャラリー](https://yzdame.github.io/GeoGebra-Studio/) · [Skill 定義](skills/geogebra-studio/SKILL.md) · [開発と貢献](CONTRIBUTING.md)
 
-```sh
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
-```
-
-## 編集と保存
-
-生成された HTML をブラウザーで開き、自由点をドラッグしたり代数ビューでオブジェクトを編集したりできます。**閉じる・再読み込みする前に現在の HTML または GGB をダウンロードしてください。** 元のファイルは自動更新されません。保存した HTML は編集可能な構成を保持します。
-
-## ソース形式への書き出し
-
-ビューアから現在の XML をダウンロードするか、`await window.geogebraStudio.snapshot()` を使用して、次のコマンドで変換します。TSQX は **TSQX と Asymptote の混合形式**であり、純粋な TSQX ではありません。未対応の依存関係は明示的にエラーとなります。
-
-```sh
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format tsqx --workspace /absolute/project --output figure.tsqx
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format asymptote --workspace /absolute/project --output figure.asy
-```
-
-## 開発と検証
-
-```sh
-npm ci
-npm run verify
-npm run test:unit
-```
-
-実際のブラウザーを用いる任意の検証には Chrome とインターネットが必要です。通常のローカル生成には Chrome も MCP サーバーも必要ありません。
-
-関連資料：[インタラクティブギャラリー](https://yzdame.github.io/GeoGebra-Studio/)、[サンプル](examples/README.md)、[アーキテクチャ](docs/MODERNIZATION.md)、[貢献ガイド](CONTRIBUTING.md)。
-
-GeoGebra Studio は GeoGebra 公式とは無関係の独立したコミュニティプロジェクトです。ライセンスは **GPL-2.0-or-later**。[LICENSE](LICENSE)、[LICENSE-MIT](LICENSE-MIT)、[第三者に関する表示](THIRD_PARTY_NOTICES.md)を参照してください。
+GeoGebra 公式とは無関係の独立したコミュニティプロジェクトです。[GPL-2.0-or-later](LICENSE) ライセンスのもとで公開されており、[従来の MIT 表記](LICENSE-MIT)および[第三者に関する表示](THIRD_PARTY_NOTICES.md)を保持しています。

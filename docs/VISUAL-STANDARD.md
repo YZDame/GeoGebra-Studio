@@ -24,7 +24,7 @@ and preview screenshots are optional; inspect the visible diagram for visual qua
   while preserving user custom colors. Clipper-derived tokens retain MIT notices.
 - Seven current-state downloads: GGB (ZIP bytes), PNG, SVG, cleaned TikZ, PDF, XML,
   HTML. Saved HTML retains packed geometry, themes, browser cleaner and licensing.
-- TikZ uses native PGF then the SAME built-in Gikz core used by MCP/CLI. No fallback.
+- TikZ uses native PGF then the SAME built-in Gikz core used by the Skill/plugin CLI. No fallback.
 - Time-bounded loading with specific errors. Official assets require internet;
   current runtime exposes exportPGF but availability is checked before using it.
 

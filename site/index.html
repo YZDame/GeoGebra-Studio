@@ -93,7 +93,7 @@
       <h2 id="install-title" data-en="Installation">安装</h2>
       <div class="install-option">
         <h3 data-en="1. General installation">1. 通用安装</h3>
-        <p class="requirements" data-en="For clients that support Agent Skills. Requires Node.js 22.12 or later.">适用于支持 Agent Skills 的客户端，需要 Node.js 22.12 或更高版本。</p>
+        <p class="requirements" data-en="For Claude Code, Codex, Cursor, and other clients that support Agent Skills. Requires Node.js 22.12 or later.">适用于 Claude Code、Codex、Cursor 等支持 Agent Skills 的客户端，需要 Node.js 22.12 或更高版本。</p>
         <div class="command">
           <code id="cmd-install">npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code>
           <button type="button" data-copy="cmd-install" aria-label="复制通用安装命令" data-en-label="Copy general install command" hidden>
@@ -113,7 +113,7 @@
       </div>
       <div class="install-option">
         <h3 data-en="3. Install in DeepSeek Harness">3. 在 DeepSeek Harness 当中安装</h3>
-        <p class="requirements" data-en="In the desktop app, open Plugins → Add Plugin and paste this package name.">在桌面端打开「插件 → 添加插件」，粘贴下面的包名即可安装。</p>
+        <p class="requirements" data-en="In the desktop app, open Plugins → Add Plugin and paste this package name. Then open GeoGebra Studio from the left sidebar to use the canvas beside your chat.">在桌面端打开「插件 → 添加插件」，粘贴下面的包名即可安装。安装后从左侧栏打开 GeoGebra Studio 即可在对话旁使用画布。</p>
         <div class="command">
           <code id="pkg-dsh">dsh-geogebra-studio</code>
           <button type="button" data-copy="pkg-dsh" aria-label="复制插件包名" data-en-label="Copy plugin package name" hidden>
@@ -122,6 +122,18 @@
         </div>
       </div>
       <p class="sr-only" role="status" id="copy-status"></p>
+    </section>
+
+    <section class="usage" id="usage" aria-labelledby="usage-title">
+      <h2 id="usage-title" data-en="How to use">使用方法</h2>
+      <p class="requirements" data-en="After installing, ask your AI to draw, or send a problem document or reference image. For example:">安装后，直接向 AI 提出作图需求，或上传题目文档、参考图。例如：</p>
+      <div class="command">
+        <code id="cmd-prompt" data-en="Draw a triangle and its circumcircle. Let me drag the vertices.">画一个三角形和它的外接圆，顶点可以拖动。</code>
+        <button type="button" data-copy="cmd-prompt" aria-label="复制示例提示词" data-en-label="Copy sample prompt" hidden>
+          <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+        </button>
+      </div>
+      <p class="usage-note" data-en="Open the generated page to drag points and adjust values, or ask AI for further changes. Download the current HTML or GGB before closing or refreshing to save your edits.">打开生成的页面即可拖动点、调整数值，也可以继续让 AI 修改。关闭或刷新前，请下载当前 HTML 或 GGB 保存修改。</p>
     </section>
 
     <section class="demo" aria-labelledby="demo-title">

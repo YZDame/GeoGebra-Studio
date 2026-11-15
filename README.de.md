@@ -2,6 +2,8 @@
 <h1 align="center">GeoGebra Studio</h1>
 
 <p align="center">
+  <a href="skills/geogebra-studio/SKILL.md"><img src="https://img.shields.io/badge/Agent_Skill-geogebra--studio-0F766E" alt="Agent Skill: geogebra-studio"></a>
+  <a href="https://yzdame.github.io/GeoGebra-Studio/"><img src="https://img.shields.io/badge/demo-GitHub_Pages-2563EB" alt="Interactive gallery on GitHub Pages"></a>
   <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/v/@lydt/geogebra-studio?label=Studio%20npm" alt="GeoGebra Studio npm version"></a>
   <a href="https://www.npmjs.com/package/dsh-geogebra-studio"><img src="https://img.shields.io/npm/v/dsh-geogebra-studio?label=DSH%20npm" alt="DeepSeek Harness plugin npm version"></a>
   <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/dm/@lydt/geogebra-studio?label=Studio%20downloads" alt="GeoGebra Studio monthly npm downloads"></a>
@@ -10,100 +12,77 @@
   <a href="https://github.com/YZDame/GeoGebra-Studio/stargazers"><img src="https://img.shields.io/github/stars/YZDame/GeoGebra-Studio?style=flat" alt="GitHub stars"></a>
 </p>
 
+**GeoGebra Studio** ist ein standardisierter **Agent Skill** (mit optionalen Plugins für Codex und DeepSeek Harness). Beschreibe deiner KI in Claude Code, Codex, Cursor, DeepSeek Harness oder jedem Agent-Skills-Client, was du zeichnen möchtest — oder sende eine Aufgabenstellung bzw. ein Referenzbild — und erhalte eine interaktive 2D/3D-GeoGebra-Seite zum Ziehen, Bearbeiten und Exportieren. Erst einmal ausprobieren? Öffne die [interaktive Galerie auf GitHub Pages](https://yzdame.github.io/GeoGebra-Studio/) direkt im Browser, ganz ohne Installation.
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md)
 
-**Ein portabler Agent Skill zum Erstellen, Bearbeiten und Exportieren interaktiver mathematischer GeoGebra-Konstruktionen.**
+## Schnellstart
 
-## So funktioniert es
+1. **Agent Skill installieren** (erfordert Node.js 22.12+; Optionen für Codex- und DeepSeek-Harness-Plugins siehe [Installation](#installation) weiter unten):
+
+   ```sh
+   npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
+   ```
+
+2. **KI um eine Zeichnung bitten**, oder ein Aufgabendokument bzw. Referenzbild hochladen (die Upload-Möglichkeiten hängen vom jeweiligen KI-Client ab):
+
+   > Zeichne ein Dreieck und seinen Umkreis. Die Eckpunkte sollen sich verschieben lassen.
+
+3. **Interagieren, bearbeiten und exportieren**: Öffne die erzeugte Seite, um Punkte zu verschieben und Werte anzupassen, oder bitte die KI um weitere Änderungen. **Lade vor dem Schließen oder Neuladen das aktuelle HTML oder GGB herunter, um deine Änderungen zu sichern.**
 
 | Erzeugen | Bearbeiten | Exportieren |
 | --- | --- | --- |
-| ![Im Terminal generate und preview (einschließlich ZoomIn); der lokale Viewer lädt das rechtwinklige Dreieck mit vollständig sichtbarem Umkreis.](docs/images/generate.gif) | ![Algebra-Ansicht: b von 4 auf 3, danach h von 3 auf 4; Dreieck und vollständiger Umkreis aktualisieren sich sofort.](docs/images/edit.gif) | ![Download-Menü mit GGB, PNG, SVG, TikZ, PDF, XML und HTML; Klicks auf SVG und TikZ, danach der exportierte TikZ-Quelltext.](docs/images/export.gif) |
-| Von Befehls-JSON zum vorausgerichteten lokalen interaktiven Viewer. | Einen freien Wert ändern. Abhängige Objekte behalten ihre Beziehungen. | Eine Konstruktion. Sieben Formate aus dem echten Download-Menü. |
+| ![Interaktive Figur erzeugen](docs/images/generate.gif) | ![Werte ändern und Figur aktualisieren](docs/images/edit.gif) | ![Format wählen und herunterladen](docs/images/export.gif) |
 
 ## Funktionen
 
-- Native, editierbare GeoGebra-Figuren in 2D/3D mit abhängigen Objekten und Algebra-Ansicht.
-- Responsiver Viewer mit neun Themenfamilien sowie Hell-/Dunkelmodus.
-- Sieben Downloads im Viewer: **GGB, HTML, PNG, SVG, PDF, XML und TikZ**.
-- Zusätzlicher lokaler Export aus XML nach **Asymptote** und **gemischtem TSQX/Asymptote**.
-- Für den normalen Einsatz sind weder MCP-Server noch Backend oder Datenbank erforderlich.
-
-## Voraussetzungen
-
-Node.js **ab 22.12**. Zum Öffnen des erzeugten HTML ist Internet nötig, da die offizielle GeoGebra-Engine online geladen wird.
+- 2D- und 3D-GeoGebra-Figuren mit verschiebbaren Punkten, einstellbaren Werten, neun Design-Themes sowie Hell-/Dunkelmodus.
+- **HTML, GGB, PNG, SVG, PDF, XML und TikZ** direkt auf der Seite herunterladen.
+- Export als **Asymptote** und **gemischtes TSQX/Asymptote** über die KI; siehe [Export-Details](skills/geogebra-studio/references/exports.md).
+- Portabler [`SKILL.md`](skills/geogebra-studio/SKILL.md)-Workflow ohne MCP-Server, Backend oder Datenbank.
 
 ## Installation
 
-### 1. Allgemeine Installation
+Läuft unter macOS, Windows und Linux mit **Node.js 22.12 oder neuer**. Dein KI-Client benötigt Datei- und Shell-Zugriff. Zum Öffnen einer erzeugten Seite ist Internetzugang erforderlich, um die offizielle GeoGebra-Engine zu laden.
 
-Für Codex, Claude Code, Cursor und andere Clients mit Agent Skills. Folge den Anweisungen zur Auswahl des Clients und des Installationsbereichs.
+**Wähle passend zu deinem KI-Client eine der folgenden Methoden:**
+
+### 1. Allgemeine Agent-Skill-Installation (empfohlen)
+
+Für Claude Code, Cursor, Codex und andere Clients mit Agent-Skills-Unterstützung. Folge den Eingabeaufforderungen, um Client und Installationsbereich auszuwählen.
 
 ```sh
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
-### 2. Installation in Codex
+Alternativ kannst du den gesamten Ordner [`skills/geogebra-studio/`](skills/geogebra-studio/) in das Skills-Verzeichnis deines Clients kopieren. Behalte dabei alle Dateien neben `SKILL.md`.
 
-Führe den Befehl aus und öffne eine neue Codex-Sitzung.
+### 2. Installation in Codex (optionales Plugin)
+
+Führe den Codex-Plugin-Installer aus und öffne eine neue Codex-Sitzung.
 
 ```sh
 npx @lydt/geogebra-studio@latest install
 ```
 
-<img src="docs/images/cover.png" alt="Codex unter macOS: eine chinesische Frage, ob GeoGebra Studio 3D-Raumgeometrie der Oberstufe zeichnen kann, neben einem Viertelzylinder mit verschiebbarem Querschnitt auf Höhe h." width="100%">
+<img src="docs/images/cover.png" alt="KI-generierte 3D-Geometrie mit verschiebbarem Querschnitt" width="100%">
 
-### 3. Installation in DeepSeek Harness
+### 3. Installation in DeepSeek Harness (interaktives Canvas in der rechten Seitenleiste)
 
-Öffne in der Desktop-App **Plugins → Add Plugin**, füge den Paketnamen ein und installiere das Plugin.
+Öffne in der Desktop-App **Plugins → Add Plugin**, füge den untenstehenden Paketnamen ein und installiere ihn. Das Plugin bringt den `geogebra-studio`-Skill bereits mit; eine separate Skill-Installation ist nicht nötig.
 
 ```text
 dsh-geogebra-studio
 ```
 
-Öffne **GeoGebra Studio** in der linken Seitenleiste. Die [Plugin-Anleitung](plugins/dsh-geogebra-studio/) beschreibt auch die Installation per Kommandozeile.
+Öffne **GeoGebra Studio** in der linken Seitenleiste, um das interaktive Canvas direkt neben dem Chat zu nutzen. Die Installation per Kommandozeile beschreibt die [Plugin-Anleitung](plugins/dsh-geogebra-studio/).
 
-<img src="docs/images/dsh-right-canvas.png" alt="Ellipse mit verstellbarer Brennpunktsehne in DeepSeek Harness" width="100%">
+<img src="docs/images/dsh-right-canvas.png" alt="Ellipse mit Brennpunkten, Leitlinien und verstellbarer Brennpunktsehne im DeepSeek-Harness-Canvas" width="100%">
 
-## Schnellstart
+Weitere Details findest du unter [Installation und Fehlerbehebung](skills/geogebra-studio/references/installation.md).
 
-Lege `diagram.json` an und verwende die Skill im Agent oder starte den lokalen Generator:
+## Ressourcen
 
-```json
-{
-  "filename": "circle.html",
-  "commands": ["A=(0,0)", "B=(4,0)", "c=Circle(A,B)"],
-  "visibleLabels": ["A", "B"]
-}
-```
+[Beispiele](examples/README.md) · [Interaktive Galerie](https://yzdame.github.io/GeoGebra-Studio/) · [Skill-Spezifikation](skills/geogebra-studio/SKILL.md) · [Entwicklung und Mitwirken](CONTRIBUTING.md)
 
-```sh
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
-```
-
-## Bearbeiten und speichern
-
-Öffne das HTML im Browser, verschiebe freie Punkte oder bearbeite Objekte in der Algebra-Ansicht. **Vor dem Schließen oder Neuladen das aktuelle HTML oder GGB herunterladen**: Die Originaldateien werden nicht automatisch aktualisiert. Das heruntergeladene HTML bewahrt die editierbare Konstruktion.
-
-## Quellcode-Export
-
-Lade das aktuelle XML aus dem Viewer herunter (oder nutze `await window.geogebraStudio.snapshot()`) und führe die folgenden Befehle aus. TSQX ist **mit Asymptote gemischt**, kein reines TSQX; nicht unterstützte Abhängigkeiten werden ausdrücklich abgelehnt.
-
-```sh
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format tsqx --workspace /absolute/project --output figure.tsqx
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format asymptote --workspace /absolute/project --output figure.asy
-```
-
-## Entwicklung und Tests
-
-```sh
-npm ci
-npm run verify
-npm run test:unit
-```
-
-Optionale Tests im echten Browser benötigen Chrome und Internet. Für die normale lokale Generierung sind weder Chrome noch ein MCP-Server nötig.
-
-Weitere Informationen: [Interaktive Galerie](https://yzdame.github.io/GeoGebra-Studio/), [Beispiele](examples/README.md), [Architektur](docs/MODERNIZATION.md) und [Mitwirken](CONTRIBUTING.md).
-
-Unabhängiges Community-Projekt ohne Zugehörigkeit zu GeoGebra. Kombinierte Lizenz **GPL-2.0-or-later**. Siehe [LICENSE](LICENSE), [LICENSE-MIT](LICENSE-MIT) und [Drittanbieterhinweise](THIRD_PARTY_NOTICES.md).
+Ein unabhängiges Community-Projekt, ohne Zugehörigkeit zu GeoGebra. Lizenziert unter [GPL-2.0-or-later](LICENSE), unter Beibehaltung der [früheren MIT-Hinweise](LICENSE-MIT) und [Drittanbieter-Hinweise](THIRD_PARTY_NOTICES.md).

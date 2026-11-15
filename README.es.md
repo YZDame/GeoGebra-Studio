@@ -2,6 +2,8 @@
 <h1 align="center">GeoGebra Studio</h1>
 
 <p align="center">
+  <a href="skills/geogebra-studio/SKILL.md"><img src="https://img.shields.io/badge/Agent_Skill-geogebra--studio-0F766E" alt="Agent Skill: geogebra-studio"></a>
+  <a href="https://yzdame.github.io/GeoGebra-Studio/"><img src="https://img.shields.io/badge/demo-GitHub_Pages-2563EB" alt="Interactive gallery on GitHub Pages"></a>
   <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/v/@lydt/geogebra-studio?label=Studio%20npm" alt="GeoGebra Studio npm version"></a>
   <a href="https://www.npmjs.com/package/dsh-geogebra-studio"><img src="https://img.shields.io/npm/v/dsh-geogebra-studio?label=DSH%20npm" alt="DeepSeek Harness plugin npm version"></a>
   <a href="https://www.npmjs.com/package/@lydt/geogebra-studio"><img src="https://img.shields.io/npm/dm/@lydt/geogebra-studio?label=Studio%20downloads" alt="GeoGebra Studio monthly npm downloads"></a>
@@ -10,100 +12,77 @@
   <a href="https://github.com/YZDame/GeoGebra-Studio/stargazers"><img src="https://img.shields.io/github/stars/YZDame/GeoGebra-Studio?style=flat" alt="GitHub stars"></a>
 </p>
 
+**GeoGebra Studio** es una **Agent Skill** estándar (con plugins opcionales para Codex y DeepSeek Harness). En Claude Code, Codex, Cursor, DeepSeek Harness o cualquier cliente compatible con Agent Skills, dile a tu IA qué quieres dibujar —o envíale un documento o imagen de referencia— para obtener una página interactiva de GeoGebra en 2D o 3D que puedes arrastrar, editar y exportar. ¿Quieres probarlo primero? Explora la [galería interactiva en GitHub Pages](https://yzdame.github.io/GeoGebra-Studio/) directamente en tu navegador sin instalar nada.
+
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md)
 
-**Una Agent Skill portátil para crear, editar y exportar construcciones matemáticas interactivas con GeoGebra.**
+## Inicio rápido
 
-## Cómo funciona
+1. **Instala la Agent Skill** (requiere Node.js 22.12 o superior; consulta [Instalación](#instalación) más abajo si buscas los plugins para Codex o DeepSeek Harness):
+
+   ```sh
+   npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
+   ```
+
+2. **Pide a tu IA que dibuje**, o sube un documento de problema o una imagen de referencia (las opciones de subida dependen de tu cliente de IA):
+
+   > Dibuja un triángulo y su circunferencia circunscrita. Deja que pueda arrastrar los vértices.
+
+3. **Interactúa, edita y exporta**: Abre la página generada para arrastrar puntos y ajustar valores, o pide más cambios a la IA. **Descarga el HTML o GGB actual antes de cerrar o recargar la página para guardar tus cambios.**
 
 | Generar | Editar | Exportar |
 | --- | --- | --- |
-| ![La terminal ejecuta generate y preview (con ZoomIn); el visor local carga el triángulo rectángulo con la circunferencia circunscrita completa.](docs/images/generate.gif) | ![En la vista Álgebra, b pasa de 4 a 3 y luego h de 3 a 4; el triángulo y la circunferencia completa se actualizan al momento.](docs/images/edit.gif) | ![Menú Download con GGB, PNG, SVG, TikZ, PDF, XML y HTML; clics en SVG y TikZ, y después el código TikZ exportado.](docs/images/export.gif) |
-| Del JSON de comandos al visor local interactivo ya encuadrado. | Cambia un valor libre. Los objetos dependientes conservan sus relaciones. | Una construcción. Siete formatos desde el menú Download real. |
+| ![Generar una figura interactiva](docs/images/generate.gif) | ![Cambiar valores y ver actualizarse la figura](docs/images/edit.gif) | ![Elegir un formato y descargar](docs/images/export.gif) |
 
-## Funciones principales
+## Funciones
 
-- Figuras nativas editables en 2D y 3D, con relaciones de dependencia y vista algebraica.
-- Visor adaptable, nueve familias de temas y modos claro/oscuro.
-- Siete descargas desde el visor: **GGB, HTML, PNG, SVG, PDF, XML y TikZ**.
-- Exportaciones locales adicionales a **Asymptote** y **TSQX/Asymptote mixto** a partir de XML.
-- Sin servidor MCP, backend ni base de datos para el uso habitual.
-
-## Requisitos
-
-Node.js **22.12 o superior**. Para abrir el HTML generado hace falta conexión a Internet porque se carga el motor oficial de GeoGebra.
+- Figuras GeoGebra en 2D y 3D con puntos arrastrables, valores ajustables, nueve familias de temas y modos claro/oscuro.
+- Descarga **HTML, GGB, PNG, SVG, PDF, XML y TikZ** directamente desde la página.
+- Exporta código **Asymptote** y **TSQX/Asymptote mixto** a través de la IA; consulta los [detalles de exportación](skills/geogebra-studio/references/exports.md).
+- Flujo portátil basado en [`SKILL.md`](skills/geogebra-studio/SKILL.md), sin servidor MCP, backend ni base de datos.
 
 ## Instalación
 
-### 1. Instalación general
+Úsalo en macOS, Windows o Linux con **Node.js 22.12 o superior**. Tu cliente de IA necesita acceso a archivos y terminal. Para abrir una página generada hace falta conexión a Internet para cargar el motor oficial de GeoGebra.
 
-Para Codex, Claude Code, Cursor y otros clientes compatibles con Agent Skills. Sigue las indicaciones para elegir el cliente y el ámbito de instalación.
+**Elige uno de los siguientes métodos según tu cliente de IA:**
+
+### 1. Instalación general como Agent Skill (recomendada)
+
+Para Claude Code, Cursor, Codex y otros clientes compatibles con Agent Skills. Sigue las indicaciones para elegir tu cliente y el ámbito de instalación.
 
 ```sh
 npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
 ```
 
-### 2. Instalación en Codex
+También puedes copiar toda la carpeta [`skills/geogebra-studio/`](skills/geogebra-studio/) al directorio de Skills de tu cliente, conservando todos los archivos junto a `SKILL.md`.
 
-Ejecuta el instalador y abre una nueva sesión de Codex.
+### 2. Instalar en Codex (plugin opcional)
+
+Ejecuta el instalador del plugin para Codex y abre una nueva sesión de Codex.
 
 ```sh
 npx @lydt/geogebra-studio@latest install
 ```
 
-<img src="docs/images/cover.png" alt="Codex en macOS: una pregunta en chino sobre si GeoGebra Studio puede dibujar geometría sólida de bachillerato en 3D, junto a un cuarto de cilindro con una sección móvil a la altura h." width="100%">
+<img src="docs/images/cover.png" alt="Geometría espacial en 3D generada por IA con una sección transversal móvil" width="100%">
 
-### 3. Instalación en DeepSeek Harness
+### 3. Instalar en DeepSeek Harness (lienzo interactivo lateral)
 
-En la aplicación de escritorio, abre **Plugins → Add Plugin**, pega el nombre del paquete e instálalo.
+En la aplicación de escritorio, abre **Plugins → Add Plugin**, pega el nombre del paquete siguiente e instálalo. El plugin ya incluye la skill `geogebra-studio`, por lo que no necesitas instalarla por separado.
 
 ```text
 dsh-geogebra-studio
 ```
 
-Abre **GeoGebra Studio** desde la barra lateral izquierda. La [guía del plugin](plugins/dsh-geogebra-studio/) incluye la instalación por terminal.
+Abre **GeoGebra Studio** desde la barra lateral izquierda para usar el lienzo interactivo junto a tu chat. Consulta la [guía del plugin](plugins/dsh-geogebra-studio/) para instalarlo desde la línea de comandos.
 
-<img src="docs/images/dsh-right-canvas.png" alt="Elipse con una cuerda focal ajustable en DeepSeek Harness" width="100%">
+<img src="docs/images/dsh-right-canvas.png" alt="Elipse con sus focos, directrices y una cuerda focal ajustable en el lienzo de DeepSeek Harness" width="100%">
 
-## Inicio rápido
+Consulta [instalación y solución de problemas](skills/geogebra-studio/references/installation.md) para más detalles.
 
-Crea `diagram.json` y pide a tu agente que use la Skill, o ejecuta el generador:
+## Recursos
 
-```json
-{
-  "filename": "circle.html",
-  "commands": ["A=(0,0)", "B=(4,0)", "c=Circle(A,B)"],
-  "visibleLabels": ["A", "B"]
-}
-```
+[Ejemplos](examples/README.md) · [Galería interactiva](https://yzdame.github.io/GeoGebra-Studio/) · [Definición de la Skill](skills/geogebra-studio/SKILL.md) · [Desarrollo y colaboración](CONTRIBUTING.md)
 
-```sh
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs generate --input /absolute/project/diagram.json --workspace /absolute/project
-```
-
-## Editar y guardar
-
-Abre el HTML en un navegador, arrastra puntos libres y edita objetos mediante la vista algebraica. **Descarga el HTML o GGB actual antes de cerrar o recargar**: los cambios no se guardan automáticamente en los archivos originales. El HTML descargado conserva la construcción editable.
-
-## Exportación de código fuente
-
-Descarga el XML actual desde el visor (o usa `await window.geogebraStudio.snapshot()`) y ejecuta los comandos siguientes. TSQX es **mixto con Asymptote**, no TSQX puro; las dependencias no compatibles provocan errores explícitos.
-
-```sh
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format tsqx --workspace /absolute/project --output figure.tsqx
-node /path/to/geogebra-studio/scripts/geogebra-studio.cjs export --input /absolute/project/figure.xml --format asymptote --workspace /absolute/project --output figure.asy
-```
-
-## Desarrollo y comprobación
-
-```sh
-npm ci
-npm run verify
-npm run test:unit
-```
-
-Los tests reales del navegador requieren Chrome e Internet; la generación local cotidiana no requiere ninguno de los dos ni MCP.
-
-Más información: [Galería interactiva](https://yzdame.github.io/GeoGebra-Studio/), [ejemplos](examples/README.md), [arquitectura](docs/MODERNIZATION.md) y [colaboración](CONTRIBUTING.md).
-
-Proyecto comunitario independiente, sin afiliación con GeoGebra. Licencia combinada **GPL-2.0-or-later**. Véanse [LICENSE](LICENSE), [LICENSE-MIT](LICENSE-MIT) y [avisos de terceros](THIRD_PARTY_NOTICES.md).
+Proyecto comunitario independiente, sin afiliación con GeoGebra. Licencia [GPL-2.0-or-later](LICENSE), conservando las [atribuciones MIT previas](LICENSE-MIT) y los [avisos de terceros](THIRD_PARTY_NOTICES.md).

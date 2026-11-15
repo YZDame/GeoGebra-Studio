@@ -112,9 +112,11 @@ h1 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.18; letter-spacing: -.
 .command button:not([hidden]) { display: grid; place-items: center; }
 .command button:hover { background: var(--hover); }
 .requirements { margin-top: .2rem; color: var(--muted); font-size: .875rem; }
+.usage > .requirements { margin-top: .65rem; }
+.usage-note { margin-top: .65rem; color: var(--muted); font-size: .875rem; }
 
-.install, .demo, .examples { padding-block: 1.35rem 1.75rem; border-top: 1px solid var(--line); }
-.install h2, .demo h2, .examples h2 { font-size: 1.15rem; }
+.install, .usage, .demo, .examples { padding-block: 1.35rem 1.75rem; border-top: 1px solid var(--line); }
+.install h2, .usage h2, .demo h2, .examples h2 { font-size: 1.15rem; }
 .demo-player { display: block; width: 100%; aspect-ratio: 16 / 9; margin-block: .9rem .55rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .demo a { color: var(--muted); font-size: .875rem; }
 .example-groups {
