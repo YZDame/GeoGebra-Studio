@@ -14,7 +14,11 @@ For the Codex Plugin convenience installer, use the published npm version's `ins
 
 ## Cursor
 
-Cursor loads this repository as one plugin from `.cursor-plugin/plugin.json`. After the plugin is listed, install GeoGebra Studio from the Cursor Marketplace. Before that, copy the repository to `~/.cursor/plugins/local/geogebra-studio` so the copy contains `.cursor-plugin/plugin.json`, then reload Cursor. The plugin discovers `skills/geogebra-studio/SKILL.md`. Node.js >=22.12, file and shell access, and network access for the official GeoGebra engine are the same requirements as for other clients. `npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio` also works in Cursor.
+Clone the repository and copy that directory to `~/.cursor/plugins/local/geogebra-studio`. Copy the files; do not use a symlink. The copy must contain `.cursor-plugin/plugin.json`. Then run Reload Window. Or copy the whole `skills/geogebra-studio` directory, including `scripts/`, `runtime/`, `references/`, and `examples/`, into a skills directory documented at https://cursor.com/docs/skills: `~/.cursor/skills/`, `~/.agents/skills/`, `.cursor/skills/`, or `.agents/skills/`. Node.js >=22.12, file and shell access, and network access for the official GeoGebra engine are the same requirements as for other clients.
+
+## Grok Bot
+
+Ask Grok Bot to copy the whole `skills/geogebra-studio` directory, including `scripts/`, `runtime/`, `references/`, and `examples/`, into its skill library. You can say: "从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能". The machine it runs on needs Node.js >=22.12.
 
 ## DeepSeek Harness
 
