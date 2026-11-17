@@ -18,7 +18,7 @@
 
 ## クイックスタート
 
-1. **Agent Skill をインストール**（Node.js 22.12 以降が必要です。Codex や DeepSeek Harness プラグインについては下の[インストール](#インストール)をご覧ください）：
+1. **Agent Skill をインストール**（Node.js 22.12 以降が必要です。Cursor、Codex、DeepSeek Harness プラグインについては下の[インストール](#インストール)をご覧ください）：
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,12 @@ dsh-geogebra-studio
 左側のサイドバーから **GeoGebra Studio** を開くと、会話の横にインタラクティブなキャンバスが表示されます。コマンドラインでのインストールは[プラグインガイド](plugins/dsh-geogebra-studio/)をご覧ください。
 
 <img src="docs/images/dsh-right-canvas.png" alt="DeepSeek Harness のキャンバスに表示した楕円・焦点・準線・調整可能な焦点弦" width="100%">
+
+### 4. Cursor にインストール（プラグイン）
+
+掲載後は Cursor Marketplace から **GeoGebra Studio** をインストールします。それまでは、このリポジトリを `~/.cursor/plugins/local/geogebra-studio` にコピーし、コピー内に `.cursor-plugin/plugin.json` があることを確認してから Cursor を再読み込みします。Node.js 22.12 以降が必要です。Cursor に図を描かせると、同梱の `geogebra-studio` スキルがローカル HTML を書き出します。そのページを開くには、公式 GeoGebra エンジンへ到達できるブラウザが必要です。
+
+セクション 1 の Agent Skill インストールも Cursor で使えます。
 
 詳しい設定やトラブルシューティングは[インストールとトラブルシューティング](skills/geogebra-studio/references/installation.md)を参照してください。
 

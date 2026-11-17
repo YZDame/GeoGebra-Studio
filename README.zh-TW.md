@@ -18,7 +18,7 @@
 
 ## 快速開始
 
-1. **安裝 Agent Skill**（需要 Node.js 22.12 或更新版本；如需 Codex 或 DeepSeek Harness 外掛請見下方[詳細安裝](#詳細安裝)）：
+1. **安裝 Agent Skill**（需要 Node.js 22.12 或更新版本；Cursor、Codex 或 DeepSeek Harness 外掛請見下方[詳細安裝](#詳細安裝)）：
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,12 @@ dsh-geogebra-studio
 安裝後，從左側欄開啟 **GeoGebra Studio**，即可在對話旁使用互動畫布。命令列安裝請見[外掛說明](plugins/dsh-geogebra-studio/)。
 
 <img src="docs/images/dsh-right-canvas.png" alt="DeepSeek Harness 右側畫布中的橢圓、焦點、準線與可調焦點弦" width="100%">
+
+### 4. 在 Cursor 中安裝（外掛）
+
+上架 Cursor 外掛市集後，可在 Cursor 裡安裝 **GeoGebra Studio**。在上架前，把本倉庫複製到 `~/.cursor/plugins/local/geogebra-studio`，使該目錄包含 `.cursor-plugin/plugin.json`，然後重新載入 Cursor。需要 Node.js 22.12 或更新版本。讓 Cursor 畫一張圖時，內建的 `geogebra-studio` Skill 會寫出本機 HTML。開啟該頁面的瀏覽器需要能存取 GeoGebra 官方引擎。
+
+第 1 節的 Agent Skill 安裝方式在 Cursor 中同樣可用。
 
 更多安裝細節見[安裝與疑難排解](skills/geogebra-studio/references/installation.md)。
 

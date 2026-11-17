@@ -1,6 +1,6 @@
 ---
 name: geogebra-studio
-description: Create, inspect, edit, and export interactive 2D/3D GeoGebra constructions as local HTML, with TikZ, Asymptote and TSQX source workflows.
+description: Create, inspect, edit, and export interactive 2D/3D GeoGebra constructions as local HTML, with TikZ, Asymptote and TSQX source workflows. Use when drawing or revising a GeoGebra figure, or when exporting the current construction to HTML, GGB, TikZ, Asymptote, or TSQX.
 ---
 
 # GeoGebra Studio

@@ -12,6 +12,10 @@ Include the generated HTML as a separate download. If loopback preview is unavai
 
 For the Codex Plugin convenience installer, use the published npm version's `install` command; after install restart the client session. This is an optional distribution mode rather than a dependency of Agent Skills.
 
+## Cursor
+
+Cursor loads this repository as one plugin from `.cursor-plugin/plugin.json`. After the plugin is listed, install GeoGebra Studio from the Cursor Marketplace. Before that, copy the repository to `~/.cursor/plugins/local/geogebra-studio` so the copy contains `.cursor-plugin/plugin.json`, then reload Cursor. The plugin discovers `skills/geogebra-studio/SKILL.md`. Node.js >=22.12, file and shell access, and network access for the official GeoGebra engine are the same requirements as for other clients. `npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio` also works in Cursor.
+
 ## DeepSeek Harness
 
 DeepSeek Harness loads this Skill from disk. The published frontmatter stays unchanged: `name` is the kebab-case `geogebra-studio`, `description` is present, and there are no legacy camelCase invocation keys (`disableModelInvocation`, `modelInvocable`, `userInvocable`). Optional `whenToUse` is omitted on purpose. The DeepSeek Harness catalog routes on `name` and `description`; `whenToUse` is provider metadata and is not shown to the model. Leaving the frontmatter as published keeps the same file valid for Claude, Codex, Cursor, and `npx skills`.

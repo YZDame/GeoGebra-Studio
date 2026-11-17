@@ -18,7 +18,7 @@
 
 ## Início rápido
 
-1. **Instale a Agent Skill** (requer Node.js 22.12 ou superior; veja [Instalação](#instalação) abaixo para os plugins do Codex e DeepSeek Harness):
+1. **Instale a Agent Skill** (requer Node.js 22.12 ou superior; veja [Instalação](#instalação) abaixo para os plugins do Cursor, Codex e DeepSeek Harness):
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,12 @@ dsh-geogebra-studio
 Abra o **GeoGebra Studio** na barra lateral esquerda para usar a tela interativa ao lado do seu chat. Veja o [guia do plugin](plugins/dsh-geogebra-studio/) para instalação via linha de comando.
 
 <img src="docs/images/dsh-right-canvas.png" alt="Elipse com seus focos, diretrizes e corda focal ajustável na tela do DeepSeek Harness" width="100%">
+
+### 4. Instalar no Cursor (plugin)
+
+Depois da publicação, instale o **GeoGebra Studio** no marketplace do Cursor. Antes disso, copie este repositório para `~/.cursor/plugins/local/geogebra-studio` de modo que a cópia contenha `.cursor-plugin/plugin.json` e recarregue o Cursor. É necessário o Node.js 22.12 ou posterior. Peça ao Cursor para desenhar uma figura; a skill incluída `geogebra-studio` grava um HTML local. Abrir essa página exige um navegador que alcance o mecanismo oficial do GeoGebra.
+
+A instalação da Agent Skill da seção 1 também funciona no Cursor.
 
 Consulte [instalação e solução de problemas](skills/geogebra-studio/references/installation.md) para mais detalhes.
 
