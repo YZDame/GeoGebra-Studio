@@ -18,7 +18,7 @@
 
 ## 빠른 시작
 
-1. **Agent Skill 설치** (Node.js 22.12 이상 필요; Codex 및 DeepSeek Harness 플러그인 설치는 아래 [설치](#설치)를 참고하세요):
+1. **Agent Skill 설치** (Node.js 22.12 이상 필요; Cursor, Grok Bot, Codex 및 DeepSeek Harness는 아래 [설치](#설치)를 참고하세요):
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 왼쪽 사이드바에서 **GeoGebra Studio**를 열면 대화창 옆에서 대화형 캔버스를 바로 사용할 수 있습니다. 명령줄 설치는 [플러그인 안내](plugins/dsh-geogebra-studio/)를 참고하세요.
 
 <img src="docs/images/dsh-right-canvas.png" alt="DeepSeek Harness 캔버스에 표시된 타원, 초점, 준선 및 조절 가능한 초점 현" width="100%">
+
+### 4. Cursor에 설치
+
+이 저장소를 clone한 뒤 저장소 디렉터리를 `~/.cursor/plugins/local/geogebra-studio`에 복사합니다. 파일을 복사하고 심볼릭 링크는 사용하지 마세요. 복사본에는 `.cursor-plugin/plugin.json`이 있어야 합니다. 그런 다음 Cursor에서 Reload Window를 실행합니다. Node.js 22.12 이상이 필요합니다.
+
+또는 [`skills/geogebra-studio/`](skills/geogebra-studio/) 폴더만 (`scripts/`, `runtime/`, `references/`, `examples/` 포함) Cursor의 skills 디렉터리에 복사합니다. [Cursor가 읽는 위치](https://cursor.com/docs/skills)는 사용자용 `~/.cursor/skills/`와 `~/.agents/skills/`, 프로젝트 안의 `.cursor/skills/`와 `.agents/skills/`입니다.
+
+Cursor에게 도형을 그리게 하면 스킬이 로컬 HTML을 씁니다. 그 페이지를 열려면 공식 GeoGebra 엔진에 접속할 수 있는 브라우저가 필요합니다.
+
+### 5. Grok Bot에 설치
+
+Grok Bot에게 저장소의 [`skills/geogebra-studio/`](skills/geogebra-studio/) 폴더 전체(`scripts/`, `runtime/`, `references/`, `examples/` 포함)를 스킬 라이브러리에 복사하게 합니다. 이렇게 말할 수 있습니다: “从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能”. 실행하는 머신에는 Node.js 22.12 이상이 필요합니다.
 
 자세한 설치 방법과 문제 해결은 [설치 및 문제 해결](skills/geogebra-studio/references/installation.md)을 참고하세요.
 

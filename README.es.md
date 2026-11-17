@@ -18,7 +18,7 @@
 
 ## Inicio rápido
 
-1. **Instala la Agent Skill** (requiere Node.js 22.12 o superior; consulta [Instalación](#instalación) más abajo si buscas los plugins para Codex o DeepSeek Harness):
+1. **Instala la Agent Skill** (requiere Node.js 22.12 o superior; consulta [Instalación](#instalación) más abajo para Cursor, Grok Bot, Codex o DeepSeek Harness):
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 Abre **GeoGebra Studio** desde la barra lateral izquierda para usar el lienzo interactivo junto a tu chat. Consulta la [guía del plugin](plugins/dsh-geogebra-studio/) para instalarlo desde la línea de comandos.
 
 <img src="docs/images/dsh-right-canvas.png" alt="Elipse con sus focos, directrices y una cuerda focal ajustable en el lienzo de DeepSeek Harness" width="100%">
+
+### 4. Instalar en Cursor
+
+Clona este repositorio y copia el directorio del repositorio en `~/.cursor/plugins/local/geogebra-studio`. Copia los archivos; no uses un enlace simbólico. La copia debe contener `.cursor-plugin/plugin.json`. Después ejecuta Reload Window en Cursor. Hace falta Node.js 22.12 o superior.
+
+O copia solo la carpeta [`skills/geogebra-studio/`](skills/geogebra-studio/), con `scripts/`, `runtime/`, `references/` y `examples/`, a un directorio de skills de Cursor. [Cursor carga las skills](https://cursor.com/docs/skills) desde `~/.cursor/skills/` y `~/.agents/skills/` para tu usuario, y desde `.cursor/skills/` y `.agents/skills/` dentro de un proyecto.
+
+Pide a Cursor que dibuje una figura. La skill escribe un HTML local. Abrir esa página requiere un navegador que pueda llegar al motor oficial de GeoGebra.
+
+### 5. Instalar en Grok Bot
+
+Pide a Grok Bot que copie la carpeta completa [`skills/geogebra-studio/`](skills/geogebra-studio/), con `scripts/`, `runtime/`, `references/` y `examples/`, en su biblioteca de skills. Puedes decirle: «从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能». La máquina en la que se ejecuta necesita Node.js 22.12 o superior.
 
 Consulta [instalación y solución de problemas](skills/geogebra-studio/references/installation.md) para más detalles.
 

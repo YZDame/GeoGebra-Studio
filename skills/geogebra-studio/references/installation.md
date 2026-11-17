@@ -12,6 +12,14 @@ Include the generated HTML as a separate download. If loopback preview is unavai
 
 For the Codex Plugin convenience installer, use the published npm version's `install` command; after install restart the client session. This is an optional distribution mode rather than a dependency of Agent Skills.
 
+## Cursor
+
+Clone the repository and copy that directory to `~/.cursor/plugins/local/geogebra-studio`. Copy the files; do not use a symlink. The copy must contain `.cursor-plugin/plugin.json`. Then run Reload Window. Or copy the whole `skills/geogebra-studio` directory, including `scripts/`, `runtime/`, `references/`, and `examples/`, into a skills directory documented at https://cursor.com/docs/skills: `~/.cursor/skills/`, `~/.agents/skills/`, `.cursor/skills/`, or `.agents/skills/`. Node.js >=22.12, file and shell access, and network access for the official GeoGebra engine are the same requirements as for other clients.
+
+## Grok Bot
+
+Ask Grok Bot to copy the whole `skills/geogebra-studio` directory, including `scripts/`, `runtime/`, `references/`, and `examples/`, into its skill library. You can say: "从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能". The machine it runs on needs Node.js >=22.12.
+
 ## DeepSeek Harness
 
 DeepSeek Harness loads this Skill from disk. The published frontmatter stays unchanged: `name` is the kebab-case `geogebra-studio`, `description` is present, and there are no legacy camelCase invocation keys (`disableModelInvocation`, `modelInvocable`, `userInvocable`). Optional `whenToUse` is omitted on purpose. The DeepSeek Harness catalog routes on `name` and `description`; `whenToUse` is provider metadata and is not shown to the model. Leaving the frontmatter as published keeps the same file valid for Claude, Codex, Cursor, and `npx skills`.

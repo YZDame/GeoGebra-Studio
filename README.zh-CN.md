@@ -18,7 +18,7 @@
 
 ## 快速开始
 
-1. **安装 Agent Skill**（需要 Node.js 22.12 或更高版本；如需 Codex 或 DeepSeek Harness 插件请看下方[详细安装](#详细安装)）：
+1. **安装 Agent Skill**（需要 Node.js 22.12 或更高版本；Cursor、Grok Bot、Codex 或 DeepSeek Harness 请看下方[详细安装](#详细安装)）：
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 安装后，从左侧栏打开 **GeoGebra Studio**，就能在对话旁使用交互画布。命令行安装见[插件说明](plugins/dsh-geogebra-studio/)。
 
 <img src="docs/images/dsh-right-canvas.png" alt="DeepSeek Harness 右侧画布中的椭圆、焦点、准线和可调焦点弦" width="100%">
+
+### 4. 在 Cursor 中安装
+
+克隆本仓库，把仓库目录复制到 `~/.cursor/plugins/local/geogebra-studio`。请复制文件，不要使用符号链接。复制结果需要包含 `.cursor-plugin/plugin.json`。然后在 Cursor 中执行 Reload Window。需要 Node.js 22.12 或更高版本。
+
+也可以只把 [`skills/geogebra-studio/`](skills/geogebra-studio/) 文件夹（含 `scripts/`、`runtime/`、`references/`、`examples/`）复制到 Cursor 的 skills 目录。[Cursor 的技能目录](https://cursor.com/docs/skills)是：用户级 `~/.cursor/skills/` 与 `~/.agents/skills/`，项目级 `.cursor/skills/` 与 `.agents/skills/`。
+
+让 Cursor 画一张图时，Skill 会写出本地 HTML。打开该页面的浏览器需要能访问 GeoGebra 官方引擎。
+
+### 5. 在 Grok Bot 中安装
+
+让 Grok Bot 把仓库里的 [`skills/geogebra-studio/`](skills/geogebra-studio/) 整个文件夹（含 `scripts/`、`runtime/`、`references/`、`examples/`）拷进它的技能库。可以直接对它说：“从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能”。它所在的机器需要 Node.js 22.12 或更高版本。
 
 更多安装细节见[安装与排障](skills/geogebra-studio/references/installation.md)。
 

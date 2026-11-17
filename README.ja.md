@@ -18,7 +18,7 @@
 
 ## クイックスタート
 
-1. **Agent Skill をインストール**（Node.js 22.12 以降が必要です。Codex や DeepSeek Harness プラグインについては下の[インストール](#インストール)をご覧ください）：
+1. **Agent Skill をインストール**（Node.js 22.12 以降が必要です。Cursor、Grok Bot、Codex、DeepSeek Harness については下の[インストール](#インストール)をご覧ください）：
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 左側のサイドバーから **GeoGebra Studio** を開くと、会話の横にインタラクティブなキャンバスが表示されます。コマンドラインでのインストールは[プラグインガイド](plugins/dsh-geogebra-studio/)をご覧ください。
 
 <img src="docs/images/dsh-right-canvas.png" alt="DeepSeek Harness のキャンバスに表示した楕円・焦点・準線・調整可能な焦点弦" width="100%">
+
+### 4. Cursor にインストール
+
+このリポジトリを clone し、リポジトリのディレクトリを `~/.cursor/plugins/local/geogebra-studio` にコピーします。ファイルをコピーし、シンボリックリンクは使わないでください。コピーには `.cursor-plugin/plugin.json` が含まれている必要があります。その後、Cursor で Reload Window を実行します。Node.js 22.12 以降が必要です。
+
+または、[`skills/geogebra-studio/`](skills/geogebra-studio/) フォルダだけ（`scripts/`、`runtime/`、`references/`、`examples/` を含む）を Cursor の skills ディレクトリにコピーします。[Cursor が読み込む場所](https://cursor.com/docs/skills)は、ユーザー向けの `~/.cursor/skills/` と `~/.agents/skills/`、プロジェクト内の `.cursor/skills/` と `.agents/skills/` です。
+
+Cursor に図を描かせると、スキルがローカル HTML を書き出します。そのページを開くには、公式 GeoGebra エンジンへ到達できるブラウザが必要です。
+
+### 5. Grok Bot にインストール
+
+Grok Bot に、リポジトリの [`skills/geogebra-studio/`](skills/geogebra-studio/) フォルダ全体（`scripts/`、`runtime/`、`references/`、`examples/` を含む）をスキルライブラリへコピーさせます。次のように頼めます：「从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能」。実行するマシンには Node.js 22.12 以降が必要です。
 
 詳しい設定やトラブルシューティングは[インストールとトラブルシューティング](skills/geogebra-studio/references/installation.md)を参照してください。
 

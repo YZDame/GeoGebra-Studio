@@ -1,0 +1,21 @@
+{
+  "name": "geogebra-studio",
+  "version": "0.6.2",
+  "description": "Portable Agent Skill for editable GeoGebra HTML constructions and geometry source exports",
+  "author": {
+    "name": "YZDame"
+  },
+  "repository": "https://github.com/YZDame/GeoGebra-Studio",
+  "license": "GPL-2.0-or-later",
+  "keywords": [
+    "geogebra",
+    "mathematics",
+    "visualization",
+    "ai-tools",
+    "educational-technology",
+    "mathematical-modeling",
+    "agent-skills",
+    "agent-plugins"
+  ],
+  "logo": "assets/geogebra-icon.png"
+}

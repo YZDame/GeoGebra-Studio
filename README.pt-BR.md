@@ -18,7 +18,7 @@
 
 ## Início rápido
 
-1. **Instale a Agent Skill** (requer Node.js 22.12 ou superior; veja [Instalação](#instalação) abaixo para os plugins do Codex e DeepSeek Harness):
+1. **Instale a Agent Skill** (requer Node.js 22.12 ou superior; veja [Instalação](#instalação) abaixo para Cursor, Grok Bot, Codex e DeepSeek Harness):
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 Abra o **GeoGebra Studio** na barra lateral esquerda para usar a tela interativa ao lado do seu chat. Veja o [guia do plugin](plugins/dsh-geogebra-studio/) para instalação via linha de comando.
 
 <img src="docs/images/dsh-right-canvas.png" alt="Elipse com seus focos, diretrizes e corda focal ajustável na tela do DeepSeek Harness" width="100%">
+
+### 4. Instalar no Cursor
+
+Clone este repositório e copie o diretório do repositório para `~/.cursor/plugins/local/geogebra-studio`. Copie os arquivos; não use um link simbólico. A cópia precisa conter `.cursor-plugin/plugin.json`. Depois execute Reload Window no Cursor. É necessário o Node.js 22.12 ou posterior.
+
+Ou copie apenas a pasta [`skills/geogebra-studio/`](skills/geogebra-studio/), com `scripts/`, `runtime/`, `references/` e `examples/`, para um diretório de skills do Cursor. [O Cursor carrega skills](https://cursor.com/docs/skills) de `~/.cursor/skills/` e `~/.agents/skills/` para o seu usuário, e de `.cursor/skills/` e `.agents/skills/` dentro de um projeto.
+
+Peça ao Cursor para desenhar uma figura. A skill grava um HTML local. Abrir essa página exige um navegador que alcance o mecanismo oficial do GeoGebra.
+
+### 5. Instalar no Grok Bot
+
+Peça ao Grok Bot para copiar a pasta inteira [`skills/geogebra-studio/`](skills/geogebra-studio/), com `scripts/`, `runtime/`, `references/` e `examples/`, para a biblioteca de skills dele. Você pode dizer: “从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能”. A máquina em que ele roda precisa do Node.js 22.12 ou posterior.
 
 Consulte [instalação e solução de problemas](skills/geogebra-studio/references/installation.md) para mais detalhes.
 

@@ -18,7 +18,7 @@
 
 ## Quick Start
 
-1. **Install the Agent Skill** (requires Node.js 22.12+; see [Installation](#installation) below for Codex and DeepSeek Harness plugin options):
+1. **Install the Agent Skill** (requires Node.js 22.12+; see [Installation](#installation) below for Cursor, Grok Bot, Codex, and DeepSeek Harness):
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 Open **GeoGebra Studio** from the left sidebar to use the interactive canvas beside your chat. See the [plugin guide](plugins/dsh-geogebra-studio/) for command-line installation.
 
 <img src="docs/images/dsh-right-canvas.png" alt="Ellipse with its foci, directrices and an adjustable focal chord in the DeepSeek Harness canvas" width="100%">
+
+### 4. Install in Cursor
+
+Clone this repository and copy the repository directory to `~/.cursor/plugins/local/geogebra-studio`. Copy the files; do not use a symlink. The copy must contain `.cursor-plugin/plugin.json`. Then run Reload Window in Cursor. Node.js 22.12 or later is required.
+
+Or copy only the [`skills/geogebra-studio/`](skills/geogebra-studio/) folder, including `scripts/`, `runtime/`, `references/`, and `examples/`, into a Cursor skills directory. [Cursor loads skills](https://cursor.com/docs/skills) from `~/.cursor/skills/` and `~/.agents/skills/` for your user, and from `.cursor/skills/` and `.agents/skills/` inside a project.
+
+Ask Cursor to draw a figure. The skill writes a local HTML file. Opening that page needs a browser that can reach the official GeoGebra engine.
+
+### 5. Install in Grok Bot
+
+Ask Grok Bot to copy the whole [`skills/geogebra-studio/`](skills/geogebra-studio/) folder, including `scripts/`, `runtime/`, `references/`, and `examples/`, into its skill library. You can say: “从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能”. The machine it runs on needs Node.js 22.12 or later.
 
 See [installation and troubleshooting](skills/geogebra-studio/references/installation.md) for more details.
 

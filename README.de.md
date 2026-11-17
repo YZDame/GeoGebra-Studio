@@ -18,7 +18,7 @@
 
 ## Schnellstart
 
-1. **Agent Skill installieren** (erfordert Node.js 22.12+; Optionen für Codex- und DeepSeek-Harness-Plugins siehe [Installation](#installation) weiter unten):
+1. **Agent Skill installieren** (erfordert Node.js 22.12+; Optionen für Cursor, Grok Bot, Codex und DeepSeek Harness siehe [Installation](#installation) weiter unten):
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 Öffne **GeoGebra Studio** in der linken Seitenleiste, um das interaktive Canvas direkt neben dem Chat zu nutzen. Die Installation per Kommandozeile beschreibt die [Plugin-Anleitung](plugins/dsh-geogebra-studio/).
 
 <img src="docs/images/dsh-right-canvas.png" alt="Ellipse mit Brennpunkten, Leitlinien und verstellbarer Brennpunktsehne im DeepSeek-Harness-Canvas" width="100%">
+
+### 4. Installation in Cursor
+
+Klone dieses Repository und kopiere das Verzeichnis nach `~/.cursor/plugins/local/geogebra-studio`. Kopiere die Dateien; verwende keinen Symlink. Die Kopie muss `.cursor-plugin/plugin.json` enthalten. Führe danach in Cursor Reload Window aus. Node.js 22.12 oder neuer ist erforderlich.
+
+Oder kopiere nur den Ordner [`skills/geogebra-studio/`](skills/geogebra-studio/) einschließlich `scripts/`, `runtime/`, `references/` und `examples/` in ein Cursor-Skills-Verzeichnis. [Cursor lädt Skills](https://cursor.com/docs/skills) aus `~/.cursor/skills/` und `~/.agents/skills/` für deinen Benutzer sowie aus `.cursor/skills/` und `.agents/skills/` in einem Projekt.
+
+Bitte Cursor, eine Figur zu zeichnen. Der Skill schreibt eine lokale HTML-Datei. Zum Öffnen braucht der Browser Zugriff auf die offizielle GeoGebra-Engine.
+
+### 5. Installation in Grok Bot
+
+Bitte Grok Bot, den gesamten Ordner [`skills/geogebra-studio/`](skills/geogebra-studio/) einschließlich `scripts/`, `runtime/`, `references/` und `examples/` in seine Skill-Bibliothek zu kopieren. Du kannst sagen: „从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能“. Der Rechner, auf dem es läuft, braucht Node.js 22.12 oder neuer.
 
 Weitere Details findest du unter [Installation und Fehlerbehebung](skills/geogebra-studio/references/installation.md).
 

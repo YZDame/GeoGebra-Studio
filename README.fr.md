@@ -18,7 +18,7 @@
 
 ## Démarrage rapide
 
-1. **Installez l'Agent Skill** (nécessite Node.js 22.12+ ; voir [Installation](#installation) ci-dessous pour les plugins Codex et DeepSeek Harness) :
+1. **Installez l'Agent Skill** (nécessite Node.js 22.12+ ; voir [Installation](#installation) ci-dessous pour Cursor, Grok Bot, Codex et DeepSeek Harness) :
 
    ```sh
    npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio
@@ -78,6 +78,18 @@ dsh-geogebra-studio
 Ouvrez **GeoGebra Studio** depuis la barre latérale gauche pour afficher le canevas interactif à côté de votre discussion. Voir le [guide du plugin](plugins/dsh-geogebra-studio/) pour l'installation en ligne de commande.
 
 <img src="docs/images/dsh-right-canvas.png" alt="Ellipse avec ses foyers, directrices et une corde focale réglable dans le canevas DeepSeek Harness" width="100%">
+
+### 4. Installation dans Cursor
+
+Clonez ce dépôt et copiez le répertoire du dépôt dans `~/.cursor/plugins/local/geogebra-studio`. Copiez les fichiers ; n'utilisez pas de lien symbolique. La copie doit contenir `.cursor-plugin/plugin.json`. Exécutez ensuite Reload Window dans Cursor. Node.js 22.12 ou plus récent est requis.
+
+Ou copiez seulement le dossier [`skills/geogebra-studio/`](skills/geogebra-studio/), avec `scripts/`, `runtime/`, `references/` et `examples/`, dans un répertoire de skills de Cursor. [Cursor charge les skills](https://cursor.com/docs/skills) depuis `~/.cursor/skills/` et `~/.agents/skills/` pour votre utilisateur, et depuis `.cursor/skills/` et `.agents/skills/` dans un projet.
+
+Demandez à Cursor de tracer une figure. La skill écrit un fichier HTML local. Ouvrir cette page exige un navigateur qui peut joindre le moteur officiel GeoGebra.
+
+### 5. Installation dans Grok Bot
+
+Demandez à Grok Bot de copier tout le dossier [`skills/geogebra-studio/`](skills/geogebra-studio/), avec `scripts/`, `runtime/`, `references/` et `examples/`, dans sa bibliothèque de skills. Vous pouvez dire : « 从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能 ». La machine sur laquelle il s'exécute nécessite Node.js 22.12 ou plus récent.
 
 Consultez [installation et dépannage](skills/geogebra-studio/references/installation.md) pour plus de détails.
 
