@@ -179,7 +179,11 @@ function readSkillBody() {
   return source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '')
 }
 
-/** Register the bundled skill when the profile mounts a skill registry. */
+/**
+ * Register the bundled skill when the profile mounts a skill registry.
+ * `path` is the absolute SKILL.md read above; skills/list forwards it so the
+ * client can open that file. `resourceBase` stays the directory of that file.
+ */
 function contributeSkill(ctx) {
   ctx.inject(['skills'], (skillsCtx) => {
     const content = readSkillBody()
@@ -187,6 +191,7 @@ function contributeSkill(ctx) {
       name: 'geogebra-studio',
       description: 'Create, inspect, edit, and export interactive 2D/3D GeoGebra constructions as local HTML, with TikZ, Asymptote and TSQX source workflows. Use when drawing or revising a GeoGebra figure, or when exporting the current construction to HTML, GGB, TikZ, Asymptote, or TSQX.',
       content,
+      path: SKILL_FILE,
       resourceBase: { kind: 'directory', path: SKILL_DIR },
       source: 'runtime',
     }))
