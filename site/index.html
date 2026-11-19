@@ -7,8 +7,8 @@
   <title>GeoGebra Studio：用 Agent Skill 把题目做成可拖动图形</title>
   <meta name="description" content="非官方 Agent Skill。把一道题目交给它，生成可拖动、可导出的 GeoGebra 图形，格式包括 GGB、PNG、PDF、TikZ 和 HTML。与 GeoGebra 官方无隶属关系。">
   <link rel="canonical" href="https://yzdame.github.io/GeoGebra-Studio/">
-  <meta name="theme-color" content="#FAF9F6" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0E1014" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FDFCFB" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#181817" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="geogebra-icon.png" type="image/png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
   <meta property="og:type" content="website">
@@ -21,12 +21,12 @@
   <meta property="og:image" content="https://yzdame.github.io/GeoGebra-Studio/share.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="GeoGebra Studio 首页截图，支持在 Claude Code、Codex、ChatGPT、Grok Bot、DeepSeek Harness 与 Cursor 中绘制交互式 GeoGebra 图形">
+  <meta property="og:image:alt" content="GeoGebra Studio 首页截图，支持在 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 与 Cursor 中绘制交互式 GeoGebra 图形">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="GeoGebra Studio：用 Agent Skill 把题目做成可拖动图形">
   <meta name="twitter:description" content="非官方 Agent Skill。把一道题目交给它，生成可拖动、可导出的 GeoGebra 图形，格式包括 GGB、PNG、PDF、TikZ 和 HTML。与 GeoGebra 官方无隶属关系。">
   <meta name="twitter:image" content="https://yzdame.github.io/GeoGebra-Studio/share.png">
-  <meta name="twitter:image:alt" content="GeoGebra Studio 首页截图，支持在 Claude Code、Codex、ChatGPT、Grok Bot、DeepSeek Harness 与 Cursor 中绘制交互式 GeoGebra 图形">
+  <meta name="twitter:image:alt" content="GeoGebra Studio 首页截图，支持在 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 与 Cursor 中绘制交互式 GeoGebra 图形">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -100,17 +100,20 @@
 
   <main id="top" class="page-main">
     <section class="container hero" aria-labelledby="hero-title">
-      <div class="segment-switch" role="navigation" aria-label="页面视图切换" data-en-label="View switcher">
-        <a class="segment-item is-active" href="#top" aria-current="page">
+      <div class="segment-switch" role="navigation" aria-label="安装方式切换" data-en-label="Install mode switcher" data-segment>
+        <span class="segment-thumb" aria-hidden="true"></span>
+        <a class="segment-item is-active" href="#install-general" data-segment-target="skill" aria-current="page">
           <span class="segment-logo-slot" id="segment-agent-logo" aria-hidden="true"></span>
-          <span data-en="Agent Skill">Agent Skill</span>
+          <span>Agent Skills</span>
         </a>
-        <a class="segment-item" href="#examples" data-en="Examples">在线示例</a>
+        <a class="segment-item" href="#install-plugins" data-segment-target="plugin">
+          <span>Plugin</span>
+        </a>
       </div>
 
       <div class="hero-header">
         <h1 id="hero-title" class="hero-title">
-          <span class="sr-only" data-en="Draw interactive GeoGebra in Claude Code, Codex, ChatGPT, Grok Bot, DeepSeek Harness or Cursor.">用 Claude Code、Codex、ChatGPT、Grok Bot、DeepSeek Harness 或 Cursor 绘制交互式 GeoGebra。</span>
+          <span class="sr-only" data-en="Draw interactive GeoGebra in Claude Code, ChatGPT/Codex, DeepSeek Harness, Grok Bot or Cursor.">用 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 或 Cursor 绘制交互式 GeoGebra。</span>
           <span aria-hidden="true" class="hero-title-visual">
             <span class="hero-line-1" data-en="Draw interactive GeoGebra in">绘制交互式 GeoGebra，就在</span><br><span class="hero-line-2"><span class="rotating-pill" id="rotating-pill"><span class="rotating-track" id="rotating-track"><span class="rotating-measure" id="rotating-measure" aria-hidden="true"></span><span class="rotating-active" id="rotating-active"><img src="logos/claude.svg" alt="" class="agent-logo"><span>Claude Code</span></span></span></span><span class="hero-after-pill" data-en=".">。</span></span>
           </span>
@@ -137,14 +140,9 @@
               <span class="install-pop-label" data-en="Install for Claude Code">安装到 Claude Code</span>
               <span class="install-pop-action"><span data-en="Setup">查看命令</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
             </a>
-            <a class="install-pop-item" href="#install-codex" data-select-agent="codex">
-              <span class="install-pop-icon"><img src="logos/codex.svg" alt=""></span>
-              <span class="install-pop-label" data-en="Install for Codex">安装到 Codex</span>
-              <span class="install-pop-action"><span data-en="Setup">查看命令</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
-            </a>
             <a class="install-pop-item" href="#install-general" data-select-agent="chatgpt">
               <span class="install-pop-icon"><img src="logos/openai.svg" alt="" class="logo-mono"></span>
-              <span class="install-pop-label" data-en="Install for ChatGPT">安装到 ChatGPT</span>
+              <span class="install-pop-label" data-en="Install for ChatGPT/Codex">安装到 ChatGPT/Codex</span>
               <span class="install-pop-action"><span data-en="Setup">查看命令</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
             </a>
             <a class="install-pop-item" href="#install-dsh" data-select-agent="deepseek">
@@ -165,127 +163,9 @@
           </div>
         </div>
       </div>
-
-      <!-- Scenic Hero Backdrop with Two Overlapping macOS Windows -->
-      <div class="scenic-stage-frame" id="scenic-stage-frame">
-        <img class="scenic-backdrop" src="hero-bg.jpg" alt="" loading="eager" decoding="async">
-        <div class="scenic-backdrop-scrim" aria-hidden="true"></div>
-
-        <div class="stage-viewport" id="stage-viewport">
-          <div class="stage-canvas" id="stage-canvas">
-            <!-- Back-Right Overlapping GeoGebra Studio Window (z-index: 20) -->
-            <div class="studio-window" aria-label="GeoGebra Studio 画布窗口" data-en-label="GeoGebra Studio canvas window">
-              <div class="studio-window-bezel">
-                <div class="studio-window-surface">
-                  <div class="viewer-topbar">
-                    <div class="viewer-left">
-                      <span class="viewer-pill-icon" aria-hidden="true">
-                        <svg class="icon"><use href="icons.svg#sidebar"></use></svg>
-                      </span>
-                      <span class="viewer-figure-name" id="stage-figure-title">拿破仑定理 · Napoleon’s theorem</span>
-                    </div>
-                    <div class="viewer-right">
-                      <span class="viewer-theme-chip">Default <svg class="icon-xs" aria-hidden="true"><use href="icons.svg#chevron-down"></use></svg></span>
-                      <span class="viewer-pill-icon" aria-hidden="true">
-                        <svg class="icon"><use href="icons.svg#download"></use></svg>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="interactive-viewport" id="interactive-viewport">
-                    <svg id="live-geo-svg" viewBox="0 0 560 360" role="img" aria-label="交互式几何图形预览" data-en-label="Interactive geometry figure preview"></svg>
-                    <div class="viewport-controls" id="viewport-controls" hidden>
-                      <label class="geo-slider-label" for="geo-slider">
-                        <span id="geo-slider-name">h</span>
-                        <span class="geo-slider-val" id="geo-slider-val">0.50</span>
-                      </label>
-                      <input id="geo-slider" class="geo-slider" type="range" min="0" max="1" step="0.01" value="0.5">
-                    </div>
-                  </div>
-
-                  <div class="viewer-bottombar">
-                    <span class="viewer-hint" id="stage-hint">拖动蓝色顶点 A、B、C 试试</span>
-                    <a class="viewer-open-link" id="stage-figure-link" href="figures/napoleon.html">
-                      <span data-en="Open GeoGebra canvas">打开完整 GeoGebra 画布</span>
-                      <svg class="icon-xs" aria-hidden="true"><use href="icons.svg#arrow-up-right"></use></svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Front-Left Overlapping Agent Chat Window (z-index: 30) -->
-            <div class="agent-window" id="agent-window">
-              <div class="agent-window-bar">
-                <div class="traffic-lights" aria-hidden="true">
-                  <span></span><span></span><span></span>
-                </div>
-                <span class="agent-window-title">
-                  <span class="agent-window-logo" id="stage-agent-icon" aria-hidden="true"></span>
-                  <span id="stage-agent-title">Claude Code</span>
-                </span>
-              </div>
-
-              <div class="agent-chat-messages">
-                <div class="chat-fade-top" aria-hidden="true"></div>
-                <div class="chat-conn-line">
-                  <span class="chat-conn-brand">
-                    <img src="geogebra-icon.png" width="13" height="13" alt="">
-                    <span data-en="GeoGebra Studio skill">GeoGebra Studio skill</span>
-                  </span>
-                  <span id="stage-conn-text" data-en="connected">已连接</span>
-                  <span class="chat-conn-check">✓</span>
-                </div>
-
-                <div class="chat-user-wrap">
-                  <div class="chat-attachment-pill" id="stage-attachment-wrap">
-                    <span class="chat-attachment-badge" id="stage-attachment-badge">PDF</span>
-                    <span class="chat-attachment-name" id="stage-attachment"></span>
-                  </div>
-                  <div class="chat-user-bubble" id="stage-prompt"></div>
-                </div>
-
-                <div class="chat-steps" id="stage-steps" aria-live="polite"></div>
-
-                <div class="chat-assistant-reply">
-                  <p id="stage-reply"></p>
-                  <span class="chat-output-chip" id="stage-output-file"></span>
-                </div>
-              </div>
-
-              <div class="agent-composer-wrap">
-                <div class="agent-composer">
-                  <span class="composer-placeholder" id="stage-composer">向 Claude Code 发送几何作图需求…</span>
-                  <div class="composer-toolbar">
-                    <span class="composer-left-tools">
-                      <span class="composer-plus" aria-hidden="true">+</span>
-                      <span class="composer-skill-chip">
-                        <img src="geogebra-icon.png" width="13" height="13" alt="">
-                        <span>GeoGebra Studio</span>
-                      </span>
-                    </span>
-                    <a class="composer-send-btn" id="stage-send-btn" href="#install" aria-label="前往安装" data-en-label="Go to installation">
-                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12.5V3.5M4 7.5l4-4 4 4"/></svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Subtle floating switcher dock along bottom of scenic stage -->
-        <div class="scenic-switcher-bar">
-          <div class="scenic-switcher" id="agent-dock" role="tablist" aria-label="切换展示 Agent" data-en-label="Switch showcased Agent"></div>
-          <button type="button" class="auto-cycle-btn is-active" id="auto-cycle-btn" aria-pressed="true" aria-label="切换自动轮播" data-en-label="Toggle auto cycling">
-            <svg class="icon" aria-hidden="true"><use href="icons.svg#refresh"></use></svg>
-            <span data-en="Auto">轮播</span>
-          </button>
-        </div>
-      </div>
     </section>
 
-    <!-- Editorial Feature Strip (matching Heptabase section 2 rhythm) -->
+    <!-- Editorial Feature Strip -->
     <section class="container section-block" id="capabilities" aria-labelledby="cap-title">
       <div class="section-intro">
         <h2 id="cap-title" class="section-heading">
@@ -306,10 +186,10 @@
       <div class="bento-3">
         <article class="bento-card">
           <div class="bento-card-head">
-            <h3 data-en="One Skill, six clients">一套 Skill，多端通用</h3>
+            <h3 data-en="One Skill, multiple clients">一套 Skill，多端通用</h3>
             <span class="bento-tag">SKILL.md</span>
           </div>
-          <p data-en="Works natively in Claude Code, Codex, ChatGPT, Grok Bot, DeepSeek Harness, and Cursor with zero extra daemon.">原生兼容 Claude Code、Codex、ChatGPT、Grok Bot、DeepSeek Harness 与 Cursor，无需额外常驻进程。</p>
+          <p data-en="Works natively in Claude Code, ChatGPT/Codex, DeepSeek Harness, Grok Bot, and Cursor with zero extra daemon.">原生兼容 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 与 Cursor，无需额外常驻进程。</p>
         </article>
         <article class="bento-card">
           <div class="bento-card-head">
@@ -328,7 +208,7 @@
       </div>
     </section>
 
-    <!-- Installation Section (Heptabase bento cards with official logos) -->
+    <!-- Installation Section -->
     <section class="container section-block" id="install" aria-labelledby="install-title">
       <div class="section-intro">
         <div class="section-title-row">
@@ -341,21 +221,20 @@
       </div>
 
       <div class="install-grid">
-        <article class="bento-card install-card install-card-featured" id="install-general" data-install-card="claude codex chatgpt cursor">
+        <article class="bento-card install-card install-card-featured" id="install-general" data-install-card="claude chatgpt cursor">
           <div class="install-card-top">
             <div class="install-identity">
               <div class="install-logo-stack" aria-hidden="true">
                 <span class="install-logo-tile"><img src="logos/claude.svg" alt=""></span>
-                <span class="install-logo-tile"><img src="logos/codex.svg" alt=""></span>
                 <span class="install-logo-tile"><img src="logos/openai.svg" alt="" class="logo-mono"></span>
                 <span class="install-logo-tile"><img src="logos/cursor.svg" alt="" class="logo-mono"></span>
               </div>
               <div>
                 <h3 data-en="1. General Agent Skill (Recommended)">1. 通用 Agent Skill 安装（推荐）</h3>
-                <p data-en="For Claude Code, Codex, Cursor, ChatGPT, and other Agent Skills clients.">适用于 Claude Code、Codex、Cursor、ChatGPT 等所有支持 Agent Skills 的客户端。</p>
+                <p data-en="For Claude Code, ChatGPT/Codex, Cursor, and other Agent Skills clients.">适用于 Claude Code、ChatGPT/Codex、Cursor 等所有支持 Agent Skills 的客户端。</p>
               </div>
             </div>
-            <span class="client-tags">Claude Code · Codex · Cursor</span>
+            <span class="client-tags">Claude Code · ChatGPT/Codex · Cursor</span>
           </div>
           <div class="command-box">
             <code id="cmd-install">npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code>
@@ -365,37 +244,39 @@
           </div>
         </article>
 
-        <article class="bento-card install-card" id="install-codex" data-install-card="codex">
-          <div class="install-identity">
-            <span class="install-logo-tile"><img src="logos/codex.svg" alt=""></span>
-            <div>
-              <h3 data-en="2. Codex Plugin &amp; CLI">2. 在 Codex 当中安装</h3>
-              <p data-en="Run this command, then start a new Codex session.">运行下方命令后新开一个 Codex 会话即可生效。</p>
+        <div class="install-plugin-group" id="install-plugins">
+          <article class="bento-card install-card" id="install-codex" data-install-card="chatgpt plugin">
+            <div class="install-identity">
+              <span class="install-logo-tile"><img src="logos/openai.svg" alt="" class="logo-mono"></span>
+              <div>
+                <h3 data-en="2. Codex Plugin">2. Codex 插件</h3>
+                <p data-en="Run this command, then start a new Codex session.">运行下方命令后新开一个 Codex 会话即可生效。</p>
+              </div>
             </div>
-          </div>
-          <div class="command-box">
-            <code id="cmd-codex">npx @lydt/geogebra-studio@latest install</code>
-            <button type="button" data-copy="cmd-codex" aria-label="复制 Codex 安装命令" data-en-label="Copy Codex install command" hidden>
-              <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
-            </button>
-          </div>
-        </article>
+            <div class="command-box">
+              <code id="cmd-codex">npx @lydt/geogebra-studio@latest install</code>
+              <button type="button" data-copy="cmd-codex" aria-label="复制 Codex 插件安装命令" data-en-label="Copy Codex plugin install command" hidden>
+                <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+              </button>
+            </div>
+          </article>
 
-        <article class="bento-card install-card" id="install-dsh" data-install-card="deepseek">
-          <div class="install-identity">
-            <span class="install-logo-tile"><img src="logos/deepseek.svg" alt=""></span>
-            <div>
-              <h3 data-en="3. DeepSeek Harness Plugin">3. 在 DeepSeek Harness 当中安装</h3>
-              <p data-en="Open Plugins → Add Plugin in the desktop app, paste the package name, then open GeoGebra Studio in the left sidebar.">在桌面端打开「插件 → 添加插件」粘贴包名，从左侧栏打开即可在对话旁实时作图。</p>
+          <article class="bento-card install-card" id="install-dsh" data-install-card="deepseek plugin">
+            <div class="install-identity">
+              <span class="install-logo-tile"><img src="logos/deepseek.svg" alt=""></span>
+              <div>
+                <h3 data-en="3. DeepSeek Harness Plugin">3. DeepSeek Harness 插件</h3>
+                <p data-en="Open Plugins → Add Plugin in the desktop app, paste the package name, then open GeoGebra Studio in the left sidebar.">在桌面端打开「插件 → 添加插件」粘贴包名，从左侧栏打开即可在对话旁实时作图。</p>
+              </div>
             </div>
-          </div>
-          <div class="command-box">
-            <code id="pkg-dsh">dsh-geogebra-studio</code>
-            <button type="button" data-copy="pkg-dsh" aria-label="复制插件包名" data-en-label="Copy plugin package name" hidden>
-              <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
-            </button>
-          </div>
-        </article>
+            <div class="command-box">
+              <code id="pkg-dsh">dsh-geogebra-studio</code>
+              <button type="button" data-copy="pkg-dsh" aria-label="复制插件包名" data-en-label="Copy plugin package name" hidden>
+                <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+              </button>
+            </div>
+          </article>
+        </div>
 
         <article class="bento-card install-card install-card-featured" id="install-other" data-install-card="grok cursor">
           <div class="install-card-top">
@@ -486,206 +367,45 @@
       </div>
     </section>
 
-    <!-- Interactive Examples Gallery -->
+    <!-- Interactive Examples (Simplified text-link lists) -->
     <section class="container section-block" id="examples" aria-labelledby="examples-title">
       <div class="section-intro">
         <h2 id="examples-title" class="section-heading" data-en="Interactive examples">在线示例</h2>
-        <p class="section-meta" data-en="Open any construction directly in your browser — no installation required.">无需安装，点击任意卡片即可在浏览器中直接体验完整 GeoGebra Classic 交互画布。</p>
+        <p class="section-meta" data-en="Open any construction directly in your browser — no installation required.">无需安装，点击任意条目即可在浏览器中直接体验完整 GeoGebra Classic 交互画布。</p>
       </div>
 
-      <div class="example-section">
-        <div class="example-group-header">
-          <h3 data-en="2D Constructions">平面 · 2D</h3>
-          <span class="group-count">8</span>
+      <div class="example-columns">
+        <div class="bento-card example-group">
+          <div class="example-group-header">
+            <h3 data-en="2D Constructions">平面 · 2D</h3>
+            <span class="group-count">8</span>
+          </div>
+          <ul class="example-list">
+            <li id="figure"><a href="figures/napoleon.html"><span data-en="Napoleon’s theorem">拿破仑定理</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/nine-point-circle.html"><span data-en="Nine-point circle">九点圆</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/cycloid.html"><span data-en="Cycloid">钟摆线</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/spirograph.html"><span data-en="Spirograph">万花尺</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/fourier-square-wave.html"><span data-en="Fourier square wave">傅里叶级数逼近方波</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/pascal-theorem.html"><span data-en="Pascal’s theorem">帕斯卡定理</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/mandelbrot.html"><span data-en="Mandelbrot set">曼德博集合</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/golden-spiral-sunflower.html"><span data-en="Golden spiral &amp; sunflower">黄金螺线与葵花子</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+          </ul>
         </div>
-        <ul class="example-grid">
-          <li id="figure">
-            <a class="example-card" href="figures/napoleon.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <polygon points="24,36 52,38 36,16" fill="none" stroke="currentColor" stroke-width="1.4"/>
-                <polygon points="24,36 52,38 39,49" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1"/>
-                <polygon points="52,38 36,16 58,20" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1"/>
-                <polygon points="36,16 24,36 16,20" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1"/>
-                <polygon points="38,41 49,25 25,24" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Napoleon’s theorem">拿破仑定理</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/nine-point-circle.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <circle cx="40" cy="27" r="15" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.4"/>
-                <polygon points="18,41 62,41 44,10" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                <line x1="25" y1="36" x2="55" y2="18" stroke="var(--teal)" stroke-width="1.2" stroke-dasharray="2 2"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Nine-point circle">九点圆</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/cycloid.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <line x1="8" y1="42" x2="72" y2="42" stroke="currentColor" stroke-opacity=".32" stroke-width="1.1"/>
-                <path d="M10 42 C18 14, 34 14, 42 42 C50 14, 64 14, 70 42" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
-                <circle cx="42" cy="30" r="12" fill="none" stroke="currentColor" stroke-width="1.2"/>
-                <circle cx="42" cy="42" r="2.2" fill="var(--accent)"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Cycloid">钟摆线</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/spirograph.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <circle cx="40" cy="26" r="17" fill="none" stroke="currentColor" stroke-opacity=".3" stroke-width="1"/>
-                <path d="M40,9 C52,16 55,34 40,43 C25,34 28,16 40,9 Z M23,26 C30,14 48,11 57,26 C48,41 30,38 23,26 Z" fill="none" stroke="var(--accent)" stroke-width="1.3"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Spirograph">万花尺</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/fourier-square-wave.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <path d="M8 38 H26 V14 H48 V38 H68" fill="none" stroke="currentColor" stroke-opacity=".32" stroke-width="1.1" stroke-dasharray="2 2"/>
-                <path d="M8 36 Q13 40 18 37 T26 26 T35 14 Q41 11 48 15 T58 37 T72 38" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Fourier approximation of a square wave">傅里叶级数逼近方波</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/pascal-theorem.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <ellipse cx="40" cy="26" rx="26" ry="15" fill="none" stroke="currentColor" stroke-width="1.3"/>
-                <polyline points="20,16 56,14 63,31 24,38 15,27 42,11 20,16" fill="none" stroke="var(--accent)" stroke-opacity=".75" stroke-width="1.1"/>
-                <line x1="12" y1="43" x2="68" y2="21" stroke="var(--teal)" stroke-width="1.4"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Pascal’s theorem">帕斯卡定理</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/mandelbrot.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <path d="M44 16 C54 16,58 26,52 34 C46 40,34 38,34 26 C34 18,40 16,44 16 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.4"/>
-                <circle cx="27" cy="26" r="7" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.3"/>
-                <circle cx="17" cy="26" r="2.8" fill="none" stroke="currentColor" stroke-width="1.1"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Mandelbrot set">曼德博集合</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/golden-spiral-sunflower.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <path d="M41 26 C41 24,44 24,44 27 C44 31,38 32,36 28 C33 22,40 16,47 19 C56 23,55 37,43 41 C28 45,20 31,26 17" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Golden spiral and sunflower">黄金螺线与葵花子排布</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-        </ul>
-      </div>
 
-      <div class="example-section">
-        <div class="example-group-header">
-          <h3 data-en="3D Surfaces &amp; Solids">三维 · 3D</h3>
-          <span class="group-count">6</span>
+        <div class="bento-card example-group">
+          <div class="example-group-header">
+            <h3 data-en="3D Surfaces &amp; Solids">三维 · 3D</h3>
+            <span class="group-count">6</span>
+          </div>
+          <ul class="example-list">
+            <li id="hyper"><a href="figures/hyperboloid-ruled.html"><span data-en="Ruled hyperboloid">单叶双曲面</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/mobius-strip.html"><span data-en="Möbius strip">莫比乌斯带</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/klein-bottle.html"><span data-en="Klein bottle">克莱因瓶</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/torus-knot.html"><span data-en="T(p,q) torus knot">PQ 环面结</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/helicoid.html"><span data-en="Helicoid">正螺旋面</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/lorenz-attractor.html"><span data-en="Lorenz attractor">洛伦兹吸引子</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+          </ul>
         </div>
-        <ul class="example-grid example-grid-3d">
-          <li id="hyper">
-            <a class="example-card" href="figures/hyperboloid-ruled.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <ellipse cx="40" cy="12" rx="18" ry="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-                <ellipse cx="40" cy="40" rx="18" ry="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-                <line x1="25" y1="14" x2="55" y2="38" stroke="var(--accent)" stroke-width="1.2"/>
-                <line x1="55" y1="14" x2="25" y2="38" stroke="var(--teal)" stroke-width="1.2"/>
-                <line x1="33" y1="16" x2="47" y2="36" stroke="currentColor" stroke-opacity=".45" stroke-width="1"/>
-                <line x1="47" y1="16" x2="33" y2="36" stroke="currentColor" stroke-opacity=".45" stroke-width="1"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Ruled hyperboloid">单叶双曲面</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/mobius-strip.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <path d="M18 27 C18 16,32 13,40 26 C48 39,62 36,62 25 C62 14,48 13,40 26 C32 39,18 38,18 27 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.4"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Möbius strip">莫比乌斯带</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/klein-bottle.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <path d="M40 10 C55 10,60 26,48 34 C38 41,24 41,22 30 C20 18,36 16,40 26 C43 35,52 44,40 44 C30 44,28 34,36 27" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Klein bottle">克莱因瓶</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/torus-knot.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <path d="M40 10 C52 10,56 26,45 34 C35 41,22 34,26 22 C30 12,48 16,52 28 C55 39,40 45,30 37 C20 29,28 10,40 10 Z" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="T(p,q) torus knot">PQ 环面结</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/helicoid.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <line x1="40" y1="8" x2="40" y2="44" stroke="currentColor" stroke-opacity=".4" stroke-width="1.1"/>
-                <path d="M24 14 Q40 16 56 14 M22 22 Q40 25 58 22 M24 30 Q40 33 56 30 M26 38 Q40 41 54 38" fill="none" stroke="var(--accent)" stroke-width="1.3" stroke-linecap="round"/>
-                <path d="M24 14 C18 22,58 24,56 30 C54 36,22 34,26 38" fill="none" stroke="var(--teal)" stroke-width="1.2"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Minimal surface: helicoid">极小曲面：正螺旋面</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a class="example-card" href="figures/lorenz-attractor.html">
-              <svg class="example-thumb" viewBox="0 0 80 52" aria-hidden="true">
-                <path d="M28 24 C18 12,12 30,26 36 C38 40,42 18,54 14 C66 12,68 32,54 36 C42 39,38 22,28 24 Z" fill="none" stroke="var(--accent)" stroke-width="1.4"/>
-                <path d="M30 25 C22 17,18 29,28 33 C37 36,41 21,51 18 C60 16,61 29,51 33" fill="none" stroke="var(--teal)" stroke-opacity=".7" stroke-width="1.1"/>
-              </svg>
-              <div class="example-card-meta">
-                <span class="example-name" data-en="Lorenz attractor">洛伦兹吸引子</span>
-                <span class="example-arrow" aria-hidden="true">→</span>
-              </div>
-            </a>
-          </li>
-        </ul>
       </div>
     </section>
 
