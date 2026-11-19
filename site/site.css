@@ -379,8 +379,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   text-align: center;
 }
 
-.hero-after-pill:empty { display: none; }
-
 /* Rotating Pill & Track */
 .rotating-pill {
   display: inline-block;
