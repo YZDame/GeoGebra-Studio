@@ -7,7 +7,6 @@
   const copyStatus = document.getElementById("copy-status");
   const starCount = document.querySelector("[data-star-count]");
 
-  // Collect static translatable nodes (check attribute presence so empty data-en="" works cleanly).
   const translations = Array.from(
     document.querySelectorAll("[data-en], [data-en-label], [data-en-href]"),
     (element) => ({
@@ -26,182 +25,186 @@
   let activeAgentIndex = 0;
   let autoCycle = true;
   let cycleTimer = null;
-  let dropdownOpen = false;
-  let hoverPaused = false;
-
-  const ICONS = {
-    claude: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5 4.2 16.5"/></svg>`,
-    codex: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>`,
-    chatgpt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v4.5l4 2.3M20.5 12h-4.5l-2.3 4M12 20.5V16l-4-2.3M3.5 12H8l2.3-4" stroke-linecap="round"/></svg>`,
-    grok: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round"><path d="M5 19 19 5M14 5h5v5"/><circle cx="11.5" cy="12.5" r="7"/></svg>`,
-    deepseek: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 8v8l-8 5-8-5V8l8-5Z"/><circle cx="12" cy="12" r="2.6"/></svg>`,
-    cursor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m5 3 14 8-6.2 1.8L11 19 5 3Z"/></svg>`,
-  };
+  let installMenuOpen = false;
+  let stageHoverPaused = false;
+  let draggingPoint = null;
 
   const AGENTS = [
     {
       id: "claude",
       name: "Claude Code",
+      logo: "logos/claude.svg",
+      mono: false,
       accent: "#D97757",
-      modeTag: "SKILL.md",
-      installTargets: ["claude"],
-      sub: { zh: "命令行终端 · Agent Skill", en: "Terminal Agent · Skill" },
-      conn: { zh: "Skill 已连接 ✓", en: "Skill connected ✓" },
-      attachment: { zh: "几何作图需求", en: "Geometry prompt" },
+      tint: "#f9e6dc",
+      darkTint: "rgba(217, 119, 87, 0.22)",
+      conn: { zh: "已连接", en: "connected" },
+      attachmentBadge: "",
+      attachment: { zh: "", en: "" },
       prompt: {
         zh: "画出拿破仑定理：任意三角形 ABC 向外作三个正三角形，把它们的中心连起来，顶点可以自由拖动。",
         en: "Draw Napoleon's theorem: construct outward equilateral triangles on any triangle ABC and connect their centers, with draggable vertices.",
       },
       steps: {
-        zh: ["加载 skills/geogebra-studio 规范", "生成带外心正三角形约束的 JSON", "写出可编辑 HTML · napoleon.html"],
-        en: ["Load skills/geogebra-studio spec", "Build constrained JSON construction", "Write editable HTML · napoleon.html"],
+        zh: ["读取 skills/geogebra-studio 规范", "生成带外心正三角形约束的 JSON", "写出可编辑页面 · napoleon.html"],
+        en: ["Loaded skills/geogebra-studio spec", "Built constrained JSON construction", "Wrote editable HTML · napoleon.html"],
       },
       outputFile: "napoleon.html",
       reply: {
         zh: "已完成拿破仑定理构造。拖动蓝色顶点 A、B、C 时，外侧三个正三角形的中心 O₁O₂O₃ 始终构成正三角形，支持直接下载 GGB 或 TikZ。",
         en: "Built Napoleon's theorem. Drag vertices A, B, or C and watch O₁O₂O₃ stay equilateral. Ready to export as GGB, PNG, PDF, or TikZ.",
       },
-      composer: { zh: "向 Claude Code 发送几何作图需求…", en: "Ask Claude Code to draw a figure…" },
+      composer: { zh: "向 Claude Code 回复…", en: "Reply to Claude Code…" },
       figureTitle: { zh: "拿破仑定理 · Napoleon’s theorem", en: "Napoleon’s theorem" },
       figureHref: "figures/napoleon.html",
-      hint: { zh: "拖动蓝色顶点 A、B、C 试试", en: "Drag blue vertices A, B, or C" },
+      hint: { zh: "拖动右侧图形中的蓝色顶点 A、B、C 试试", en: "Drag blue vertices A, B, or C on the canvas" },
       demo: "napoleon",
     },
     {
       id: "codex",
       name: "Codex",
+      logo: "logos/codex.svg",
+      mono: false,
       accent: "#4F46E5",
-      modeTag: "Codex Plugin",
-      installTargets: ["codex"],
-      sub: { zh: "桌面与 CLI · 可选插件", en: "App & CLI · Optional Plugin" },
-      conn: { zh: "Codex 插件就绪 ✓", en: "Codex plugin ready ✓" },
-      attachment: { zh: "立体几何截面", en: "3D solid geometry" },
+      tint: "#eaeafc",
+      darkTint: "rgba(99, 102, 241, 0.24)",
+      conn: { zh: "插件已就绪", en: "plugin ready" },
+      attachmentBadge: "3D",
+      attachment: { zh: "立体几何截面模型", en: "3D solid geometry" },
       prompt: {
         zh: "绘制一个带可移动水平截面的曲面立体几何模型，用滑块 h 控制截面高度。",
         en: "Draw a 3D curved solid geometry model with a movable horizontal cross-section controlled by slider h.",
       },
       steps: {
-        zh: ["启用 mode: \"3D\" 原生空间视角", "添加截面高度滑块 h ∈ [0.15, 0.85]", "输出交互页面 · wedge-cross-section.html"],
-        en: ["Enable native mode: \"3D\" perspective", "Bind cross-section slider h ∈ [0.15, 0.85]", "Generate wedge-cross-section.html"],
+        zh: ["启用 mode: \"3D\" 原生空间视角", "绑定截面高度滑块 h ∈ [0.18, 0.84]", "输出交互页面 · cube-3d.html"],
+        en: ["Enabled native mode: \"3D\" view", "Bound cross-section slider h ∈ [0.18, 0.84]", "Generated cube-3d.html"],
       },
       outputFile: "cube-3d.html",
       reply: {
-        zh: "已生成 3D 交互模型。拖动高度滑块 h 可观察水平截面面积变化，完整页面中还支持自由旋转 3D 视角与切换 9 套配色。",
-        en: "3D solid model ready. Scrub slider h to move the cross-section plane, or open the full GeoGebra canvas to orbit freely in 3D.",
+        zh: "已生成 3D 交互模型。拖动底部高度滑块 h 可实时改变水平截面高度，打开完整画布还能自由旋转 3D 视角与切换 9 套主题。",
+        en: "3D solid model ready. Scrub slider h to adjust the horizontal cross-section, or open the full canvas to orbit freely in 3D.",
       },
-      composer: { zh: "在 Codex 中继续修改图形参数…", en: "Refine parameters with Codex…" },
+      composer: { zh: "向 Codex 回复…", en: "Reply to Codex…" },
       figureTitle: { zh: "3D 空间与可变截面 · 3D Solid", en: "3D Solid & Cross-Section" },
       figureHref: "figures/cube-3d.html",
-      hint: { zh: "滑动底部滑块 h 改变截面高度", en: "Scrub slider h to move the cross-section" },
+      hint: { zh: "拖动滑块 h 改变截面高度", en: "Scrub slider h to move the cross-section" },
       demo: "wedge3d",
     },
     {
       id: "chatgpt",
       name: "ChatGPT",
+      logo: "logos/openai.svg",
+      mono: true,
       accent: "#10A37F",
-      modeTag: "Agent Skill",
-      installTargets: ["claude"],
-      sub: { zh: "上传题目图 · 交互作图", en: "Problem Upload · Interactive" },
-      conn: { zh: "Skill 已激活 ✓", en: "Skill active ✓" },
-      attachment: { zh: "几何证明题.pdf", en: "geometry-problem.pdf" },
+      tint: "#e6f4ee",
+      darkTint: "rgba(16, 163, 127, 0.24)",
+      conn: { zh: "技能已激活", en: "skill active" },
+      attachmentBadge: "PDF",
+      attachment: { zh: "平面几何证明题.pdf", en: "geometry-problem.pdf" },
       prompt: {
-        zh: "帮我把这道几何题的九点圆与欧拉线画成可拖动图形，证明 O、G、N₉、H 四点共线。",
-        en: "Plot the nine-point circle and Euler line from this problem so students can drag vertices and see O, G, N₉, H stay collinear.",
+        zh: "帮我把这道几何题的九点圆与欧拉线画成可拖动图形，验证 O、G、N₉、H 四点共线。",
+        en: "Plot the nine-point circle and Euler line from this problem so vertices are draggable and O, G, N₉, H stay collinear.",
       },
       steps: {
-        zh: ["识别三角形与垂心、外心几何关系", "构造九点圆与欧拉线联动指令", "打包本地 HTML · nine-point-circle.html"],
-        en: ["Extract circumcenter & orthocenter rules", "Construct nine-point circle & Euler line", "Package nine-point-circle.html"],
+        zh: ["识别三角形与垂心、外心关系", "构造九点圆与欧拉线联动约束", "打包页面 · nine-point-circle.html"],
+        en: ["Parsed circumcenter & orthocenter rules", "Constructed nine-point circle & Euler line", "Packaged nine-point-circle.html"],
       },
       outputFile: "nine-point-circle.html",
       reply: {
-        zh: "九点圆与欧拉线已绘制完成。拖动任意顶点，可以看到九点圆始终经过三边中点与垂足，外心 O、重心 G、九点圆心 N₉、垂心 H 始终共线。",
+        zh: "九点圆与欧拉线已绘制完成。拖动任意顶点，可以看到九点圆始终过三边中点与垂足，O、G、N₉、H 四点保持共线。",
         en: "Nine-point circle and Euler line ready. Drag any vertex to verify midpoints, altitude feet, and the collinear Euler line O–G–N₉–H.",
       },
-      composer: { zh: "向 ChatGPT 追加导出或标注需求…", en: "Ask ChatGPT to add labels or export…" },
+      composer: { zh: "向 ChatGPT 回复…", en: "Reply to ChatGPT…" },
       figureTitle: { zh: "九点圆与欧拉线 · Nine-point circle", en: "Nine-point circle & Euler line" },
       figureHref: "figures/nine-point-circle.html",
-      hint: { zh: "拖动顶点 A、B、C 观察欧拉线共线", en: "Drag vertices A, B, or C to move the Euler line" },
+      hint: { zh: "拖动顶点 A、B、C 观察欧拉线", en: "Drag vertices A, B, or C to move the Euler line" },
       demo: "ninepoint",
     },
     {
       id: "grok",
       name: "Grok Bot",
-      accent: "#D97706",
-      modeTag: "Skill Library",
-      installTargets: ["grok"],
-      sub: { zh: "对话装技能 · 快速出图", en: "Bot Skill · Instant Figure" },
-      conn: { zh: "Skill 已导入 ✓", en: "Skill imported ✓" },
-      attachment: { zh: "轨迹动画", en: "Parametric locus" },
+      logo: "logos/grok.svg",
+      mono: true,
+      accent: "#2E2E2E",
+      tint: "#e3e6ec",
+      darkTint: "rgba(255, 255, 255, 0.14)",
+      conn: { zh: "已导入技能", en: "skill imported" },
+      attachmentBadge: "",
+      attachment: { zh: "", en: "" },
       prompt: {
         zh: "画一个沿 x 轴滚动的圆，用参数 t 追踪圆周上一点画出的钟摆线轨迹。",
         en: "Draw a circle rolling along the x-axis and trace a point on its rim to form a cycloid controlled by parameter t.",
       },
       steps: {
-        zh: ["从技能库调用 geogebra-studio", "建立参数方程 (t - sin t, 1 - cos t)", "生成交互式摆线 · cycloid.html"],
-        en: ["Invoke geogebra-studio from skill library", "Define parametric locus (t - sin t, 1 - cos t)", "Build interactive cycloid.html"],
+        zh: ["调用 geogebra-studio 技能", "建立参数轨迹 (t - sin t, 1 - cos t)", "生成交互式摆线 · cycloid.html"],
+        en: ["Invoked geogebra-studio skill", "Defined parametric locus (t - sin t, 1 - cos t)", "Built interactive cycloid.html"],
       },
       outputFile: "cycloid.html",
       reply: {
-        zh: "钟摆线已生成。滑动参数 t 可以滚动圆轮，实时观察圆周点 P 描绘出的完整摆线弧。",
-        en: "Cycloid generated. Drag parameter t to roll the wheel along the axis and watch point P trace the cycloid arch.",
+        zh: "钟摆线已生成。拖动参数 t 可以滚动圆轮，实时观察圆周点 P 描绘出的完整摆线弧。",
+        en: "Cycloid generated. Scrub parameter t to roll the wheel along the axis and watch point P trace the cycloid arch.",
       },
-      composer: { zh: "让 Grok Bot 调整轨迹颜色或范围…", en: "Ask Grok Bot to adjust style or range…" },
+      composer: { zh: "向 Grok Bot 回复…", en: "Reply to Grok Bot…" },
       figureTitle: { zh: "钟摆线 · Cycloid", en: "Cycloid" },
       figureHref: "figures/cycloid.html",
-      hint: { zh: "滑动参数 t 滚动圆轮", en: "Scrub slider t to roll the circle" },
+      hint: { zh: "拖动参数 t 滚动圆轮", en: "Scrub slider t to roll the circle" },
       demo: "cycloid",
     },
     {
       id: "deepseek",
       name: "DeepSeek Harness",
-      accent: "#3B82F6",
-      modeTag: "DSH Right Canvas",
-      installTargets: ["deepseek"],
-      sub: { zh: "桌面插件 · 对话旁实时画布", en: "Desktop Plugin · Live Sidebar Canvas" },
-      conn: { zh: "右侧画布已同步 ✓", en: "Right canvas synced ✓" },
-      attachment: { zh: "解析几何", en: "Analytic geometry" },
+      logo: "logos/deepseek.svg",
+      mono: false,
+      accent: "#4D6BFE",
+      tint: "#e6eeff",
+      darkTint: "rgba(77, 107, 254, 0.24)",
+      conn: { zh: "侧边画布已同步", en: "canvas synced" },
+      attachmentBadge: "",
+      attachment: { zh: "", en: "" },
       prompt: {
         zh: "画出椭圆 x²/9 + y²/4 = 1，其焦点、准线和一条过右焦点的可调焦点弦。",
         en: "Plot ellipse x²/9 + y²/4 = 1 with its foci, directrices, and a focal chord controlled by angle θ.",
       },
       steps: {
-        zh: ["调用 geogebra_build 工具直连画布", "绑定焦点弦方向角 θ 滑块", "实时渲染至右侧 GeoGebra Studio"],
-        en: ["Call geogebra_build into sidebar canvas", "Bind focal chord direction slider θ", "Render live in GeoGebra Studio pane"],
+        zh: ["调用 geogebra_build 直连画布", "绑定焦点弦方向角 θ 滑块", "实时同步右侧 GeoGebra Studio"],
+        en: ["Called geogebra_build into sidebar", "Bound focal chord angle slider θ", "Synced live GeoGebra Studio pane"],
       },
       outputFile: "dsh-geogebra-studio",
       reply: {
         zh: "椭圆与焦点弦已直接同步到右侧 GeoGebra Studio 画布。调节方向角 θ，弦 AB 围绕右焦点 F₂ 旋转，可直接导出清洗后的 TikZ。",
-        en: "Synced directly to the right-side GeoGebra Studio canvas. Adjust angle θ to rotate focal chord AB around F₂ and export clean TikZ.",
+        en: "Synced directly to the GeoGebra Studio canvas. Adjust angle θ to rotate focal chord AB around F₂ and export clean TikZ.",
       },
-      composer: { zh: "在 DeepSeek Harness 中继续追问…", en: "Continue prompting in DeepSeek Harness…" },
+      composer: { zh: "向 DeepSeek Harness 回复…", en: "Reply to DeepSeek Harness…" },
       figureTitle: { zh: "椭圆焦点弦与准线 · Ellipse Chord", en: "Ellipse, Foci & Focal Chord" },
       figureHref: "figures/circle-tangency.html",
-      hint: { zh: "滑动方向角 θ 旋转焦点弦 AB", en: "Scrub angle θ to sweep focal chord AB" },
+      hint: { zh: "拖动方向角 θ 旋转焦点弦 AB", en: "Scrub angle θ to sweep focal chord AB" },
       demo: "ellipse",
     },
     {
       id: "cursor",
       name: "Cursor",
+      logo: "logos/cursor.svg",
+      mono: true,
       accent: "#0F766E",
-      modeTag: ".cursor/skills",
-      installTargets: ["grok", "claude"],
-      sub: { zh: "IDE 编辑器 · 本地插件", en: "IDE Agent · Local Plugin" },
-      conn: { zh: "本地 Skill 就绪 ✓", en: "Local skill ready ✓" },
-      attachment: { zh: "射影几何", en: "Projective geometry" },
+      tint: "#ebebeb",
+      darkTint: "rgba(255, 255, 255, 0.14)",
+      conn: { zh: "本地技能就绪", en: "local skill ready" },
+      attachmentBadge: "",
+      attachment: { zh: "", en: "" },
       prompt: {
         zh: "把帕斯卡六边形定理画出来：椭圆上六个点可以拖动，三组对边交点始终共线。",
-        en: "Construct Pascal's theorem on an ellipse with six draggable vertices so opposite-side intersections stay collinear.",
+        en: "Construct Pascal's theorem on an ellipse with draggable vertices so opposite-side intersections stay collinear.",
       },
       steps: {
-        zh: ["读取 .cursor/skills/geogebra-studio", "计算三组对边交点 X、Y、Z 与帕斯卡线", "启动本地预览 · pascal-theorem.html"],
-        en: ["Load .cursor/skills/geogebra-studio", "Compute intersections X, Y, Z & Pascal line", "Launch preview · pascal-theorem.html"],
+        zh: ["读取 .cursor/skills/geogebra-studio", "计算三组对边交点 X、Y、Z 与帕斯卡线", "输出预览 · pascal-theorem.html"],
+        en: ["Loaded .cursor/skills/geogebra-studio", "Computed intersections X, Y, Z & Pascal line", "Generated pascal-theorem.html"],
       },
       outputFile: "pascal-theorem.html",
       reply: {
         zh: "帕斯卡定理页面已生成。沿椭圆拖动蓝色顶点 P₁，可以看到三组对边交点 X、Y、Z 始终落在同一条帕斯卡直线上。",
         en: "Pascal's theorem is ready. Drag vertex P₁ along the ellipse and watch intersections X, Y, and Z remain collinear on the Pascal line.",
       },
-      composer: { zh: "让 Cursor 修改构造或导出 Asymptote…", en: "Ask Cursor to edit or export Asymptote…" },
+      composer: { zh: "向 Cursor 回复…", en: "Reply to Cursor…" },
       figureTitle: { zh: "帕斯卡定理 · Pascal’s theorem", en: "Pascal’s theorem" },
       figureHref: "figures/pascal-theorem.html",
       hint: { zh: "沿椭圆拖动蓝色点 P₁", en: "Drag blue point P₁ around the ellipse" },
@@ -209,7 +212,12 @@
     },
   ];
 
-  /* ---------------- Theme Management ---------------- */
+  function logoHtml(agent, className = "agent-logo") {
+    const cls = agent.mono ? `${className} logo-mono` : className;
+    return `<img src="${agent.logo}" alt="" class="${cls}">`;
+  }
+
+  /* ---------------- Theme Management (Warm Eggshell Default) ---------------- */
   let themePref = null;
   try {
     themePref = localStorage.getItem("ggs-theme");
@@ -218,14 +226,12 @@
   }
 
   function effectiveDark() {
-    if (themePref === "dark") return true;
-    if (themePref === "light") return false;
-    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return themePref === "dark";
   }
 
   function applyColorTheme() {
-    if (themePref === "dark" || themePref === "light") {
-      root.setAttribute("data-theme", themePref);
+    if (themePref === "dark") {
+      root.setAttribute("data-theme", "dark");
     } else {
       root.removeAttribute("data-theme");
     }
@@ -240,11 +246,15 @@
           : (english ? "Switch to dark mode" : "切换到深色模式"),
       );
     }
+    const pill = document.getElementById("rotating-pill");
+    if (pill) {
+      const agent = AGENTS[activeAgentIndex];
+      pill.style.backgroundColor = effectiveDark() ? agent.darkTint : agent.tint;
+    }
   }
 
   if (themeToggle) {
     themeToggle.hidden = false;
-    applyColorTheme();
     themeToggle.addEventListener("click", () => {
       themePref = effectiveDark() ? "light" : "dark";
       try {
@@ -258,25 +268,33 @@
   }
 
   /* ---------------- Elements ---------------- */
-  const heroSlotBtn = document.getElementById("agent-picker-btn");
-  const heroAgentIcon = document.getElementById("hero-agent-icon");
-  const heroAgentViewport = document.getElementById("hero-agent-viewport");
-  const heroAgentName = document.getElementById("hero-agent-name");
-  const agentDropdown = document.getElementById("agent-dropdown");
+  const rotatingPill = document.getElementById("rotating-pill");
+  const rotatingTrack = document.getElementById("rotating-track");
+  const rotatingMeasure = document.getElementById("rotating-measure");
+  const rotatingActive = document.getElementById("rotating-active");
+  const segmentAgentLogo = document.getElementById("segment-agent-logo");
+
+  const installMenuBtn = document.getElementById("install-menu-btn");
+  const installMenu = document.getElementById("install-menu");
+
+  const scenicStageFrame = document.getElementById("scenic-stage-frame");
+  const stageViewport = document.getElementById("stage-viewport");
+  const stageCanvas = document.getElementById("stage-canvas");
   const agentDock = document.getElementById("agent-dock");
   const autoCycleBtn = document.getElementById("auto-cycle-btn");
 
   const stageAgentIcon = document.getElementById("stage-agent-icon");
   const stageAgentTitle = document.getElementById("stage-agent-title");
   const stageConnText = document.getElementById("stage-conn-text");
-  const stageModeTag = document.getElementById("stage-mode-tag");
+  const stageAttachmentWrap = document.getElementById("stage-attachment-wrap");
+  const stageAttachmentBadge = document.getElementById("stage-attachment-badge");
   const stageAttachment = document.getElementById("stage-attachment");
   const stagePrompt = document.getElementById("stage-prompt");
   const stageSteps = document.getElementById("stage-steps");
-  const stageReplyRole = document.getElementById("stage-reply-role");
   const stageOutputFile = document.getElementById("stage-output-file");
   const stageReply = document.getElementById("stage-reply");
   const stageComposer = document.getElementById("stage-composer");
+  const stageSendBtn = document.getElementById("stage-send-btn");
   const stageFigureTitle = document.getElementById("stage-figure-title");
   const stageHint = document.getElementById("stage-hint");
   const stageFigureLink = document.getElementById("stage-figure-link");
@@ -287,111 +305,145 @@
   const geoSliderName = document.getElementById("geo-slider-name");
   const geoSliderVal = document.getElementById("geo-slider-val");
 
-  /* ---------------- Build Dock & Dropdown ---------------- */
-  function buildSelectors() {
-    agentDock.replaceChildren();
-    agentDropdown.replaceChildren();
+  /* ---------------- Responsive Scenic Stage Scaling ---------------- */
+  function updateStageScale() {
+    if (!stageViewport || !stageCanvas) return;
+    if (window.innerWidth <= 680) {
+      stageViewport.style.height = "";
+      stageCanvas.style.setProperty("--stage-scale", "1");
+      return;
+    }
+    const available = stageViewport.clientWidth || 1120;
+    const scale = Math.min(1, available / 1120);
+    stageCanvas.style.setProperty("--stage-scale", scale.toFixed(4));
+    stageViewport.style.height = `${Math.round(598 * scale)}px`;
+  }
 
+  if (typeof ResizeObserver !== "undefined" && stageViewport) {
+    new ResizeObserver(updateStageScale).observe(stageViewport);
+  }
+  window.addEventListener("resize", updateStageScale);
+
+  /* ---------------- Rotating Pill Width Measurement ---------------- */
+  function measureAgentPillWidth(agent) {
+    if (!rotatingMeasure) return 0;
+    rotatingMeasure.innerHTML = `${logoHtml(agent)}<span>${agent.name}</span>`;
+    return Math.ceil(rotatingMeasure.getBoundingClientRect().width || rotatingMeasure.offsetWidth);
+  }
+
+  function syncRotatingTrackWidth() {
+    if (!rotatingTrack) return;
+    const w = measureAgentPillWidth(AGENTS[activeAgentIndex]);
+    if (w > 0) rotatingTrack.style.width = `${w}px`;
+  }
+
+  function updateSegmentLogo(agent, animate) {
+    if (!segmentAgentLogo) return;
+    if (animate && segmentAgentLogo.firstElementChild) {
+      const prev = segmentAgentLogo.firstElementChild.cloneNode(true);
+      prev.className = prev.className + " is-exiting";
+      segmentAgentLogo.innerHTML = "";
+      segmentAgentLogo.appendChild(prev);
+      const nextWrap = document.createElement("span");
+      nextWrap.className = "is-entering";
+      nextWrap.style.display = "inline-flex";
+      nextWrap.innerHTML = logoHtml(agent, "");
+      segmentAgentLogo.appendChild(nextWrap);
+      setTimeout(() => {
+        if (prev.parentNode === segmentAgentLogo) prev.remove();
+      }, 340);
+    } else {
+      segmentAgentLogo.innerHTML = logoHtml(agent, "");
+    }
+  }
+
+  /* ---------------- Build Dock ---------------- */
+  function buildDock() {
+    if (!agentDock) return;
+    agentDock.replaceChildren();
     AGENTS.forEach((agent, idx) => {
-      // Dock Pill
       const pill = document.createElement("button");
       pill.type = "button";
       pill.className = "dock-pill" + (idx === activeAgentIndex ? " is-active" : "");
       pill.setAttribute("role", "tab");
       pill.setAttribute("aria-selected", String(idx === activeAgentIndex));
-      pill.style.setProperty("--i", String(idx));
-      pill.style.setProperty("--pill-accent", agent.accent);
-      pill.innerHTML = `<span class="dock-pill-icon" aria-hidden="true">${ICONS[agent.id]}</span><span>${agent.name}</span>`;
+      pill.innerHTML = `<span class="dock-pill-icon" aria-hidden="true">${logoHtml(agent, "")}</span><span>${agent.name}</span>`;
       pill.addEventListener("click", () => {
         setAutoCycle(false);
         selectAgent(idx, { animate: true });
       });
       agentDock.appendChild(pill);
-
-      // Dropdown Option
-      const opt = document.createElement("button");
-      opt.type = "button";
-      opt.className = "agent-option" + (idx === activeAgentIndex ? " is-active" : "");
-      opt.setAttribute("role", "option");
-      opt.setAttribute("aria-selected", String(idx === activeAgentIndex));
-      opt.innerHTML = `
-        <span class="agent-option-left">
-          <span class="agent-option-icon" style="color:${agent.accent}">${ICONS[agent.id]}</span>
-          <span>
-            <span class="agent-option-name">${agent.name}</span>
-            <span class="agent-option-sub">${english ? agent.sub.en : agent.sub.zh}</span>
-          </span>
-        </span>
-        <svg class="agent-option-check" aria-hidden="true"><use href="icons.svg#check-lg"></use></svg>
-      `;
-      opt.addEventListener("click", () => {
-        setAutoCycle(false);
-        selectAgent(idx, { animate: true });
-        closeDropdown();
-      });
-      agentDropdown.appendChild(opt);
     });
   }
 
-  function measureTextWidth(text) {
-    const probe = document.createElement("span");
-    probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;pointer-events:none;width:auto;";
-    probe.className = heroAgentName.className;
-    probe.textContent = text;
-    heroSlotBtn.appendChild(probe);
-    const measured = parseFloat(getComputedStyle(probe).width) || probe.offsetWidth;
-    probe.remove();
-    return Math.ceil(measured + 2);
-  }
-
-  function updateHeroSlotWidth() {
-    if (!heroAgentViewport || !heroAgentName) return;
-    heroAgentViewport.style.width = `${measureTextWidth(heroAgentName.textContent)}px`;
-  }
-
+  /* ---------------- Select Active Agent ---------------- */
   function selectAgent(index, { animate = true } = {}) {
+    const prevIndex = activeAgentIndex;
     activeAgentIndex = (index + AGENTS.length) % AGENTS.length;
     const agent = AGENTS[activeAgentIndex];
+    const prevAgent = AGENTS[prevIndex];
     const lang = english ? "en" : "zh";
+    const shouldAnimate = animate && prevIndex !== activeAgentIndex;
 
     root.style.setProperty("--active-agent", agent.accent);
-    root.style.setProperty("--active-agent-soft", `${agent.accent}1c`);
 
-    // Hero inline kinetic capsule
-    heroAgentIcon.innerHTML = ICONS[agent.id];
-    const nextWidth = measureTextWidth(agent.name);
-    heroAgentViewport.style.width = `${nextWidth}px`;
-    heroAgentName.textContent = agent.name;
-    if (animate) {
-      heroAgentName.classList.remove("is-entering");
-      void heroAgentName.offsetWidth;
-      heroAgentName.classList.add("is-entering");
+    // Update top segmented switcher mini-logo
+    updateSegmentLogo(agent, shouldAnimate);
+
+    // Update rotating pill background + vertical slot-roll animation
+    if (rotatingPill) {
+      rotatingPill.style.backgroundColor = effectiveDark() ? agent.darkTint : agent.tint;
+    }
+    if (rotatingTrack && rotatingActive) {
+      if (shouldAnimate) {
+        const exiting = document.createElement("span");
+        exiting.className = "rotating-exiting";
+        exiting.innerHTML = `${logoHtml(prevAgent)}<span>${prevAgent.name}</span>`;
+        rotatingTrack.appendChild(exiting);
+        setTimeout(() => exiting.remove(), 340);
+      }
+
+      rotatingTrack.style.width = `${measureAgentPillWidth(agent)}px`;
+      rotatingActive.innerHTML = `${logoHtml(agent)}<span>${agent.name}</span>`;
+      if (shouldAnimate) {
+        rotatingActive.classList.remove("is-entering");
+        void rotatingActive.offsetWidth;
+        rotatingActive.classList.add("is-entering");
+      } else {
+        rotatingActive.classList.remove("is-entering");
+      }
     }
 
-    // Update dock & dropdown active markers
-    Array.from(agentDock.children).forEach((el, idx) => {
-      const active = idx === activeAgentIndex;
-      el.classList.toggle("is-active", active);
-      el.setAttribute("aria-selected", String(active));
-    });
-    Array.from(agentDropdown.children).forEach((el, idx) => {
-      const active = idx === activeAgentIndex;
-      el.classList.toggle("is-active", active);
-      el.setAttribute("aria-selected", String(active));
-    });
+    // Update dock active pill
+    if (agentDock) {
+      Array.from(agentDock.children).forEach((el, idx) => {
+        const active = idx === activeAgentIndex;
+        el.classList.toggle("is-active", active);
+        el.setAttribute("aria-selected", String(active));
+      });
+    }
 
-    // Update install card gentle highlight
+    // Highlight corresponding install card
     for (const card of document.querySelectorAll("[data-install-card]")) {
       const targets = (card.getAttribute("data-install-card") || "").split(/\s+/);
       card.classList.toggle("is-highlighted", targets.includes(agent.id));
     }
 
-    // Update stage conversation
-    stageAgentIcon.innerHTML = ICONS[agent.id];
+    // Update scenic agent window
+    stageAgentIcon.innerHTML = logoHtml(agent, "");
     stageAgentTitle.textContent = agent.name;
     stageConnText.textContent = agent.conn[lang];
-    stageModeTag.textContent = agent.modeTag;
-    stageAttachment.textContent = agent.attachment[lang];
+
+    if (agent.attachment[lang]) {
+      stageAttachmentWrap.hidden = false;
+      stageAttachmentBadge.textContent = agent.attachmentBadge || "DOC";
+      stageAttachmentBadge.classList.toggle("is-geo", agent.attachmentBadge === "3D");
+      stageAttachment.textContent = agent.attachment[lang];
+    } else {
+      stageAttachmentWrap.hidden = true;
+      stageAttachment.textContent = "";
+    }
+
     stagePrompt.textContent = agent.prompt[lang];
 
     stageSteps.replaceChildren();
@@ -403,10 +455,14 @@
       stageSteps.appendChild(row);
     });
 
-    stageReplyRole.textContent = agent.name;
     stageOutputFile.textContent = agent.outputFile;
     stageReply.textContent = agent.reply[lang];
     stageComposer.textContent = agent.composer[lang];
+    if (stageSendBtn) {
+      stageSendBtn.style.backgroundColor = agent.accent;
+    }
+
+    // Update GeoGebra Studio window
     stageFigureTitle.textContent = agent.figureTitle[lang];
     stageHint.textContent = agent.hint[lang];
     stageFigureLink.setAttribute("href", agent.figureHref);
@@ -415,69 +471,88 @@
     renderDemo();
   }
 
-  /* ---------------- Dropdown Controls ---------------- */
-  function openDropdown() {
-    dropdownOpen = true;
-    agentDropdown.hidden = false;
-    heroSlotBtn.setAttribute("aria-expanded", "true");
+  /* ---------------- Install Popover ---------------- */
+  function openInstallMenu() {
+    if (!installMenu || !installMenuBtn) return;
+    installMenuOpen = true;
+    installMenu.hidden = false;
+    installMenuBtn.setAttribute("aria-expanded", "true");
   }
 
-  function closeDropdown() {
-    dropdownOpen = false;
-    agentDropdown.hidden = true;
-    heroSlotBtn.setAttribute("aria-expanded", "false");
+  function closeInstallMenu() {
+    if (!installMenu || !installMenuBtn) return;
+    installMenuOpen = false;
+    installMenu.hidden = true;
+    installMenuBtn.setAttribute("aria-expanded", "false");
   }
 
-  heroSlotBtn.addEventListener("click", (event) => {
-    event.stopPropagation();
-    if (dropdownOpen) closeDropdown();
-    else openDropdown();
-  });
+  if (installMenuBtn && installMenu) {
+    installMenuBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (installMenuOpen) closeInstallMenu();
+      else openInstallMenu();
+    });
 
-  heroSlotBtn.addEventListener("mouseenter", () => { hoverPaused = true; });
-  heroSlotBtn.addEventListener("mouseleave", () => { hoverPaused = false; });
-
-  document.addEventListener("click", (event) => {
-    if (dropdownOpen && !event.target.closest("[data-agent-picker]")) {
-      closeDropdown();
+    for (const item of installMenu.querySelectorAll("[data-select-agent]")) {
+      item.addEventListener("click", () => {
+        const targetId = item.getAttribute("data-select-agent");
+        const idx = AGENTS.findIndex((a) => a.id === targetId);
+        if (idx >= 0) {
+          setAutoCycle(false);
+          selectAgent(idx, { animate: true });
+        }
+        closeInstallMenu();
+      });
     }
-  });
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && dropdownOpen) {
-      closeDropdown();
-      heroSlotBtn.focus();
-    }
-  });
+    document.addEventListener("click", (event) => {
+      if (installMenuOpen && !event.target.closest("[data-install-menu-wrap]")) {
+        closeInstallMenu();
+      }
+    });
 
-  /* ---------------- Auto-Cycle Engine ---------------- */
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && installMenuOpen) {
+        closeInstallMenu();
+        installMenuBtn.focus();
+      }
+    });
+  }
+
+  /* ---------------- Auto-Cycle Engine (2.8s cadence matching reference) ---------------- */
   function scheduleCycle() {
     clearInterval(cycleTimer);
     if (!autoCycle) return;
     cycleTimer = setInterval(() => {
-      if (document.hidden || dropdownOpen || hoverPaused || draggingPoint) return;
+      if (document.hidden || installMenuOpen || stageHoverPaused || draggingPoint) return;
       selectAgent((activeAgentIndex + 1) % AGENTS.length, { animate: true });
     }, 2800);
   }
 
   function setAutoCycle(enabled) {
     autoCycle = enabled;
-    autoCycleBtn.classList.toggle("is-active", enabled);
-    autoCycleBtn.setAttribute("aria-pressed", String(enabled));
-    if (enabled) {
-      scheduleCycle();
-    } else {
-      clearInterval(cycleTimer);
+    if (autoCycleBtn) {
+      autoCycleBtn.classList.toggle("is-active", enabled);
+      autoCycleBtn.setAttribute("aria-pressed", String(enabled));
     }
+    if (enabled) scheduleCycle();
+    else clearInterval(cycleTimer);
   }
 
-  autoCycleBtn.addEventListener("click", () => {
-    const next = !autoCycle;
-    setAutoCycle(next);
-    if (next) {
-      selectAgent((activeAgentIndex + 1) % AGENTS.length, { animate: true });
-    }
-  });
+  if (autoCycleBtn) {
+    autoCycleBtn.addEventListener("click", () => {
+      const next = !autoCycle;
+      setAutoCycle(next);
+      if (next) {
+        selectAgent((activeAgentIndex + 1) % AGENTS.length, { animate: true });
+      }
+    });
+  }
+
+  if (scenicStageFrame) {
+    scenicStageFrame.addEventListener("mouseenter", () => { stageHoverPaused = true; });
+    scenicStageFrame.addEventListener("mouseleave", () => { stageHoverPaused = false; });
+  }
 
   /* ---------------- Interactive Mathematical Geometry Engine ---------------- */
   const state = {
@@ -499,8 +574,6 @@
       rest: [0.49, -2.52, 1.37, -0.38, 2.82],
     },
   };
-
-  let draggingPoint = null;
 
   function configureSliderForDemo(demo) {
     if (demo === "wedge3d") {
@@ -616,7 +689,7 @@
     return `
       <g>
         ${draggable ? `<circle cx="${fmt(pt.x)}" cy="${fmt(pt.y)}" r="16" fill="transparent" class="geo-point-hit" data-drag="${id}"/>` : ""}
-        <circle cx="${fmt(pt.x)}" cy="${fmt(pt.y)}" r="${draggable ? 5.2 : 3.8}" fill="${color}" stroke="var(--surface)" stroke-width="1.8" pointer-events="none"/>
+        <circle cx="${fmt(pt.x)}" cy="${fmt(pt.y)}" r="${draggable ? 5.2 : 3.8}" fill="${color}" stroke="var(--canvas-bg)" stroke-width="1.8" pointer-events="none"/>
         <text x="${fmt(pt.x + dx)}" y="${fmt(pt.y + dy)}" font-family="var(--font-serif)" font-style="italic" font-size="14" font-weight="600" fill="var(--ink)" pointer-events="none">${label}</text>
       </g>
     `;
@@ -628,7 +701,6 @@
     const vx = Q.x - P.x;
     const vy = Q.y - P.y;
     const h = Math.sqrt(3) / 2;
-    // Perpendicular pointing outward based on triangle winding
     const nx = -vy * orientSign;
     const ny = vx * orientSign;
     return { x: mx + h * nx, y: my + h * ny };
@@ -662,7 +734,7 @@
       <polygon points="${fmt(A.x)},${fmt(A.y)} ${fmt(B.x)},${fmt(B.y)} ${fmt(C2.x)},${fmt(C2.y)}" fill="var(--accent-soft)" fill-opacity="0.45" stroke="var(--canvas-axis)" stroke-width="1.2"/>
       <polygon points="${fmt(B.x)},${fmt(B.y)} ${fmt(C.x)},${fmt(C.y)} ${fmt(A2.x)},${fmt(A2.y)}" fill="var(--accent-soft)" fill-opacity="0.45" stroke="var(--canvas-axis)" stroke-width="1.2"/>
       <polygon points="${fmt(C.x)},${fmt(C.y)} ${fmt(A.x)},${fmt(A.y)} ${fmt(B2.x)},${fmt(B2.y)}" fill="var(--accent-soft)" fill-opacity="0.45" stroke="var(--canvas-axis)" stroke-width="1.2"/>
-      <polygon points="${fmt(A.x)},${fmt(A.y)} ${fmt(B.x)},${fmt(B.y)} ${fmt(C.x)},${fmt(C.y)}" fill="var(--bg-soft)" fill-opacity="0.5" stroke="var(--ink)" stroke-width="1.75"/>
+      <polygon points="${fmt(A.x)},${fmt(A.y)} ${fmt(B.x)},${fmt(B.y)} ${fmt(C.x)},${fmt(C.y)}" fill="var(--surface-soft)" fill-opacity="0.55" stroke="var(--ink)" stroke-width="1.75"/>
       <polygon points="${fmt(O1.x)},${fmt(O1.y)} ${fmt(O2.x)},${fmt(O2.y)} ${fmt(O3.x)},${fmt(O3.y)}" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="2"/>
       ${pointMarkup("O1", O1, "O₁", false, "var(--teal)", 8, -7)}
       ${pointMarkup("O2", O2, "O₂", false, "var(--teal)", -20, -6)}
@@ -675,44 +747,33 @@
 
   function renderWedge3D() {
     const h = state.wedge3d.h;
-    // Perspective projection coordinates inspired by docs/images/cover.png
-    const P0 = { x: 206, y: 248 }; // back-left base
-    const P1 = { x: 326, y: 278 }; // front base
-    const P2 = { x: 432, y: 236 }; // right base
-    const T0 = { x: 206, y: 92 };  // back-left top
-    const T2 = { x: 432, y: 152 }; // curved top ridge start/end
+    const P0 = { x: 206, y: 248 };
+    const P1 = { x: 326, y: 278 };
+    const P2 = { x: 432, y: 236 };
+    const T0 = { x: 206, y: 92 };
+    const T2 = { x: 432, y: 152 };
 
-    // Horizontal cross-section interpolation at height h
     const yLeft = P0.y - h * (P0.y - T0.y);
     const yFront = P1.y - h * 112;
     const yRight = P2.y - h * (P2.y - T2.y);
 
-    // Intersection points on curved ribs
     const S0 = { x: P0.x, y: yLeft };
     const S1 = { x: P1.x - h * 18, y: yFront };
     const S2 = { x: P2.x - h * 12, y: yRight };
     const barY = 278 - h * 165;
 
     svg.innerHTML = `
-      <!-- Height control track (matching cover.png) -->
       <line x1="126" y1="108" x2="126" y2="282" stroke="var(--canvas-axis)" stroke-width="1.3"/>
-      <circle cx="126" cy="${fmt(barY)}" r="4.5" fill="var(--amber)" stroke="var(--surface)" stroke-width="1.5"/>
+      <circle cx="126" cy="${fmt(barY)}" r="4.5" fill="var(--amber)" stroke="var(--canvas-bg)" stroke-width="1.5"/>
       <text x="108" y="${fmt(barY + 4)}" font-family="var(--font-serif)" font-style="italic" font-size="14" fill="var(--ink)">h</text>
-      <line x1="132" y1="${fmt(barY)}" x2="${fmt(S0.x)}" y2="${fmt(S0.y)}" stroke="var(--subtle)" stroke-width="1" stroke-dasharray="4 4"/>
-
-      <!-- Hidden base back edge -->
+      <line x1="132" y1="${fmt(barY)}" x2="${fmt(S0.x)}" y2="${fmt(S0.y)}" stroke="var(--ink-muted)" stroke-width="1" stroke-dasharray="4 4"/>
       <line x1="${fmt(P0.x)}" y1="${fmt(P0.y)}" x2="${fmt(P2.x)}" y2="${fmt(P2.y)}" stroke="var(--canvas-axis)" stroke-width="1.2" stroke-dasharray="5 4"/>
       <line x1="${fmt(P0.x)}" y1="${fmt(P0.y)}" x2="${fmt(P0.x)}" y2="${fmt(T0.y)}" stroke="var(--canvas-axis)" stroke-width="1.2" stroke-dasharray="5 4"/>
-
-      <!-- Solid translucent body -->
       <path d="M ${fmt(P0.x)} ${fmt(P0.y)} L ${fmt(P1.x)} ${fmt(P1.y)} L ${fmt(P2.x)} ${fmt(P2.y)} Q 380 120 ${fmt(T0.x)} ${fmt(T0.y)} Z" fill="var(--accent-soft)" fill-opacity="0.45"/>
-      <!-- Front ribs -->
       <line x1="${fmt(P0.x)}" y1="${fmt(P0.y)}" x2="${fmt(P1.x)}" y2="${fmt(P1.y)}" stroke="var(--ink)" stroke-width="1.4"/>
       <line x1="${fmt(P1.x)}" y1="${fmt(P1.y)}" x2="${fmt(P2.x)}" y2="${fmt(P2.y)}" stroke="var(--ink)" stroke-width="1.4"/>
       <path d="M ${fmt(T0.x)} ${fmt(T0.y)} Q 296 105 ${fmt(P1.x)} ${fmt(P1.y)}" fill="none" stroke="var(--ink)" stroke-width="1.45"/>
       <path d="M ${fmt(T0.x)} ${fmt(T0.y)} Q 350 112 ${fmt(P2.x)} ${fmt(P2.y)}" fill="none" stroke="var(--ink)" stroke-width="1.45"/>
-
-      <!-- Movable horizontal cross-section plane -->
       <polygon points="${fmt(S0.x)},${fmt(S0.y)} ${fmt(S1.x)},${fmt(S1.y)} ${fmt(S2.x)},${fmt(S2.y)}" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/>
       <line x1="${fmt(S0.x)}" y1="${fmt(S0.y)}" x2="${fmt(S2.x)}" y2="${fmt(S2.y)}" stroke="var(--amber)" stroke-width="1.3" stroke-dasharray="4 3"/>
     `;
@@ -724,7 +785,6 @@
     const Mb = { x: (A.x + C.x) / 2, y: (A.y + C.y) / 2 };
     const Mc = { x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 };
 
-    // Circumcenter O via determinant
     const D = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
     if (Math.abs(D) < 1) return;
     const a2 = A.x * A.x + A.y * A.y;
@@ -739,7 +799,6 @@
     const H = { x: A.x + B.x + C.x - 2 * O.x, y: A.y + B.y + C.y - 2 * O.y };
     const N9 = { x: (O.x + H.x) / 2, y: (O.y + H.y) / 2 };
 
-    // Extend Euler line cleanly across O and H
     const dx = H.x - O.x, dy = H.y - O.y;
     const len = Math.hypot(dx, dy) || 1;
     const ux = dx / len, uy = dy / len;
@@ -792,21 +851,15 @@
     const py = y0 - r * (1 - Math.cos(t));
 
     svg.innerHTML = `
-      <!-- Coordinate axes -->
       <line x1="48" y1="${y0}" x2="514" y2="${y0}" stroke="var(--canvas-axis)" stroke-width="1.3"/>
       <line x1="${x0}" y1="54" x2="${x0}" y2="296" stroke="var(--canvas-axis)" stroke-width="1.3"/>
       <path d="M510 ${y0 - 4} L516 ${y0} L510 ${y0 + 4} M${x0 - 4} 58 L${x0} 52 L${x0 + 4} 58" fill="none" stroke="var(--canvas-axis)" stroke-width="1.3"/>
-
-      <!-- Full reference cycloid -->
       <path d="${fullPath}" fill="none" stroke="var(--canvas-axis)" stroke-width="1.3" stroke-dasharray="4 4"/>
-      <!-- Active traced cycloid -->
       <path d="${tracedPath}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/>
-
-      <!-- Rolling circle -->
       <circle cx="${fmt(cx)}" cy="${fmt(cy)}" r="${r}" fill="var(--accent-soft)" fill-opacity="0.35" stroke="var(--ink)" stroke-width="1.5"/>
       <line x1="${fmt(cx)}" y1="${fmt(cy)}" x2="${fmt(px)}" y2="${fmt(py)}" stroke="var(--teal)" stroke-width="1.6"/>
       <circle cx="${fmt(cx)}" cy="${fmt(cy)}" r="3.2" fill="var(--ink)"/>
-      <circle cx="${fmt(cx)}" cy="${y0}" r="3.2" fill="var(--subtle)"/>
+      <circle cx="${fmt(cx)}" cy="${y0}" r="3.2" fill="var(--ink-muted)"/>
       ${pointMarkup("P", { x: px, y: py }, "P", false, "var(--accent)", 10, -10)}
     `;
   }
@@ -817,7 +870,6 @@
     const a = 3, b = 2, c = Math.sqrt(5);
     const dirX = 9 / c;
 
-    // Intersect line (c + L cos(theta), L sin(theta)) with x^2/9 + y^2/4 = 1
     const ct = Math.cos(theta), st = Math.sin(theta);
     const Acoef = (ct * ct) / 9 + (st * st) / 4;
     const Bcoef = (2 * c * ct) / 9;
@@ -834,23 +886,15 @@
     const d2x = ox + dirX * scale;
 
     svg.innerHTML = `
-      <!-- Coordinate axes -->
       <line x1="56" y1="${oy}" x2="504" y2="${oy}" stroke="var(--canvas-axis)" stroke-width="1.25"/>
       <line x1="${ox}" y1="44" x2="${ox}" y2="316" stroke="var(--canvas-axis)" stroke-width="1.25"/>
       <path d="M500 ${oy - 4} L506 ${oy} L500 ${oy + 4} M${ox - 4} 48 L${ox} 42 L${ox + 4} 48" fill="none" stroke="var(--canvas-axis)" stroke-width="1.25"/>
-
-      <!-- Directrices -->
       <line x1="${fmt(d1x)}" y1="48" x2="${fmt(d1x)}" y2="312" stroke="var(--amber)" stroke-width="1.2" stroke-dasharray="6 5"/>
       <line x1="${fmt(d2x)}" y1="48" x2="${fmt(d2x)}" y2="312" stroke="var(--amber)" stroke-width="1.2" stroke-dasharray="6 5"/>
       <text x="${fmt(d1x + 8)}" y="68" font-family="var(--font-serif)" font-style="italic" font-size="13" fill="var(--amber)">d₁</text>
       <text x="${fmt(d2x + 8)}" y="68" font-family="var(--font-serif)" font-style="italic" font-size="13" fill="var(--amber)">d₂</text>
-
-      <!-- Ellipse -->
       <ellipse cx="${ox}" cy="${oy}" rx="${a * scale}" ry="${b * scale}" fill="var(--accent-soft)" fill-opacity="0.3" stroke="var(--accent)" stroke-width="1.8"/>
-
-      <!-- Focal chord AB -->
       <line x1="${fmt(ptA.x)}" y1="${fmt(ptA.y)}" x2="${fmt(ptB.x)}" y2="${fmt(ptB.y)}" stroke="var(--teal)" stroke-width="2.1"/>
-
       ${pointMarkup("F1", F1, "F₁", false, "var(--amber)", -14, 18)}
       ${pointMarkup("F2", F2, "F₂", false, "var(--amber)", -6, 18)}
       ${pointMarkup("A", ptA, "A", false, "var(--ink)", 8, -8)}
@@ -938,8 +982,9 @@
     copyStatus.textContent = "";
 
     applyColorTheme();
-    buildSelectors();
+    buildDock();
     selectAgent(activeAgentIndex, { animate: false });
+    syncRotatingTrackWidth();
   }
 
   langToggle.hidden = false;
@@ -1001,9 +1046,10 @@
 
   /* ---------------- Boot ---------------- */
   setLanguage(english);
-  window.addEventListener("resize", updateHeroSlotWidth);
+  updateStageScale();
+  window.addEventListener("resize", syncRotatingTrackWidth);
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(updateHeroSlotWidth);
+    document.fonts.ready.then(syncRotatingTrackWidth);
   }
   scheduleCycle();
 })();
