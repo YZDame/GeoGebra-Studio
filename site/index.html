@@ -7,8 +7,8 @@
   <title>GeoGebra Studio：用 Agent Skill 把题目做成可拖动图形</title>
   <meta name="description" content="非官方 Agent Skill。把一道题目交给它，生成可拖动、可导出的 GeoGebra 图形，格式包括 GGB、PNG、PDF、TikZ 和 HTML。与 GeoGebra 官方无隶属关系。">
   <link rel="canonical" href="https://yzdame.github.io/GeoGebra-Studio/">
-  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#161616" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FDFCFB" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#181817" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="geogebra-icon.png" type="image/png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
   <meta property="og:type" content="website">
@@ -21,12 +21,12 @@
   <meta property="og:image" content="https://yzdame.github.io/GeoGebra-Studio/share.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="GeoGebra Studio 首页截图，大标题是 AI Agent + GeoGebra = ？">
+  <meta property="og:image:alt" content="GeoGebra Studio 首页截图，支持在 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 与 Cursor 中绘制交互式 GeoGebra 图形">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="GeoGebra Studio：用 Agent Skill 把题目做成可拖动图形">
   <meta name="twitter:description" content="非官方 Agent Skill。把一道题目交给它，生成可拖动、可导出的 GeoGebra 图形，格式包括 GGB、PNG、PDF、TikZ 和 HTML。与 GeoGebra 官方无隶属关系。">
   <meta name="twitter:image" content="https://yzdame.github.io/GeoGebra-Studio/share.png">
-  <meta name="twitter:image:alt" content="GeoGebra Studio 首页截图，大标题是 AI Agent + GeoGebra = ？">
+  <meta name="twitter:image:alt" content="GeoGebra Studio 首页截图，支持在 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 与 Cursor 中绘制交互式 GeoGebra 图形">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -64,152 +64,395 @@
 </head>
 <body>
   <a class="skip-link" href="#top" data-en="Skip to content">跳到内容</a>
-  <header class="wrap site-header">
-    <a class="brand" href="#top">
-      <img src="geogebra-icon.png" width="22" height="22" alt="">
-      GeoGebra Studio
-    </a>
-    <nav aria-label="网站导航" data-en-label="Site navigation">
-      <a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/README.zh-CN.md" data-en="Docs" data-en-href="https://github.com/YZDame/GeoGebra-Studio#readme">文档</a>
-      <a class="repo-link" href="https://github.com/YZDame/GeoGebra-Studio">
-        <svg class="icon" aria-hidden="true"><use href="icons.svg#github"></use></svg>
-        <span>GitHub</span>
-        <span class="stars" data-stars hidden>
-          <svg class="icon" aria-hidden="true"><use href="icons.svg#star"></use></svg>
-          <span data-star-count></span><span class="sr-only" data-en=" stars"> 颗星</span>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top">
+        <span class="brand-mark">
+          <img src="geogebra-icon.png" width="24" height="24" alt="">
         </span>
+        <span class="brand-name">GeoGebra Studio</span>
       </a>
-      <button class="language" type="button" data-lang-toggle aria-label="Switch to English" hidden>EN</button>
-    </nav>
+
+      <nav class="header-nav" aria-label="网站导航" data-en-label="Site navigation">
+        <a class="nav-link" href="#capabilities" data-en="Features">特性</a>
+        <a class="nav-link" href="#install" data-en="Install">安装</a>
+        <a class="nav-link" href="#examples" data-en="Examples">示例</a>
+        <a class="nav-link" href="https://github.com/YZDame/GeoGebra-Studio/blob/main/README.zh-CN.md" data-en="Docs" data-en-href="https://github.com/YZDame/GeoGebra-Studio#readme" target="_blank" rel="noopener noreferrer">文档</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="header-tool-btn" type="button" data-theme-toggle aria-label="切换到深色模式" data-en-label="Switch to dark mode" hidden>
+          <svg class="icon" aria-hidden="true"><use href="icons.svg#moon"></use></svg>
+        </button>
+        <button class="header-lang-btn" type="button" data-lang-toggle aria-label="Switch to English" hidden>EN</button>
+        <a class="header-cta" href="https://github.com/YZDame/GeoGebra-Studio" target="_blank" rel="noopener noreferrer">
+          <svg class="icon" aria-hidden="true"><use href="icons.svg#github"></use></svg>
+          <span>GitHub</span>
+          <span class="stars" data-stars hidden>
+            <svg class="icon" aria-hidden="true"><use href="icons.svg#star"></use></svg>
+            <span data-star-count></span><span class="sr-only" data-en=" stars"> 颗星</span>
+          </span>
+        </a>
+      </div>
+    </div>
   </header>
 
-  <main class="wrap" id="top">
-    <section class="hero" aria-labelledby="hero-title">
-      <h1 id="hero-title">AI Agent + GeoGebra = ？</h1>
-      <p class="lead" data-en="Create interactive GeoGebra figures with an Agent Skill and export GGB, PNG, PDF, TikZ, HTML, and more.">用 Agent Skill 生成可交互的 GeoGebra 图形，并导出为 GGB、PNG、PDF、TikZ、HTML 等格式。</p>
+  <main id="top" class="page-main">
+    <section class="container hero" aria-labelledby="hero-title">
+      <div class="segment-switch" role="navigation" aria-label="安装方式切换" data-en-label="Install mode switcher" data-segment>
+        <span class="segment-thumb" aria-hidden="true"></span>
+        <a class="segment-item is-active" href="#install-general" data-segment-target="skill" aria-current="page">
+          <span class="segment-logo-slot" id="segment-agent-logo" aria-hidden="true"></span>
+          <span>Agent Skills</span>
+        </a>
+        <a class="segment-item" href="#install-plugins" data-segment-target="plugin">
+          <span>Plugin</span>
+        </a>
+      </div>
+
+      <div class="hero-header">
+        <h1 id="hero-title" class="hero-title">
+          <span class="sr-only" data-en="Draw interactive GeoGebra in Claude Code, ChatGPT/Codex, DeepSeek Harness, Grok Bot or Cursor.">用 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 或 Cursor 绘制交互式 GeoGebra。</span>
+          <span aria-hidden="true" class="hero-title-visual">
+            <span class="hero-line-1" data-en="Draw interactive GeoGebra in">绘制交互式 GeoGebra，就在</span><br><span class="hero-line-2"><span class="rotating-pill" id="rotating-pill"><span class="rotating-track" id="rotating-track"><span class="rotating-measure" id="rotating-measure" aria-hidden="true"></span><span class="rotating-active" id="rotating-active"><img src="logos/claude.svg" alt="" class="agent-logo"><span>Claude Code</span></span></span></span><span class="hero-after-pill" data-en=".">。</span></span>
+          </span>
+        </h1>
+
+        <p class="hero-subtitle" data-en="With the GeoGebra Studio skill, your AI agent constructs draggable 2D &amp; 3D geometry figures and exports GGB, PNG, SVG, PDF, TikZ, and HTML.">安装 GeoGebra Studio 技能后，你的 AI Agent 可以根据题目自动构建可拖动的 2D/3D 几何图形，并导出 GGB、PNG、SVG、PDF、TikZ 与 HTML。</p>
+
+        <div class="hero-cta-wrap" data-install-menu-wrap>
+          <button
+            type="button"
+            class="primary-cta"
+            id="install-menu-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="install-menu"
+          >
+            <span data-en="Install skill for free">免费安装 Skill</span>
+            <svg class="cta-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
+          </button>
+
+          <div class="install-popover" id="install-menu" hidden>
+            <a class="install-pop-item" href="#install-general" data-select-agent="claude">
+              <span class="install-pop-icon"><img src="logos/claude.svg" alt=""></span>
+              <span class="install-pop-label" data-en="Install for Claude Code">安装到 Claude Code</span>
+              <span class="install-pop-action"><span data-en="Setup">查看命令</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
+            </a>
+            <a class="install-pop-item" href="#install-general" data-select-agent="chatgpt">
+              <span class="install-pop-icon"><img src="logos/openai.svg" alt="" class="logo-mono"></span>
+              <span class="install-pop-label" data-en="Install for ChatGPT/Codex">安装到 ChatGPT/Codex</span>
+              <span class="install-pop-action"><span data-en="Setup">查看命令</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
+            </a>
+            <a class="install-pop-item" href="#install-dsh" data-select-agent="deepseek">
+              <span class="install-pop-icon"><img src="logos/deepseek.svg" alt=""></span>
+              <span class="install-pop-label" data-en="Install for DeepSeek Harness">安装到 DeepSeek Harness</span>
+              <span class="install-pop-action"><span data-en="Setup">查看包名</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
+            </a>
+            <a class="install-pop-item" href="#install-other" data-select-agent="grok">
+              <span class="install-pop-icon"><img src="logos/grok.svg" alt="" class="logo-mono"></span>
+              <span class="install-pop-label" data-en="Install for Grok Bot">安装到 Grok Bot</span>
+              <span class="install-pop-action"><span data-en="Setup">查看指令</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
+            </a>
+            <a class="install-pop-item" href="#install-other" data-select-agent="cursor">
+              <span class="install-pop-icon"><img src="logos/cursor.svg" alt="" class="logo-mono"></span>
+              <span class="install-pop-label" data-en="Install for Cursor">安装到 Cursor</span>
+              <span class="install-pop-action"><span data-en="Setup">查看目录</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h8v8M13 3 4 12"/></svg></span>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="install" id="install" aria-labelledby="install-title">
-      <h2 id="install-title" data-en="Installation">安装</h2>
-      <div class="install-option">
-        <h3 data-en="1. General installation">1. 通用安装</h3>
-        <p class="requirements" data-en="For Claude Code, Codex, Cursor, and other clients that support Agent Skills. Requires Node.js 22.12 or later.">适用于 Claude Code、Codex、Cursor 等支持 Agent Skills 的客户端，需要 Node.js 22.12 或更高版本。</p>
-        <div class="command">
-          <code id="cmd-install">npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code>
-          <button type="button" data-copy="cmd-install" aria-label="复制通用安装命令" data-en-label="Copy general install command" hidden>
-            <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
-          </button>
-        </div>
+    <!-- Editorial Feature Strip -->
+    <section class="container section-block" id="capabilities" aria-labelledby="cap-title">
+      <div class="section-intro">
+        <h2 id="cap-title" class="section-heading">
+          <span data-en="Turn any math problem into">把数学题变成</span>
+          <span class="inline-chip" data-en="Interactive Figures">可拖动图形</span>
+          <span data-en="and">与</span>
+          <span class="inline-chip" data-en="Publication Exports">出版级导出</span><span data-en=".">。</span>
+        </h2>
+        <p class="section-meta">
+          <span data-en="One open SKILL.md workflow across CLI, desktop, and IDE agents — zero MCP servers or backend required.">一套标准 SKILL.md 工作流通用终端、桌面与 IDE 客户端，无需配置 MCP 服务、数据库或后端。</span>
+          <a class="meta-pill" href="#examples">
+            <span data-en="Try 14 live figures">体验 14 个在线图形</span>
+            <svg class="icon-xs" aria-hidden="true"><use href="icons.svg#arrow-up-right"></use></svg>
+          </a>
+        </p>
       </div>
-      <div class="install-option">
-        <h3 data-en="2. Install in Codex">2. 在 Codex 当中安装</h3>
-        <p class="requirements" data-en="Run this command and open a new Codex session. Requires Node.js 22.12 or later.">运行命令，然后新开一个 Codex 会话。需要 Node.js 22.12 或更高版本。</p>
-        <div class="command">
-          <code id="cmd-codex">npx @lydt/geogebra-studio@latest install</code>
-          <button type="button" data-copy="cmd-codex" aria-label="复制 Codex 安装命令" data-en-label="Copy Codex install command" hidden>
-            <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
-          </button>
-        </div>
+
+      <div class="bento-3">
+        <article class="bento-card">
+          <div class="bento-card-head">
+            <h3 data-en="One Skill, multiple clients">一套 Skill，多端通用</h3>
+            <span class="bento-tag">SKILL.md</span>
+          </div>
+          <p data-en="Works natively in Claude Code, ChatGPT/Codex, DeepSeek Harness, Grok Bot, and Cursor with zero extra daemon.">原生兼容 Claude Code、ChatGPT/Codex、DeepSeek Harness、Grok Bot 与 Cursor，无需额外常驻进程。</p>
+        </article>
+        <article class="bento-card">
+          <div class="bento-card-head">
+            <h3 data-en="2D &amp; 3D native engine">2D 与 3D 原生交互</h3>
+            <span class="bento-tag">GeoGebra Classic</span>
+          </div>
+          <p data-en="Powered by the official GeoGebra Classic engine with equal-axis scaling, draggable points, sliders, 9 themes, and light/dark UI.">由官方 GeoGebra Classic 引擎驱动，支持等比例坐标轴、可拖动点、滑块、9 套配色主题与深浅色模式。</p>
+        </article>
+        <article class="bento-card">
+          <div class="bento-card-head">
+            <h3 data-en="Seven instant exports">7 种格式即刻导出</h3>
+            <span class="bento-tag">GGB · TikZ · PDF</span>
+          </div>
+          <p data-en="Download editable HTML, GGB, PNG, SVG, PDF, XML, and cleaned TikZ in browser — plus AI-assisted Asymptote &amp; TSQX.">页面内直接下载可二次编辑的 HTML、GGB、PNG、SVG、PDF、XML 与清洗后的 TikZ，并支持 Asymptote 与 TSQX。</p>
+        </article>
       </div>
-      <div class="install-option">
-        <h3 data-en="3. Install in DeepSeek Harness">3. 在 DeepSeek Harness 当中安装</h3>
-        <p class="requirements" data-en="In the desktop app, open Plugins → Add Plugin and paste this package name. Then open GeoGebra Studio from the left sidebar to use the canvas beside your chat.">在桌面端打开「插件 → 添加插件」，粘贴下面的包名即可安装。安装后从左侧栏打开 GeoGebra Studio 即可在对话旁使用画布。</p>
-        <div class="command">
-          <code id="pkg-dsh">dsh-geogebra-studio</code>
-          <button type="button" data-copy="pkg-dsh" aria-label="复制插件包名" data-en-label="Copy plugin package name" hidden>
-            <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
-          </button>
+    </section>
+
+    <!-- Installation Section -->
+    <section class="container section-block" id="install" aria-labelledby="install-title">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <h2 id="install-title" class="section-heading" data-en="Install in seconds for your favorite AI client.">几秒内安装到你常用的 AI 客户端。</h2>
+          <span class="req-badge">Node.js ≥ 22.12</span>
         </div>
+        <p class="section-meta">
+          <span data-en="Works on macOS, Windows, and Linux. Open source under GPL-2.0-or-later.">支持 macOS、Windows 与 Linux，基于 GPL-2.0-or-later 开源。</span>
+        </p>
       </div>
+
+      <div class="install-grid">
+        <article class="bento-card install-card install-card-featured" id="install-general" data-install-card="claude chatgpt cursor">
+          <div class="install-card-top">
+            <div class="install-identity">
+              <div class="install-logo-stack" aria-hidden="true">
+                <span class="install-logo-tile"><img src="logos/claude.svg" alt=""></span>
+                <span class="install-logo-tile"><img src="logos/openai.svg" alt="" class="logo-mono"></span>
+                <span class="install-logo-tile"><img src="logos/cursor.svg" alt="" class="logo-mono"></span>
+              </div>
+              <div>
+                <h3 data-en="1. General Agent Skill (Recommended)">1. 通用 Agent Skill 安装（推荐）</h3>
+                <p data-en="For Claude Code, ChatGPT/Codex, Cursor, and other Agent Skills clients.">适用于 Claude Code、ChatGPT/Codex、Cursor 等所有支持 Agent Skills 的客户端。</p>
+              </div>
+            </div>
+            <span class="client-tags">Claude Code · ChatGPT/Codex · Cursor</span>
+          </div>
+          <div class="command-box">
+            <code id="cmd-install">npx skills add YZDame/GeoGebra-Studio --skill geogebra-studio</code>
+            <button type="button" data-copy="cmd-install" aria-label="复制通用安装命令" data-en-label="Copy general install command" hidden>
+              <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+            </button>
+          </div>
+        </article>
+
+        <div class="install-plugin-group" id="install-plugins">
+          <article class="bento-card install-card" id="install-codex" data-install-card="chatgpt plugin">
+            <div class="install-identity">
+              <span class="install-logo-tile"><img src="logos/openai.svg" alt="" class="logo-mono"></span>
+              <div>
+                <h3 data-en="2. Codex Plugin">2. Codex 插件</h3>
+                <p data-en="Run this command, then start a new Codex session.">运行下方命令后新开一个 Codex 会话即可生效。</p>
+              </div>
+            </div>
+            <div class="command-box">
+              <code id="cmd-codex">npx @lydt/geogebra-studio@latest install</code>
+              <button type="button" data-copy="cmd-codex" aria-label="复制 Codex 插件安装命令" data-en-label="Copy Codex plugin install command" hidden>
+                <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+              </button>
+            </div>
+          </article>
+
+          <article class="bento-card install-card" id="install-dsh" data-install-card="deepseek plugin">
+            <div class="install-identity">
+              <span class="install-logo-tile"><img src="logos/deepseek.svg" alt=""></span>
+              <div>
+                <h3 data-en="3. DeepSeek Harness Plugin">3. DeepSeek Harness 插件</h3>
+                <p data-en="Open Plugins → Add Plugin in the desktop app, paste the package name, then open GeoGebra Studio in the left sidebar.">在桌面端打开「插件 → 添加插件」粘贴包名，从左侧栏打开即可在对话旁实时作图。</p>
+              </div>
+            </div>
+            <div class="command-box">
+              <code id="pkg-dsh">dsh-geogebra-studio</code>
+              <button type="button" data-copy="pkg-dsh" aria-label="复制插件包名" data-en-label="Copy plugin package name" hidden>
+                <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <article class="bento-card install-card install-card-featured" id="install-other" data-install-card="grok cursor">
+          <div class="install-card-top">
+            <div class="install-identity">
+              <div class="install-logo-stack" aria-hidden="true">
+                <span class="install-logo-tile"><img src="logos/grok.svg" alt="" class="logo-mono"></span>
+                <span class="install-logo-tile"><img src="logos/cursor.svg" alt="" class="logo-mono"></span>
+              </div>
+              <div>
+                <h3 data-en="4. Grok Bot &amp; Cursor">4. Grok Bot 与 Cursor</h3>
+                <p data-en="Send the prompt below to Grok Bot; for Cursor, use the general command above or clone into ~/.cursor/plugins/local/geogebra-studio (or skills/geogebra-studio/ into ~/.cursor/skills/).">Grok Bot 可直接发送下方指令安装；Cursor 可用上方通用命令，或将仓库克隆至 ~/.cursor/plugins/local/geogebra-studio。</p>
+              </div>
+            </div>
+            <span class="client-tags">Grok Bot · Cursor</span>
+          </div>
+          <div class="command-box">
+            <code id="cmd-grok" data-en="Install the geogebra-studio skill from https://github.com/YZDame/GeoGebra-Studio">从 https://github.com/YZDame/GeoGebra-Studio 安装 geogebra-studio 技能</code>
+            <button type="button" data-copy="cmd-grok" aria-label="复制 Grok Bot 安装提示词" data-en-label="Copy Grok Bot install prompt" hidden>
+              <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+            </button>
+          </div>
+        </article>
+      </div>
+
       <p class="sr-only" role="status" id="copy-status"></p>
     </section>
 
-    <section class="usage" id="usage" aria-labelledby="usage-title">
-      <h2 id="usage-title" data-en="How to use">使用方法</h2>
-      <p class="requirements" data-en="After installing, ask your AI to draw, or send a problem document or reference image. For example:">安装后，直接向 AI 提出作图需求，或上传题目文档、参考图。例如：</p>
-      <div class="command">
-        <code id="cmd-prompt" data-en="Draw a triangle and its circumcircle. Let me drag the vertices.">画一个三角形和它的外接圆，顶点可以拖动。</code>
-        <button type="button" data-copy="cmd-prompt" aria-label="复制示例提示词" data-en-label="Copy sample prompt" hidden>
-          <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
-        </button>
+    <!-- Usage Section -->
+    <section class="container section-block" id="usage" aria-labelledby="usage-title">
+      <div class="section-intro">
+        <h2 id="usage-title" class="section-heading" data-en="How it works">使用方法</h2>
+        <p class="section-meta" data-en="Ask your AI to draw directly, or upload a geometry problem PDF or screenshot.">安装后直接向 AI 描述作图需求，或上传题目文档与参考截图。例如：</p>
       </div>
-      <p class="usage-note" data-en="Open the generated page to drag points and adjust values, or ask AI for further changes. Download the current HTML or GGB before closing or refreshing to save your edits.">打开生成的页面即可拖动点、调整数值，也可以继续让 AI 修改。关闭或刷新前，请下载当前 HTML 或 GGB 保存修改。</p>
-    </section>
 
-    <section class="demo" aria-labelledby="demo-title">
-      <h2 id="demo-title" data-en="Video demo">视频演示</h2>
-      <iframe class="demo-player" src="https://www.youtube-nocookie.com/embed/3-r2BwuJ3X8"
-        title="GeoGebra Studio demo on YouTube" loading="lazy"
-        allow="encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>
-      <a href="https://youtu.be/3-r2BwuJ3X8" data-en="Watch on YouTube">在 YouTube 上观看</a>
-    </section>
-
-    <section class="examples" id="examples" aria-labelledby="examples-title">
-      <h2 id="examples-title" data-en="Examples">示例</h2>
-      <div class="example-groups">
-        <div>
-          <h3 data-en="2D">平面</h3>
-          <ul>
-            <li id="figure"><a href="figures/napoleon.html">
-              <span data-en="Napoleon’s theorem">拿破仑定理</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/nine-point-circle.html">
-              <span data-en="Nine-point circle">九点圆</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/cycloid.html">
-              <span data-en="Cycloid">钟摆线</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/spirograph.html">
-              <span data-en="Spirograph">万花尺</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/fourier-square-wave.html">
-              <span data-en="Fourier approximation of a square wave">傅里叶级数逼近方波</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/pascal-theorem.html">
-              <span data-en="Pascal’s theorem">帕斯卡定理</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/mandelbrot.html">
-              <span data-en="Mandelbrot set">曼德博集合</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/golden-spiral-sunflower.html">
-              <span data-en="Golden spiral and sunflower">黄金螺线与葵花子排布</span><span aria-hidden="true">→</span>
-            </a></li>
-          </ul>
+      <div class="usage-panel">
+        <div class="command-box command-prompt">
+          <code id="cmd-prompt" data-en="Draw a triangle and its circumcircle. Let me drag the vertices.">画一个三角形和它的外接圆，顶点可以拖动。</code>
+          <button type="button" data-copy="cmd-prompt" aria-label="复制示例提示词" data-en-label="Copy sample prompt" hidden>
+            <svg class="icon" aria-hidden="true"><use href="icons.svg#copy"></use></svg>
+          </button>
         </div>
-        <div>
-          <h3 data-en="3D">三维</h3>
-          <ul>
-            <li id="hyper"><a href="figures/hyperboloid-ruled.html">
-              <span data-en="Ruled hyperboloid">单叶双曲面</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/mobius-strip.html">
-              <span data-en="Möbius strip">莫比乌斯带</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/klein-bottle.html">
-              <span data-en="Klein bottle">克莱因瓶</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/torus-knot.html">
-              <span data-en="T(p,q) torus knot">PQ 环面结</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/helicoid.html">
-              <span data-en="Minimal surface: helicoid">极小曲面：正螺旋面</span><span aria-hidden="true">→</span>
-            </a></li>
-            <li><a href="figures/lorenz-attractor.html">
-              <span data-en="Lorenz attractor">洛伦兹吸引子</span><span aria-hidden="true">→</span>
-            </a></li>
-          </ul>
+
+        <div class="usage-steps">
+          <div class="usage-step">
+            <span class="step-num">01</span>
+            <div>
+              <h3 data-en="Describe or upload">描述或上传题目</h3>
+              <p data-en="Send a geometry prompt, PDF, or problem screenshot in any supported client.">在任意支持的 AI 客户端输入描述，或上传题目 PDF 与截图。</p>
+            </div>
+          </div>
+          <div class="usage-step">
+            <span class="step-num">02</span>
+            <div>
+              <h3 data-en="Drag and refine">拖动点与继续修改</h3>
+              <p data-en="Open the generated HTML to drag points and adjust sliders, or ask AI to iterate.">打开生成的 HTML 即可拖动点和调整参数，也能继续让 AI 迭代修改。</p>
+            </div>
+          </div>
+          <div class="usage-step">
+            <span class="step-num">03</span>
+            <div>
+              <h3 data-en="Save &amp; export">保存与多格式导出</h3>
+              <p data-en="Download the updated HTML or GGB before closing, or export PNG, SVG, PDF, and cleaned TikZ.">关闭前可下载修改后的 HTML 或 GGB，或一键导出 PNG、SVG、PDF 与 TikZ。</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- Video Demo Section -->
+    <section class="container section-block" id="demo" aria-labelledby="demo-title">
+      <div class="section-intro">
+        <div class="section-title-row">
+          <h2 id="demo-title" class="section-heading" data-en="Video demo">视频演示</h2>
+          <a class="meta-pill" href="https://youtu.be/3-r2BwuJ3X8" target="_blank" rel="noopener noreferrer">
+            <span data-en="Watch on YouTube">在 YouTube 上观看</span>
+            <svg class="icon-xs" aria-hidden="true"><use href="icons.svg#arrow-up-right"></use></svg>
+          </a>
+        </div>
+        <p class="section-meta" data-en="Watch an AI agent generate, interactively refine, and export a GeoGebra figure.">观看 AI Agent 如何从零生成、交互式修改并导出 GeoGebra 图形页面。</p>
+      </div>
+
+      <div class="demo-mat">
+        <div class="demo-frame">
+          <iframe class="demo-player" src="https://www.youtube-nocookie.com/embed/3-r2BwuJ3X8"
+            title="GeoGebra Studio demo on YouTube" loading="lazy"
+            allow="encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Examples (Simplified text-link lists) -->
+    <section class="container section-block" id="examples" aria-labelledby="examples-title">
+      <div class="section-intro">
+        <h2 id="examples-title" class="section-heading" data-en="Interactive examples">在线示例</h2>
+        <p class="section-meta" data-en="Open any construction directly in your browser — no installation required.">无需安装，点击任意条目即可在浏览器中直接体验完整 GeoGebra Classic 交互画布。</p>
+      </div>
+
+      <div class="example-columns">
+        <div class="bento-card example-group">
+          <div class="example-group-header">
+            <h3 data-en="2D Constructions">平面 · 2D</h3>
+            <span class="group-count">8</span>
+          </div>
+          <ul class="example-list">
+            <li id="figure"><a href="figures/napoleon.html"><span data-en="Napoleon’s theorem">拿破仑定理</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/nine-point-circle.html"><span data-en="Nine-point circle">九点圆</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/cycloid.html"><span data-en="Cycloid">钟摆线</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/spirograph.html"><span data-en="Spirograph">万花尺</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/fourier-square-wave.html"><span data-en="Fourier square wave">傅里叶级数逼近方波</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/pascal-theorem.html"><span data-en="Pascal’s theorem">帕斯卡定理</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/mandelbrot.html"><span data-en="Mandelbrot set">曼德博集合</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/golden-spiral-sunflower.html"><span data-en="Golden spiral &amp; sunflower">黄金螺线与葵花子</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+          </ul>
+        </div>
+
+        <div class="bento-card example-group">
+          <div class="example-group-header">
+            <h3 data-en="3D Surfaces &amp; Solids">三维 · 3D</h3>
+            <span class="group-count">6</span>
+          </div>
+          <ul class="example-list">
+            <li id="hyper"><a href="figures/hyperboloid-ruled.html"><span data-en="Ruled hyperboloid">单叶双曲面</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/mobius-strip.html"><span data-en="Möbius strip">莫比乌斯带</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/klein-bottle.html"><span data-en="Klein bottle">克莱因瓶</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/torus-knot.html"><span data-en="T(p,q) torus knot">PQ 环面结</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/helicoid.html"><span data-en="Helicoid">正螺旋面</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+            <li><a href="figures/lorenz-attractor.html"><span data-en="Lorenz attractor">洛伦兹吸引子</span><span class="example-arrow" aria-hidden="true">→</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="#top">
+            <span class="brand-mark">
+              <img src="geogebra-icon.png" width="22" height="22" alt="">
+            </span>
+            <span class="brand-name">GeoGebra Studio</span>
+          </a>
+          <p class="footer-disclaimer" data-en="An independent project. Not affiliated with GeoGebra.">独立项目，不是 GeoGebra 官方产品，与 GeoGebra 无隶属关系。</p>
+          <p class="footer-copy">© 2026 YZDame · GeoGebra Studio</p>
+        </div>
+
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h2 data-en="Project">项目</h2>
+            <ul>
+              <li><a href="#install" data-en="Installation">安装指南</a></li>
+              <li><a href="#usage" data-en="How it works">使用方法</a></li>
+              <li><a href="#examples" data-en="Examples">在线示例</a></li>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" data-en="Changelog">更新日志</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h2 data-en="Documentation">文档</h2>
+            <ul>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio#readme" target="_blank" rel="noopener noreferrer">README (EN)</a></li>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/README.zh-CN.md" target="_blank" rel="noopener noreferrer">简体中文说明</a></li>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/skills/geogebra-studio/SKILL.md" target="_blank" rel="noopener noreferrer">SKILL.md</a></li>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" data-en="Contributing">参与贡献</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h2 data-en="Community &amp; Legal">社区与许可</h2>
+            <ul>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+              <li><a href="https://x.com/leyudame" target="_blank" rel="noopener noreferrer">X (@leyudame)</a></li>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">GPL-2.0-or-later</a></li>
+              <li><a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener noreferrer" data-en="Third-party notices">第三方声明</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
   </main>
-
-  <footer class="wrap footer">
-    <p data-en="An independent project. Not affiliated with GeoGebra.">独立项目，与 GeoGebra 官方无隶属关系。</p>
-    <div>
-      <a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/LICENSE">GPL-2.0-or-later</a>
-      <a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/LICENSE-MIT" data-en="Original MIT license">原 MIT 声明</a>
-      <a href="https://github.com/YZDame/GeoGebra-Studio/blob/main/THIRD_PARTY_NOTICES.md" data-en="Third-party notices">第三方声明</a>
-    </div>
-  </footer>
 </body>
 </html>
