@@ -10,7 +10,7 @@ import { Readable } from 'node:stream'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { basename, dirname, isAbsolute, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import vm from 'node:vm'
 
@@ -143,9 +143,32 @@ check('registers the report bridge', routes.has('/dsh-geogebra-studio/report'))
 // ------------------------------------------------------------------- skill
 check('registers one runtime skill', skills.length === 1, String(skills.length))
 const skill = skills[0]
+const bundledSkillFile = join(root, 'skills', 'geogebra-studio', 'SKILL.md')
+let bundledSkillBody = ''
+if (typeof skill?.path === 'string' && skill.path === bundledSkillFile && existsSync(skill.path)) {
+  bundledSkillBody = (await readFile(skill.path, 'utf8')).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '')
+}
 check('skill name', skill?.name === 'geogebra-studio', skill?.name)
 check('skill content', typeof skill?.content === 'string' && skill.content.includes('# GeoGebra Studio') && !skill.content.startsWith('---'))
-check('skill resolves its resource base', skill?.resourceBase?.kind === 'directory' && existsSync(join(skill.resourceBase.path, 'references', 'construction.md')))
+check(
+  'skill path is the bundled SKILL.md that supplied its body',
+  typeof skill?.path === 'string'
+    && isAbsolute(skill.path)
+    && basename(skill.path) === 'SKILL.md'
+    && skill.path === bundledSkillFile
+    && bundledSkillBody === skill.content
+    && bundledSkillBody.includes('# GeoGebra Studio'),
+  String(skill?.path),
+)
+check(
+  'skill resolves its resource base',
+  skill?.resourceBase?.kind === 'directory'
+    && typeof skill?.path === 'string'
+    && skill.resourceBase.path === dirname(skill.path)
+    && existsSync(join(skill.resourceBase.path, 'references', 'construction.md')),
+  skill?.resourceBase?.path,
+)
+check('skill source stays runtime', skill?.source === 'runtime', String(skill?.source))
 check('skill documents the right canvas', skill?.content.includes('right sidebar') && skill?.content.includes('geogebra_build'))
 check('skill no longer sends users to a preview first', !skill?.content.includes('Put the returned URL first'))
 
