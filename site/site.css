@@ -1030,6 +1030,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .install-card-featured,
   .install-plugin-group { grid-column: auto; }
   .install-card-top { flex-wrap: wrap; }
+  .client-tags { max-width: 100%; white-space: normal; }
   .footer-cols { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
 }
 
